@@ -117,9 +117,10 @@ const R11KIT = (function () {
       grain(g, w, h, 2500, 0.12, r);
       const s = g.createRadialGradient(w * .7, h * .8, 4, w * .7, h * .8, 120); s.addColorStop(0, 'rgba(60,40,20,.25)'); s.addColorStop(1, 'rgba(60,40,20,0)'); g.fillStyle = s; g.fillRect(0, 0, w, h);
     });
-    M.canvasCream = new THREE.MeshStandardMaterial({ map: cloth('#c9b894', null), roughness: 0.95, side: THREE.DoubleSide });
-    M.canvasStripe = new THREE.MeshStandardMaterial({ map: cloth('#c9b894', '#6e3a2a'), roughness: 0.95, side: THREE.DoubleSide });
-    M.canvasGreen = new THREE.MeshStandardMaterial({ map: cloth('#7f8460', null), roughness: 0.95, side: THREE.DoubleSide });
+    // awnings "the colour of old wine and old moss" (calendar11's Massday market line)
+    M.canvasCream = new THREE.MeshStandardMaterial({ map: cloth('#6b3a3c', null), roughness: 0.95, side: THREE.DoubleSide });
+    M.canvasStripe = new THREE.MeshStandardMaterial({ map: cloth('#646a42', '#5c2f33'), roughness: 0.95, side: THREE.DoubleSide });
+    M.canvasGreen = new THREE.MeshStandardMaterial({ map: cloth('#5f6840', null), roughness: 0.95, side: THREE.DoubleSide });
     M.sign = new THREE.MeshStandardMaterial({ map: signTex(THREE, r), roughness: 0.75, metalness: 0.05 });
     M.notices = new THREE.MeshStandardMaterial({ map: noticeTex(THREE, r), roughness: 0.92, alphaTest: 0.5, side: THREE.DoubleSide });
     M.seal = new THREE.MeshStandardMaterial({ map: sealTex(THREE), color: 0xffffff, roughness: 0.15, metalness: 0.1, emissive: 0x0d2a14, emissiveIntensity: 0.6 });
