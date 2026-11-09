@@ -2,6 +2,12 @@
 
 The hero square (9 Nov 2026, repo Echoes-Of-The-Shattered-Octave-3D, branch `claude/r11-phase2`). Three teams: LOOK (light, colour, wet cobbles, the bench camera, the art bible), SQUARE (Oakhaven's square dressed to picture 1's density), HANDS (the first-person sword, gloved fist, glass arm and the other weapons). No new player-facing strings this phase. Everything below is lore-bearing art. Anything invented is marked **[PROPOSED]** for the author's ruling; the rest is checked against the books, the Library of the Reach or the game's own text.
 
+**Owner's rulings (9 Nov 2026):**
+- The cobbles are wet only when it rains (rain or storm); dry otherwise and indoors. Done in r11core (phase 2 branch).
+- The Chapel stays where the map has it (the east district); the bench camera keeps its framing without the Chapel.
+- The Phone draw budget may run a little over 200.
+- The [PROPOSED] items below are listed for the owner's review; nothing ruled yet.
+
 Checked by the Commander:
 - The iron-oaks' autumn leaves are "a kind of rust-pink, like a stain that has been scrubbed" (Book One, ch. 1, "The Tending Note"); the iron-oaks stand in the square ("Outside, in the square, the iron-oaks began to ring").
 - The Chapel steps: "eleven of them, out of the best seam the quarry ever gave" (Library of the Reach, "Stone, Then Glass"); the hare-shaped flaw on the third step from the top follows that story, whose own canon notes mark it [PROPOSED].
