@@ -33,9 +33,9 @@ const R11KIT = (function () {
   const T3 = (ctx) => (ctx && ctx.THREE) || (window.R11 && window.R11.THREE) || (window.R11THREE && window.R11THREE.THREE) || null;
   const addons = () => window.R11THREE || {};
   const TIERS = {
-    ultra: { leaves: 1100, ground: 2600, forest: 1100, props: 1, shadowSmall: true, puddle: 1, seg: 150 },
-    high: { leaves: 700, ground: 1600, forest: 700, props: 1, shadowSmall: true, puddle: 1, seg: 120 },
-    phone: { leaves: 260, ground: 600, forest: 320, props: 0.5, shadowSmall: false, puddle: 0.6, seg: 80 },
+    ultra: { leaves: 1500, ground: 2600, forest: 1600, props: 1, shadowSmall: true, puddle: 1, seg: 150 },
+    high: { leaves: 1000, ground: 1600, forest: 1100, props: 1, shadowSmall: true, puddle: 1, seg: 120 },
+    phone: { leaves: 380, ground: 600, forest: 500, props: 0.5, shadowSmall: false, puddle: 0.6, seg: 80 },
   };
   const tierOf = (n) => TIERS[n] ? n : 'high';
   const mulberry = (a) => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -72,13 +72,14 @@ const R11KIT = (function () {
     if (MATS && MATS_T === THREE && MATS._viaCtx === !!(ctx && ctx.mat)) return MATS;
     const r = mulberry(419), M = {};
     M._viaCtx = !!(ctx && ctx.mat);
-    M.stone = scanned(THREE, ctx, 'rustic_stone_wall', { color: 0xcfc6b8 });
-    M.plaster = scanned(THREE, ctx, 'grey_plaster_02', { color: 0xf4ead4 });
+    const tinted = (m) => { m = m.clone(); m.vertexColors = true; return m; };   // a copy: CORE's cached material stays as it is
+    M.stone = tinted(scanned(THREE, ctx, 'rustic_stone_wall', { color: 0xcfc6b8 }));
+    M.plaster = tinted(scanned(THREE, ctx, 'grey_plaster_02', { color: 0xf4ead4 }));
     M.timber = scanned(THREE, ctx, 'medieval_wood', { color: 0x5e4a3a });
     M.slate = scanned(THREE, ctx, 'roof_slates_02', { color: 0x8c9298, ns: 1.2 });
     M.chapel = scanned(THREE, ctx, 'castle_wall_slates', { color: 0xd2d2ce });
     M.ashlar = scanned(THREE, ctx, 'large_sandstone_blocks_01', { color: 0xe8decb });
-    M.boards = scanned(THREE, ctx, 'weathered_planks', { color: 0xb8a288 });
+    M.boards = tinted(scanned(THREE, ctx, 'weathered_planks', { color: 0xb8a288 }));
     M.bark = scanned(THREE, ctx, 'bark_brown_02', { color: 0x6e6258, ns: 1.6 });
     M.iron = new THREE.MeshStandardMaterial({ color: 0x2b2c2e, roughness: 0.55, metalness: 0.85 });
     M.glassDark = new THREE.MeshStandardMaterial({ color: 0x15191c, roughness: 0.08, metalness: 0.0, envMapIntensity: 1.3 });
@@ -168,7 +169,7 @@ const R11KIT = (function () {
   }
   function leafTex(THREE, r) {
     return canvasTex(THREE, 256, 256, (g, w, h) => {
-      const cols = ['#b8862a', '#c99a32', '#9a5a1a', '#d6b048', '#7d6a24', '#a87a24', '#6e6a2a', '#c48a2a', '#5f6a2c'];
+      const cols = ['#f2e2b0', '#e6d29c', '#d8c48c', '#fff0c4', '#cbb47e', '#e0cc98', '#bfa874', '#f6e8bc', '#d2bc88'];
       for (let i = 0; i < 70; i++) {
         const a = r() * PI * 2, rr = Math.sqrt(r()) * 110, x = w / 2 + Math.cos(a) * rr, y = h / 2 + Math.sin(a) * rr;
         g.save(); g.translate(x, y); g.rotate(r() * PI * 2); g.fillStyle = cols[(r() * cols.length) | 0];
@@ -275,11 +276,12 @@ const R11KIT = (function () {
   }
 
   // ======================================================================== the builder: merged pieces by material, instanced boxes
+  const TINTED = new Set(['plaster', 'stone', 'boards']);   // merged with a per-lot tint in their vertex colours
   function Builder(THREE, M) {
     const merged = new Map(), inst = new Map(), boxes = [];
     const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _e = new THREE.Euler(), _v = new THREE.Vector3(), _s = new THREE.Vector3();
     const B = {
-      THREE, M, cat: 'bldg', boxes, shadowOff: new Set(),
+      THREE, M, cat: 'bldg', boxes, shadowOff: new Set(), tint: null,
       rec(x0, y0, z0, x1, y1, z1) { if (S.debug) boxes.push([B.cat, x0, y0, z0, x1, y1, z1]); },
       // a piece of geometry, transformed into the metres frame, merged with everything else of its material
       put(key, geo, x, y, z, ry, rx, rz) {
@@ -287,6 +289,7 @@ const R11KIT = (function () {
         if (geo.index) geo = geo.toNonIndexed();
         if (!geo.attributes.uv) worldUV(THREE, geo, 2);
         for (const k of Object.keys(geo.attributes)) if (k !== 'position' && k !== 'normal' && k !== 'uv') geo.deleteAttribute(k);
+        if (TINTED.has(key)) { const t = B.tint || [1, 1, 1], n = geo.attributes.position.count, a = new Float32Array(n * 3); for (let i = 0; i < n; i++) { a[i * 3] = t[0]; a[i * 3 + 1] = t[1]; a[i * 3 + 2] = t[2]; } geo.setAttribute('color', new THREE.BufferAttribute(a, 3)); }
         if (!merged.has(key)) merged.set(key, []);
         merged.get(key).push(geo);
         if (S.debug) { geo.computeBoundingBox(); const b = geo.boundingBox; B.rec(b.min.x, b.min.y, b.min.z, b.max.x, b.max.y, b.max.z); }
@@ -408,13 +411,18 @@ const R11KIT = (function () {
   // the parts of one timber-framed house on a lot (lot-local: x along its street face, +z out to the street)
   function houseLot(B, f, w, d, o) {
     const THREE = B.THREE, r = o.rnd, G = WALLM(), UP = 2.7, jet = o.jet == null ? 0.3 : o.jet, nf = o.nf, shed = o.style === 'shed';
-    const E = o.exp, u0 = r() * 7, v0 = r() * 7;
+    const E = o.exp, u0 = r() * 7, v0 = r() * 7, vt = shed ? 'shed' : (o.variant || 'timber'), stoneUp = vt === 'stone';
     const sides = [['f', 0, w, d / 2], ['r', PI / 2, d, w / 2], ['b', PI, w, d / 2], ['l', -PI / 2, d, w / 2]];
+    const PL = [[1, 0.97, 0.9], [0.99, 0.9, 0.74], [0.94, 0.92, 0.88], [0.97, 0.87, 0.79], [0.9, 0.88, 0.78], [1, 0.95, 0.82]];
+    const ST = [[1, 1, 1], [0.9, 0.89, 0.86], [1, 0.95, 0.88], [0.86, 0.84, 0.8]], BD = [[1, 1, 1], [0.84, 0.8, 0.76], [1, 0.93, 0.84]];
+    const tPl = PL[(r() * PL.length) | 0], tSt = ST[(r() * ST.length) | 0], tBd = BD[(r() * BD.length) | 0];
+    const T = (key) => { B.tint = key === 'plaster' ? tPl : key === 'stone' ? tSt : key === 'boards' ? tBd : null; return key; };
     // ---- ground floor: stone (houses) or a stone plinth with boards over it (sheds, barns)
     if (shed) {
-      f.part('stone', worldUV(THREE, new THREE.BoxGeometry(w, 0.6, d), 2.4, u0, v0), 0, 0.3, 0);
-      f.part('boards', worldUV(THREE, new THREE.BoxGeometry(w - 0.06, G - 0.6, d - 0.06), 2.2, u0, v0), 0, 0.6 + (G - 0.6) / 2, 0);
-    } else f.part('stone', worldUV(THREE, new THREE.BoxGeometry(w, G, d), 2.4, u0, v0), 0, G / 2, 0);
+      f.part(T('stone'), worldUV(THREE, new THREE.BoxGeometry(w, 0.6, d), 2.4, u0, v0), 0, 0.3, 0);
+      f.part(T('boards'), worldUV(THREE, new THREE.BoxGeometry(w - 0.06, G - 0.6, d - 0.06), 2.2, u0, v0), 0, 0.6 + (G - 0.6) / 2, 0);
+    } else f.part(T('stone'), worldUV(THREE, new THREE.BoxGeometry(w, G, d), 2.4, u0, v0), 0, G / 2, 0);
+    B.tint = null;
     for (const [s, a, along, out] of sides) {
       if (!E[s]) continue;
       const sf = f.sub(0, 0, a);
@@ -437,15 +445,23 @@ const R11KIT = (function () {
     // ---- upper floors
     let y = G, Wk = w, Dk = d, ox = 0, oz = 0;
     for (let k = 1; k <= nf; k++) {
-      const jf = E.f && !shed ? jet * k : 0, jb = E.b && !shed ? jet * k : 0, jl = E.l && !shed ? jet * k : 0, jr = E.r && !shed ? jet * k : 0;
+      const J = !shed && !stoneUp, jf = E.f && J ? jet * k : 0, jb = E.b && J ? jet * k : 0, jl = E.l && J ? jet * k : 0, jr = E.r && J ? jet * k : 0;
       Wk = w + jl + jr; Dk = d + jf + jb; ox = (jr - jl) / 2; oz = (jf - jb) / 2;
-      f.part(shed ? 'boards' : 'plaster', worldUV(THREE, new THREE.BoxGeometry(Wk, UP, Dk), 2.2, u0, v0), ox, y + UP / 2, oz);
+      f.part(T(shed ? 'boards' : stoneUp ? 'stone' : 'plaster'), worldUV(THREE, new THREE.BoxGeometry(Wk, UP, Dk), stoneUp ? 2.4 : 2.2, u0, v0), ox, y + UP / 2, oz);
+      B.tint = null;
       for (const [s, a, , ] of sides) {
         if (!E[s]) continue;
         const along = (s === 'f' || s === 'b') ? Wk : Dk, out = (s === 'f' || s === 'b') ? Dk / 2 : Wk / 2, j = s === 'f' ? jf : s === 'b' ? jb : s === 'l' ? jl : jr;
         const sf = f.sub(ox, oz, a);
         if (shed) {   // a loft: boards, a hatch or a small window
           if (r() < 0.6) windowAt(B, sf, (r() - .5) * along * 0.5, y + 1.3, out, 0.8, 0.8, r, o.lit, true);
+          continue;
+        }
+        if (vt !== 'timber') {   // a rendered or a stone upper storey: a string course and plain windows
+          if (vt === 'render') { sf.ibox('timber', along + 0.04, 0.2, 0.12, 0, y + 0.1, out + 0.04); if (j > 0) for (let x = -along / 2 + 0.35; x <= along / 2 - 0.2; x += 1.6) sf.ibox('timber', 0.18, 0.22, j + 0.18, x, y + 0.08, out - j / 2 - 0.09); }
+          else sf.ibox('ashlarTrim', along + 0.1, 0.18, 0.14, 0, y + 0.05, out + 0.04);
+          const nw = Math.max(1, Math.floor(along / 2.6));
+          for (let i = 0; i < nw; i++) if (s === 'f' || s === 'b' || r() < 0.4) windowAt(B, sf, -along / 2 + along * (i + 0.5) / nw, y + UP * 0.6, out + 0.02, 0.85, 1.1, r, o.lit, false);
           continue;
         }
         // jetty: corbels under the overhang, sill beam, top plate, rail
@@ -474,12 +490,14 @@ const R11KIT = (function () {
     const span = ridgeZ ? Wk : Dk, len = ridgeZ ? Dk : Wk, rh = o.roofH || span * (shed ? 0.5 : 0.62), ov = 0.38;
     const rot = ridgeZ ? PI / 2 : 0;
     f.part('slate', worldUV(THREE, gableRoof(THREE, len + 0.02, span, rh, ov), 2.2, u0, v0), ox, y, oz, rot);
-    f.part(shed ? 'boards' : 'plaster', worldUV(THREE, gableEnds(THREE, len, span, rh), 2.0, u0, v0), ox, y, oz, rot);
+    f.part(T(shed ? 'boards' : stoneUp ? 'stone' : 'plaster'), worldUV(THREE, gableEnds(THREE, len, span, rh), 2.0, u0, v0), ox, y, oz, rot);
+    B.tint = null;
     // timbers in an exposed gable: tie beam, king post, collar
     const gableSides = ridgeZ ? [['f', 0, Dk / 2], ['b', PI, Dk / 2]] : [['r', PI / 2, Wk / 2], ['l', -PI / 2, Wk / 2]];
     for (const [s, a, out] of gableSides) {
       if (!E[s] || shed) continue;
       const sf = f.sub(ox, oz, a);
+      if (vt !== 'timber') { if (r() < 0.6) windowAt(B, sf, 0, y + rh * 0.3, out + 0.02, 0.6, 0.7, r, o.lit, false, true); continue; }
       sf.ibox('timber', span, 0.18, 0.14, 0, y + 0.09, out + 0.05);
       sf.ibox('timber', 0.16, rh * 0.86, 0.12, 0, y + rh * 0.43, out + 0.04);
       sf.ibox('timber', span * 0.5, 0.13, 0.11, 0, y + rh * 0.5, out + 0.04);
@@ -517,6 +535,7 @@ const R11KIT = (function () {
   // a door at the face (out), centred at x: jambs, lintel, plank leaf, straps and ring, a step
   function doorAt(B, sf, x, out, style, r) {
     const THREE = B.THREE, barn = style === 'barn', w = barn ? 2.6 : 1.25, h = barn ? 2.9 : 2.3;
+    DOORS.push(sf.at(x, out + 0.05));
     sf.ibox('timber', 0.2, h + 0.1, 0.24, x - w / 2 - 0.1, (h + 0.1) / 2, out + 0.07);
     sf.ibox('timber', 0.2, h + 0.1, 0.24, x + w / 2 + 0.1, (h + 0.1) / 2, out + 0.07);
     sf.ibox('timber', w + 0.6, 0.24, 0.26, x, h + 0.12, out + 0.08);
@@ -562,7 +581,8 @@ const R11KIT = (function () {
         const lf = f.sub(lx, lz, flip ? PI : 0);
         const hasDoor = doors.f.length + doors.b.length + doors.l.length + doors.r.length > 0;
         const nf = o.nf != null ? o.nf : (shed ? (r() < 0.6 ? 1 : 0) : (hasDoor && o.style === 'inn' ? 2 : (r() < 0.45 ? 2 : 1)));
-        const info = houseLot(B, lf, w - 0.005, row.d - 0.005, Object.assign({}, o, { exp, doors, nf, rnd: r, grime: o.grime && (exp.f || exp.b || exp.l || exp.r) }));
+        const v = r(), variant = (o.style === 'inn' && hasDoor) ? 'timber' : v < 0.58 ? 'timber' : v < 0.85 ? 'render' : 'stone';
+        const info = houseLot(B, lf, w - 0.005, row.d - 0.005, Object.assign({}, o, { exp, doors, nf, variant, rnd: r, grime: o.grime && (exp.f || exp.b || exp.l || exp.r) }));
         res.push({ lf, w, d: row.d, exp, doors, info, lx, lz, flip });
       });
     }
@@ -586,7 +606,7 @@ const R11KIT = (function () {
     for (const k of [-1, 1]) f.part(C, worldUV(THREE, new THREE.BoxGeometry(0.4, 4.6, PD), 2.6), px + k * (pw / 2 + 0.2), 2.3, pz + PD / 2);
     f.part(C, worldUV(THREE, new THREE.BoxGeometry(pw + 0.8, 0.4, PD), 2.6), px, 4.5, pz + PD / 2);
     for (let i = 0; i < 3; i++) f.part(C, worldUV(THREE, new THREE.BoxGeometry(pw, 0.15 * (i + 1), 0.6), 1.6), px, 0.075 * (i + 1), pz + 0.3 + (2 - i) * 0.6);
-    const dshape = archShape(THREE, 1.9, 2.3, 3.4);
+    const dshape = archShape(THREE, 1.9, 2.3, 3.4); DOORS.push(f.at(px, pz));
     f.part('boards', worldUV(THREE, new THREE.ExtrudeGeometry(dshape, { depth: 0.1, bevelEnabled: false }), 1.1), px, 0.45, pz);
     for (const yy of [1.2, 2.6]) f.ibox('iron', 1.6, 0.07, 0.04, px, yy, pz + 0.13);
     f.ibox('iron', 0.1, 0.1, 0.05, px + 0.5, 1.6, pz + 0.14);
@@ -622,7 +642,7 @@ const R11KIT = (function () {
     // buttresses on the front corners of the nave
     for (const x of [nx0, nx1]) f.part(C, worldUV(THREE, new THREE.BoxGeometry(0.9, NH * 0.8, 0.55), 2.6), x, NH * 0.4, zf - 0.27 + 0.27);
     // the bell-tower, where the map raises it; its belfry is open to the weather and nothing hangs in it (canon)
-    const t = o.tower || { x: xn, z: -D / 4 }, TW = 8, TS = NH + 7.5, BH = 5.2;
+    const t = o.tower || { x: xn, z: -D / 4 }, TW = 8, TS = NH + 12, BH = 5.6;
     f.part(C, worldUV(THREE, new THREE.BoxGeometry(TW, TS, TW), 2.6), t.x, TS / 2, t.z);
     f.part(C, worldUV(THREE, new THREE.BoxGeometry(TW + 0.5, 0.45, TW + 0.5), 2.6), t.x, TS, t.z);
     for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) f.part(C, worldUV(THREE, new THREE.BoxGeometry(1.5, BH, 1.5), 2.6), t.x + a * (TW / 2 - 0.75), TS + BH / 2, t.z + b * (TW / 2 - 0.75));
@@ -658,7 +678,7 @@ const R11KIT = (function () {
     f.part('ashlar', worldUV(THREE, new THREE.ExtrudeGeometry(notchShape(THREE, pw + 0.8, G1, 0, pw, 2.2, 4.0, false, 0), { depth: 0.6, bevelEnabled: false }), 3.0), px, 0, zf - 0.6);
     f.part('ashlar', worldUV(THREE, new THREE.BoxGeometry(pw, 0.6, PD), 3.0), px, G1 - 0.3, pz + PD / 2);
     for (let i = 0; i < 4; i++) f.part('ashlar', worldUV(THREE, new THREE.BoxGeometry(pw, 0.16 * (i + 1), 0.55), 1.6), px, 0.08 * (i + 1), pz + 0.28 + (3 - i) * 0.55);
-    f.part('boards', worldUV(THREE, new THREE.ExtrudeGeometry(roundArch(THREE, 2.0, 2.4), { depth: 0.1, bevelEnabled: false }), 1.1), px, 0.64, pz);
+    f.part('boards', worldUV(THREE, new THREE.ExtrudeGeometry(roundArch(THREE, 2.0, 2.4), { depth: 0.1, bevelEnabled: false }), 1.1), px, 0.64, pz); DOORS.push(f.at(px, pz));
     for (const yy of [1.4, 2.7]) f.ibox('iron', 1.7, 0.07, 0.04, px, yy, pz + 0.13);
     // tall round-headed windows along the ground storey, a plinth and a string course
     const sf0 = f;
@@ -687,11 +707,17 @@ const R11KIT = (function () {
       sf.ibox('timber', along + 0.04, 0.22, 0.16, 0, G1 + G2 - 0.11, out + 0.06);
       sf.ibox('timber', along, 0.14, 0.12, 0, G1 + 1.05, out + 0.05);
       sf.ibox('timber', along, 0.14, 0.12, 0, G1 + 2.75, out + 0.05);
-      const st = 0.62, n = Math.round(along / st);
+      // close studding, with a three-light window in every fourth panel
+      const st = 0.7, n = Math.round(along / st), pw2 = along / n;
       for (let i = 0; i <= n; i++) {
-        const x = -along / 2 + along * i / n;
-        sf.ibox('timber', 0.15, G2, 0.13, x, G1 + G2 / 2, out + 0.05);
-        if (i < n && (i % 3 === 1)) sf.ibox(r() < 0.3 ? 'glassLit' : 'glassDark', along / n - 0.15, 1.55, 0.04, x + along / n / 2, G1 + 1.9, out + 0.02);
+        const x = -along / 2 + pw2 * i, win = (i % 6 === 3) && i + 2 <= n && i > 1;
+        if (!(i % 6 === 4 && i > 1 && i + 1 <= n)) sf.ibox('timber', 0.15, G2, 0.13, x, G1 + G2 / 2, out + 0.05);
+        if (win) {
+          const ww = pw2 * 2 - 0.2, cx = x + pw2;
+          sf.ibox(r() < 0.35 ? 'glassLit' : 'glassDark', ww, 1.4, 0.04, cx, G1 + 1.95, out + 0.02);
+          for (const k of [-1, 1]) sf.ibox('timber', 0.06, 1.4, 0.06, cx + k * ww / 6, G1 + 1.95, out + 0.06);
+          sf.ibox('timber', ww + 0.2, 0.12, 0.16, cx, G1 + 1.2, out + 0.07);
+        }
       }
     }
     // a hipped roof, and the dome on its drum where the map raises it
@@ -724,14 +750,13 @@ const R11KIT = (function () {
     const top = 31, b0 = Math.min(hw, hd) - 0.4, b1 = 1.0;
     for (const [ax, az] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) f.beam('timber', 0.46, ax * b0, G, az * b0, ax * b1, top, az * b1);
     const rAt = (y) => lerp(b0, b1, (y - G) / (top - G));
-    for (let y = G + 4; y < top - 1; y += 5.4) {
-      const ra = rAt(y), rb = rAt(Math.min(top, y + 5.4));
+    for (let y = G + 3.5; y < top - 1; y += 7) {
+      const ra = rAt(y), rb = rAt(Math.min(top, y + 7));
       for (let s = 0; s < 4; s++) {
         const tf = f.sub(0, 0, s * PI / 2);
-        tf.ibox('timber', 2 * ra, 0.26, 0.26, 0, y, ra);
-        const L = Math.hypot(ra + rb, 5.4) * 0.98, ang = Math.atan2(5.4, ra + rb);
-        tf.ibox('timber', L, 0.2, 0.2, 0, y + 2.7, (ra + rb) / 2 + 0.05, 0, 0, ang);
-        tf.ibox('timber', L, 0.2, 0.2, 0, y + 2.7, (ra + rb) / 2 + 0.12, 0, 0, -ang);
+        tf.ibox('timber', 2 * ra + 0.3, 0.34, 0.34, 0, y, ra);
+        tf.beam('timber', 0.26, -ra, y, ra, rb, y + 7, rb);
+        tf.beam('timber', 0.26, ra, y, ra + 0.08, -rb, y + 7, rb + 0.08);
       }
     }
     f.ibox('timber', 2.6, 0.5, 2.6, 0, top + 0.25, 0);
@@ -786,12 +811,24 @@ const R11KIT = (function () {
     // goods: fleeces and bales (the Carders' Quarter), jars, apples
     for (let i = 0; i < 6; i++) { const x = -W / 2 + 0.35 + i * (W - 0.7) / 5, g = r(); if (g < 0.4) f.ibox('goods', 0.42, 0.22, 0.32, x, 1.05, 0.1 + r() * 0.2, r(), 0, 0, 0xd9cdb0); else if (g < 0.7) for (let j = 0; j < 3; j++) f.ibox('goods', 0.1, 0.13, 0.1, x - 0.12 + j * 0.12, 1.0, 0.25, 0, 0, 0, 0xb87a24); else f.ibox('goods', 0.36, 0.14, 0.26, x, 1.01, 0.2, r(), 0, 0, 0x7a2a1a); }
   }
-  function cask(B, x, z, ry, y, upright) {   // a cooper's cask: staves on a bulge, three iron hoops
-    const THREE = B.THREE;
-    const prof = [[0, 0.01], [0.27, 0.01], [0.31, 0.2], [0.33, 0.45], [0.31, 0.7], [0.27, 0.89], [0, 0.89]].map(([r, yy]) => new THREE.Vector2(r, yy));
+  function cask(B, x, z, ry, y, how, s) {   // a cooper's cask: staves on a bulge, three iron hoops ('side': lying; 'open': no head)
+    const THREE = B.THREE; s = s || 1;
+    const open = how === 'open', side = how === 'side';
+    const prof = (open ? [[0.24, 0.86], [0.27, 0.89]] : [[0, 0.89], [0.27, 0.89]]).concat([[0.31, 0.7], [0.33, 0.45], [0.31, 0.2], [0.27, 0.01], [0, 0.01]]).reverse().map(([r, yy]) => new THREE.Vector2(r * s, yy * s));
     const g = new THREE.LatheGeometry(prof, 14); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 3, uv.getY(i) * 0.9);
-    B.put('boards', g, x, y || 0, z, ry, upright === false ? PI / 2 : 0);
-    if (upright !== false) for (const [yy, r] of [[0.12, 0.295], [0.45, 0.335], [0.78, 0.295]]) B.put('iron', new THREE.TorusGeometry(r, 0.014, 4, 18).rotateX(PI / 2), x, (y || 0) + yy, z, ry);
+    const f = B.frame(x, z, ry, y || 0), oy = side ? 0.33 * s : 0, oz = side ? -0.445 * s : 0, rx = side ? PI / 2 : 0;
+    const P = (key, geo, yy) => { if (side) f.part(key, geo, 0, oy, oz + yy, 0, rx); else f.part(key, geo, 0, yy, 0); };
+    P('boards', g, 0);
+    for (const [yy, r] of [[0.12, 0.295], [0.45, 0.335], [0.78, 0.295]]) P('iron', new THREE.TorusGeometry(r * s, 0.014, 4, 18).rotateX(PI / 2).translate(0, yy * s, 0), 0);
+    if (open) P('puddle', new THREE.CircleGeometry(0.25 * s, 14).rotateX(-PI / 2).translate(0, 0.8 * s, 0), 0);
+  }
+  function cart(B, x, z, ry, y) {   // a two-wheeled handcart, shafts down
+    const THREE = B.THREE, f = B.frame(x, z, ry, y || 0);
+    f.part('boards', worldUV(THREE, new THREE.BoxGeometry(1.3, 0.08, 2.0), 1.2), 0, 0.82, 0, 0, -0.12);
+    for (const k of [-1, 1]) { f.ibox('timber', 0.06, 0.35, 2.0, k * 0.65, 0.98, 0, 0, -0.12); f.ibox('timber', 0.08, 0.08, 2.0, k * 0.45, 0.62, 1.6, 0, 0.32); }
+    f.ibox('timber', 1.3, 0.35, 0.06, 0, 0.98, -1.0, 0, -0.12);
+    for (const k of [-1, 1]) { f.part('timber', new THREE.TorusGeometry(0.48, 0.05, 6, 16).rotateY(PI / 2), k * 0.78, 0.5, -0.2); f.ibox('timber', 0.05, 0.92, 0.06, k * 0.78, 0.5, -0.2); f.ibox('timber', 0.05, 0.06, 0.92, k * 0.78, 0.5, -0.2); }
+    f.ibox('iron', 1.6, 0.05, 0.05, 0, 0.5, -0.2);
   }
 
   // ======================================================================== the oak: tapered branches, leaf cards (the map's "iron-bark oaks")
@@ -803,6 +840,7 @@ const R11KIT = (function () {
       const pts = [p.clone()]; let q = p.clone(); const d = dir.clone();
       for (let i = 0; i < 4; i++) { d.add(new THREE.Vector3((r() - .5) * .35, (r() - .35) * .2, (r() - .5) * .35)).normalize(); q = q.clone().addScaledVector(d, len / 4); pts.push(q); }
       geos.push(taperedTube(THREE, pts, rad, rad * 0.62, depth > 2 ? 8 : 5));
+      if (depth <= 2) for (let i = 2; i < pts.length; i++) spots.push(pts[i].clone());
       if (depth === 0 || rad < 0.07) { spots.push(q.clone()); return; }
       const kids = depth > 2 ? 3 : 2 + (r() < .5 ? 1 : 0);
       for (let k = 0; k < kids; k++) {
@@ -873,15 +911,17 @@ const R11KIT = (function () {
       const fu = u - iu, fv = v - iv, a = H[iv * (seg + 1) + iu], b = H[iv * (seg + 1) + iu + 1], c2 = H[(iv + 1) * (seg + 1) + iu], d2 = H[(iv + 1) * (seg + 1) + iu + 1];
       return { h: lerp(lerp(a, b, fu), lerp(c2, d2, fu), fv), k: kindArr[iv * (seg + 1) + iu] };
     };
-    let n = 0;
-    for (let i = 0; i < N * 6 && n < N; i++) {
-      const x = cx + (r() - .5) * size * 0.9, z = cz + (r() - .5) * size * 0.9;
+    let n = 0, wx = 0, wz = 0, left = 0;
+    for (let i = 0; i < N * 8 && n < N; i++) {
+      if (left <= 0) { wx = cx + (r() - .5) * size * 0.9; wz = cz + (r() - .5) * size * 0.9; left = 8 + (r() * 22 | 0); }
+      left--;
+      const ra2 = Math.sqrt(r()) * 70, aa = r() * PI * 2, x = wx + Math.cos(aa) * ra2, z = wz + Math.sin(aa) * ra2;
       const dx = Math.max(-x, 0, x - X1), dz = Math.max(-z, 0, z - Z1), dd = Math.hypot(dx, dz);
       if (dd < 22 || dd > 1000) continue;
       const q = hAt(x, z); if (!q || q.k === 2 || q.k === 3) continue;
       const fx = Math.floor((x * 0.8 + z * 0.6) / 140), fz = Math.floor((-x * 0.6 + z * 0.8) / 110);
-      if (q.h < 30 && hash2(fx + 7, fz - 3) > 0.35 && dd > 60) continue;   // woods on crests and in shaws, fields below
-      const s = 3 + r() * 4; ob.position.set(x, q.h + s * 0.9, z); ob.scale.set(s, s * 1.25, s); ob.rotation.y = r() * 6; ob.updateMatrix();
+      if (q.h < 22 && hash2(fx + 7, fz - 3) > 0.45 && dd > 60) continue;   // woods on crests and in shaws, fields below
+      const s = 2.6 + r() * 3; ob.position.set(x, q.h + s * 0.9, z); ob.scale.set(s, s * 1.25, s); ob.rotation.y = r() * 6; ob.updateMatrix();
       forest.setMatrixAt(n, ob.matrix); col.setHSL(r() < .5 ? 0.07 + r() * .05 : 0.2 + r() * .08, 0.45, 0.09 + r() * .07); forest.setColorAt(n, col); n++;
     }
     forest.count = n; forest.instanceMatrix.needsUpdate = true; if (forest.instanceColor) forest.instanceColor.needsUpdate = true;
@@ -917,11 +957,12 @@ const R11KIT = (function () {
   function dressOakhaven(THREE, map, ctx, out) {
     const tierName = tierOf(ctx.tier || (window.R11 && window.R11.tier && window.R11.tier()) || 'high'), T = TIERS[tierName];
     const M = mats(THREE, ctx), B = Builder(THREE, M), C = 1 / UPM(), W = map.w;
+    const hidden = out.hiddenCells, replaced = out.replaced;
     M.chapelTrim = M.chapel; M.ashlarTrim = M.ashlar; M.shutter = M.boards;
     const metres = new THREE.Group(); metres.name = 'R11KIT:metres'; metres.scale.setScalar(UPM());
     out.group.add(metres);
     const gAt = (x, y) => { try { return (map.groundAt ? map.groundAt(x, y) : 0) * WALLM(); } catch (e) { return 0; } };
-    const landmarks = [], chimneys = [], lampsAt = [];
+    const landmarks = [], chimneys = [], lampsAt = [], chimneyAt = [], lotsAll = [];
     const blds = findBuildings(map);
     const solidEnt = (e) => e && e.kind === 'deco' && !e.hidden && !e.dead;
     // ---- buildings
@@ -977,6 +1018,7 @@ const R11KIT = (function () {
         }
         const lots = terrace(B, f, Wf, Df, o);
         out.stats.lots += lots.length;
+        lotsAll.push({ f, b, lots, cx, cz, ry, base });
         // dressing on the street faces of the lots: the inn's board, lanterns by the door, casks and crates
         for (const L of lots) {
           for (const [s, a] of [['f', 0], ['b', PI], ['r', PI / 2], ['l', -PI / 2]]) {
@@ -1016,19 +1058,33 @@ const R11KIT = (function () {
     const ents = map.entities || [];
     const oaks = [];
     for (const e of ents) {
-      if (!solidEnt(e)) continue;
+      if (!(solidEnt(e) || (e && e.kind === 'deco' && e.sprite === 'chimney'))) continue;
       const x = e.x * C, z = e.y * C, y = gAt(e.x, e.y), rr = mulberry(((e.x * 977) | 0) ^ ((e.y * 541) | 0));
-      if (e.sprite === 'oak') { oaks.push({ e, x, z, y, s: (e.scale || 1.8), seed: 1 + (((e.x * 13 + e.y * 7) | 0) % 3), rot: rr() * PI * 2 }); replaced.add(e); continue; }
+      if (/(^|_)oak(_|$)/.test(e.sprite)) { oaks.push({ e, x, z, y, s: (e.scale || 1.8), green: /green/.test(e.sprite) || !!map._greening, seed: 1 + (((e.x * 13 + e.y * 7) | 0) % 3), rot: rr() * PI * 2 }); replaced.add(e); continue; }
+      if (/^p_barrel/.test(e.sprite)) { B.cat = 'prop'; cask(B, x, z, rr() * 6, y, e.sprite === 'p_barrel_side' ? 'side' : e.sprite === 'p_barrel_open' ? 'open' : 'up', (e.scale || 0.5) / 0.5); replaced.add(e); out.stats.props++; continue; }
+      if (e.sprite === 'p_crate') { B.cat = 'prop'; crateAt(B, x, z, rr() * 6, y); replaced.add(e); out.stats.props++; continue; }
+      if (e.sprite === 'p_cart') { B.cat = 'prop'; cart(B, x, z, rr() * 6, y); replaced.add(e); out.stats.props++; continue; }
+      if (e.sprite === 'chimney' && hidden.has(Math.floor(e.y) * W + Math.floor(e.x))) { replaced.add(e); chimneyAt.push(e); continue; }
       if (e.sprite === 'lamp') { B.cat = 'prop'; lampPost(B, x, z, y, rr() * PI * 2, lampsAt, ents.length); replaced.add(e); out.stats.lamps++; continue; }
       if (e.sprite === 'table' && map.outdoor) { B.cat = 'prop'; stall(B, B.frame(x, z, PI + (rr() - .5) * 0.3, y), ['canvasCream', 'canvasStripe', 'canvasGreen'][(rr() * 3) | 0], rr); replaced.add(e); out.stats.props++; continue; }
-      if (e.sprite === 'crates' && !e.use) { B.cat = 'prop'; crateAt(B, x - 0.4, z - 0.2, rr() * 6, y); crateAt(B, x + 0.45, z + 0.25, rr() * 6, y); crateAt(B, x + 0.05, z, rr() * 6, y + 0.78); cask(B, x - 0.7, z + 0.75, 0, y); replaced.add(e); out.stats.props++; continue; }
+      if (e.sprite === 'crates' && !e.use) { B.cat = 'prop'; crateAt(B, x - 0.4, z - 0.2, rr() * 6, y); crateAt(B, x + 0.45, z + 0.25, rr() * 6, y); crateAt(B, x + 0.05, z, rr() * 6, y + 0.74); cask(B, x - 0.7, z + 0.75, 0, y, 'up'); replaced.add(e); out.stats.props++; continue; }
+    }
+    // chimney stacks where js/firesmoke.js puts its chimney smoke, up through the kit roof at that spot
+    for (const e of chimneyAt) {
+      const px = e.x * C, pz = e.y * C, L = lotsAll.find((q) => e.x >= q.b.x0 && e.x <= q.b.x1 + 1 && e.y >= q.b.y0 && e.y <= q.b.y1 + 1);
+      let top = 12, low = 3;
+      if (L) { const lx = (px - L.cx) * Math.cos(L.ry) - (pz - L.cz) * Math.sin(L.ry), lz = (px - L.cx) * Math.sin(L.ry) + (pz - L.cz) * Math.cos(L.ry); const lot = L.lots.find((q) => Math.abs(lx - q.lx) <= q.w / 2 + 0.01 && Math.abs(lz - q.lz) <= q.d / 2 + 0.01); if (lot) { top = lot.info.top + 1.3; low = lot.info.eaves; } }
+      B.cat = 'bldg'; const y0 = gAt(e.x, e.y), h = top - low;
+      B.put('stone', worldUV(THREE, new THREE.BoxGeometry(0.85, h, 0.85), 2.0), px, y0 + low + h / 2, pz);
+      B.put('stone', worldUV(THREE, new THREE.BoxGeometry(1.05, 0.16, 1.05), 2.0), px, y0 + top - 0.08, pz);
+      chimneys.push([px, y0 + top, pz]);
     }
     // oaks: three templates, instanced; leaves as instanced cards
     out.stats.oaks = oaks.length;
     if (oaks.length) {
       const byT = new Map(), ob = new THREE.Object3D(), leafM = [], colA = [];
       for (const k of oaks) {
-        const tpl = oakTemplate(THREE, k.seed), sc = k.s * 1.45;
+        const tpl = oakTemplate(THREE, k.seed), sc = k.s * 1.25;
         ob.position.set(k.x, k.y, k.z); ob.rotation.set(0, k.rot, 0); ob.scale.set(sc, sc * (0.95 + (k.seed % 2) * 0.1), sc); ob.updateMatrix();
         if (!byT.has(k.seed)) byT.set(k.seed, []); byT.get(k.seed).push(ob.matrix.clone());
         k.m = ob.matrix.clone(); k.tpl = tpl; k.sc = sc;
@@ -1040,15 +1096,17 @@ const R11KIT = (function () {
         mesh.castShadow = true; mesh.receiveShadow = true; mesh.name = 'kit:oak' + seed; metres.add(mesh);
       }
       const per = T.leaves, rL = mulberry(77), v = new THREE.Vector3(), col = new THREE.Color();
-      const card = new THREE.PlaneGeometry(1.6, 1.6);
+      const card = new THREE.PlaneGeometry(2.0, 2.0);
       const leaves = new THREE.InstancedMesh(card, M.leaves, per * oaks.length);
       let n = 0;
       for (const k of oaks) {
         for (let i = 0; i < per; i++) {
           const c = k.tpl.spots[(rL() * k.tpl.spots.length) | 0];
-          v.set(c.x + (rL() - .5) * 3.0, c.y + (rL() - .4) * 2.0, c.z + (rL() - .5) * 3.0).applyMatrix4(k.m);
-          ob.position.copy(v); ob.rotation.set(rL() * PI, rL() * PI, rL() * PI); const s = (0.7 + rL() * 0.7) * Math.sqrt(k.sc / 2.6); ob.scale.set(s, s, s); ob.updateMatrix();
-          leaves.setMatrixAt(n, ob.matrix); col.setHSL(0.09 + rL() * .05, 0.45 + rL() * 0.2, 0.36 + rL() * .2); leaves.setColorAt(n, col); n++;
+          v.set(c.x + (rL() - .5) * 2.4, c.y + (rL() - .35) * 1.8, c.z + (rL() - .5) * 2.4).applyMatrix4(k.m);
+          ob.position.copy(v); ob.rotation.set(rL() * PI, rL() * PI, rL() * PI); const s = (0.75 + rL() * 0.7) * Math.sqrt(k.sc / 2.2); ob.scale.set(s, s, s); ob.updateMatrix();
+          leaves.setMatrixAt(n, ob.matrix);
+          if (k.green) col.setHSL(0.17 + rL() * .07, 0.42 + rL() * 0.15, 0.24 + rL() * .1); else col.setHSL(0.055 + rL() * .05, 0.6 + rL() * 0.2, 0.33 + rL() * .14);
+          leaves.setColorAt(n, col); n++;
         }
       }
       leaves.count = n; leaves.instanceMatrix.needsUpdate = true; if (leaves.instanceColor) leaves.instanceColor.needsUpdate = true; leaves.computeBoundingSphere();
@@ -1057,7 +1115,7 @@ const R11KIT = (function () {
     }
     // ---- fallen leaves: thick under the oaks, a drift along the walls; puddles in the cobbles
     {
-      const NG = T.ground, flat = new THREE.PlaneGeometry(0.42, 0.42).rotateX(-PI / 2), gl = new THREE.InstancedMesh(flat, M.fallen, NG), ob = new THREE.Object3D(), rF = mulberry(9);
+      const NG = T.ground, flat = new THREE.PlaneGeometry(0.42, 0.42).rotateX(-PI / 2), gl = new THREE.InstancedMesh(flat, M.fallen, NG), ob = new THREE.Object3D(), rF = mulberry(9), cF = new THREE.Color();
       let n = 0;
       for (let i = 0; i < NG * 3 && n < NG; i++) {
         let x, z;
@@ -1065,8 +1123,9 @@ const R11KIT = (function () {
         else { x = (2 + rF() * (map.w - 4)) * C; z = (2 + rF() * (map.h - 4)) * C; }
         const cx = Math.floor(x / C), cy = Math.floor(z / C); if (cx < 0 || cy < 0 || cx >= map.w || cy >= map.h || map.cells[cy * W + cx]) continue;
         ob.position.set(x, gAt(x / C, z / C) + 0.012 + rF() * 0.008, z); ob.rotation.set(0, rF() * PI * 2, 0); const s = 0.6 + rF() * 0.9; ob.scale.set(s, 1, s); ob.updateMatrix();
-        gl.setMatrixAt(n++, ob.matrix);
+        gl.setMatrixAt(n, ob.matrix); gl.setColorAt(n, cF.setHSL(0.05 + rF() * 0.06, 0.55 + rF() * 0.2, 0.22 + rF() * 0.14)); n++;
       }
+      if (gl.instanceColor) gl.instanceColor.needsUpdate = true;
       gl.count = n; gl.instanceMatrix.needsUpdate = true; gl.computeBoundingSphere(); gl.receiveShadow = true; gl.castShadow = false; gl.name = 'kit:fallen'; gl.userData.max = n;
       metres.add(gl); out.fallen = gl;
       // puddles: in the cobbles, away from the door aprons' centre lines, more on the main road and the square
@@ -1119,22 +1178,22 @@ const R11KIT = (function () {
       }
       out.stats.draws = countDraws(out.group);
     }).catch((e) => warnOnce('props', e));
-    out._crates = CRATES.splice(0);
+    out._crates = CRATES.splice(0); out.doorsDrawn = DOORS.splice(0);
     out.boxes = B.boxes; out.landmarks = landmarks; out.chimneys = chimneys; out.tier = tierName; out.metres = metres;
     out.stats.draws = countDraws(out.group);
     if (typeof window !== 'undefined' && window.R11 && typeof window.R11.on === 'function' && !S.tierHooked) { S.tierHooked = true; try { window.R11.on('tier', (n) => setTier(n)); } catch (e) { /* none */ } }
   }
-  const CRATES = [];
+  const CRATES = [], DOORS = [];
   function crateAt(B, x, z, ry, y) { CRATES.push([x, z, ry, y || 0, 0.9 + ((x * 7 + z * 3) % 1 + 1) % 1 * 0.15]); if (S.debug) B.boxes.push([B.cat, x - 0.5, y || 0, z - 0.5, x + 0.5, (y || 0) + 0.85, z + 0.5]); }
   function innSign(B, sf, x, out) {   // a board on an iron bracket by the door, its foot well above any head
-    const THREE = B.THREE, y = 3.0, L = 1.15;
-    sf.ibox('iron', 0.06, 0.06, L, x, y + 0.02, out + L / 2);
-    sf.ibox('iron', 0.05, 0.7, 0.05, x, y - 0.3, out + 0.05);
-    sf.ibox('iron', 0.04, Math.hypot(0.6, 0.7), 0.04, x, y - 0.3, out + 0.33, 0, Math.atan2(0.6, 0.7), 0);
-    sf.ibox('timber', 0.07, 0.72, 0.98, x, y - 0.5, out + 0.63);
-    sf.part('sign', new THREE.PlaneGeometry(0.96, 0.7), x + 0.037, y - 0.5, out + 0.63, PI / 2);
-    sf.part('sign', new THREE.PlaneGeometry(0.96, 0.7), x - 0.037, y - 0.5, out + 0.63, -PI / 2);
-    for (const s of [-0.4, 0.4]) sf.ibox('iron', 0.015, 0.14, 0.015, x, y - 0.08, out + 0.63 + s);
+    const THREE = B.THREE, y = 3.24, L = 1.2, bw = 1.0, bh = 0.8, bz = out + 0.17 + bw / 2, by = y - 0.12 - 0.04 - bh / 2;
+    sf.ibox('iron', 0.06, 0.06, L, x, y, out + L / 2);
+    sf.ibox('iron', 0.05, 0.6, 0.05, x, y - 0.3, out + 0.05);
+    sf.beam('iron', 0.04, x, y - 0.6, out + 0.05, x, y - 0.02, out + 0.6);
+    sf.ibox('timber', 0.07, bh + 0.04, bw + 0.04, x, by, bz);
+    sf.part('sign', new THREE.PlaneGeometry(bw, bh), x + 0.037, by, bz, PI / 2);
+    sf.part('sign', new THREE.PlaneGeometry(bw, bh), x - 0.037, by, bz, -PI / 2);
+    for (const s of [-0.45, 0.45]) sf.ibox('iron', 0.015, 0.12, 0.015, x, y - 0.08, bz + s);
   }
   function wallLantern(B, sf, x, y, out, lampsAt, prio) {   // a hush-lamp on a hook by a door (the reed in its chimney)
     sf.ibox('iron', 0.04, 0.04, 0.32, x, y + 0.42, out + 0.16);
@@ -1201,8 +1260,9 @@ const R11KIT = (function () {
         float f = pow(1.0 - abs(dot(n, v)), 2.0);
         float spark = pow(max(0.0, dot(reflect(-v, n), normalize(vec3(-0.3, 0.8, 0.5)))), 28.0);
         float band = 0.5 + 0.5 * sin(vP.z * 70.0 + vP.y * 45.0 + vP.x * 20.0);
-        vec3 c = uDeep * (0.6 + 0.25 * band) + uRim * (f * 1.7 * uPulse) + vec3(0.9, 1.0, 1.0) * spark * 1.5;
-        gl_FragColor = vec4(c, clamp(0.26 + f * 0.8 + spark, 0.0, 1.0));
+        float edge = smoothstep(0.55, 0.95, f);
+        vec3 c = uDeep * (0.75 + 0.35 * band) + uRim * (f * 2.2 * uPulse + edge * 1.2) + vec3(0.85, 1.0, 1.0) * spark * 1.8;
+        gl_FragColor = vec4(c, clamp(0.34 + f * 0.75 + spark, 0.0, 1.0));
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }`;
@@ -1235,7 +1295,7 @@ const R11KIT = (function () {
     const palm = new THREE.BoxGeometry(0.084, 0.03, 0.09, 3, 1, 3); { const p = palm.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i); p.setY(i, p.getY(i) * (1 - 0.35 * Math.abs(x) / 0.042) + 0.004 * Math.cos(z * 20)); } }
     palm.translate(-0.004, 0.004, -0.052); parts.push(palm);
     // fingers: index..little from the thumb side (+x) across; reaching, slightly spread, gently curled
-    const F = [[0.031, 0.083, -0.08], [0.011, 0.091, -0.02], [-0.01, 0.086, 0.04], [-0.03, 0.068, 0.11]];
+    const F = [[0.031, 0.083, -0.2], [0.011, 0.091, -0.05], [-0.01, 0.086, 0.09], [-0.03, 0.068, 0.24]];
     for (const [x, len, spread] of F) {
       let p = V(x, 0.006, -0.095), dir = V(Math.sin(spread), 0, -Math.cos(spread)).normalize(), rad = 0.0102;
       const L = [len * 0.45, len * 0.31, len * 0.24], curl = [0.22, 0.3, 0.26];
@@ -1251,25 +1311,30 @@ const R11KIT = (function () {
     const mg = addons().mergeGeometries;
     let geo = mg(parts.map((g) => { g = g.index ? g.toNonIndexed() : g; for (const k of Object.keys(g.attributes)) if (k !== 'position') g.deleteAttribute(k); return g; }), false);
     geo = facet(THREE, geo, 0.006, r);
-    const glass = new THREE.ShaderMaterial({ uniforms: { uPulse: { value: 1 }, uDeep: { value: new THREE.Color(0x0a4658) }, uRim: { value: new THREE.Color(0x7ff2ff) } },
+    const glass = new THREE.ShaderMaterial({ uniforms: { uPulse: { value: 1 }, uDeep: { value: new THREE.Color(0x1a8aa8) }, uRim: { value: new THREE.Color(0x8af4ff) } },
       vertexShader: glassVert, fragmentShader: glassFrag, transparent: true, depthWrite: false, side: THREE.DoubleSide });
     const group = new THREE.Group(); group.name = 'R11KIT:glass-arm';
     const arm = new THREE.Mesh(geo, glass); arm.renderOrder = 2; arm.frustumCulled = false;
     // the inner facets: a smaller crystal inside catches the light again
     const inner = new THREE.Mesh(facet(THREE, geo.clone().scale(0.82, 0.8, 0.98), 0.01, r), glass); inner.renderOrder = 1; inner.frustumCulled = false;
     // the green vein: up the forearm, through the wrist, into the palm and branching to the middle fingers
-    const vmat = new THREE.MeshBasicMaterial({ color: new THREE.Color(0.32, 1, 0.5).multiplyScalar(2.6) });
+    const vmat = new THREE.MeshBasicMaterial({ color: new THREE.Color(0.22, 0.95, 0.42).multiplyScalar(1.25) });
+    const vglow = new THREE.MeshBasicMaterial({ color: new THREE.Color(0.1, 0.6, 0.28), transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending, depthWrite: false });
     const vein = new THREE.Group();
-    const tube = (pts, rr) => { const m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 24, rr, 5, false), vmat); m.renderOrder = 0; m.frustumCulled = false; vein.add(m); };
-    tube([V(0.012, -0.03, 0.36), V(0.008, -0.012, 0.22), V(0.0, -0.004, 0.1), V(-0.002, 0.0, 0.02), V(0.0, 0.004, -0.05)], 0.0055);
-    tube([V(0.0, 0.004, -0.05), V(0.01, 0.006, -0.09), V(0.014, 0.004, -0.15)], 0.0032);
-    tube([V(0.0, 0.004, -0.05), V(-0.012, 0.006, -0.09), V(-0.016, 0.002, -0.14)], 0.0028);
-    tube([V(0.006, -0.01, 0.16), V(0.03, -0.004, 0.08), V(0.036, -0.004, 0.0)], 0.0025);
+    const tube = (pts, rr) => {
+      const curve = new THREE.CatmullRomCurve3(pts);
+      const m = new THREE.Mesh(new THREE.TubeGeometry(curve, 24, rr, 6, false), vmat); m.renderOrder = 0; m.frustumCulled = false; vein.add(m);
+      const g = new THREE.Mesh(new THREE.TubeGeometry(curve, 24, rr * 1.9, 6, false), vglow); g.renderOrder = 3; g.frustumCulled = false; vein.add(g);
+    };
+    tube([V(0.012, 0.012, 0.36), V(0.008, 0.016, 0.22), V(0.0, 0.016, 0.1), V(-0.002, 0.014, 0.02), V(0.0, 0.014, -0.05)], 0.0048);
+    tube([V(0.0, 0.014, -0.05), V(0.008, 0.012, -0.08), V(0.012, 0.01, -0.12)], 0.003);
+    tube([V(0.0, 0.014, -0.05), V(-0.012, 0.012, -0.08), V(-0.02, 0.008, -0.11)], 0.0026);
+    tube([V(0.006, 0.012, 0.16), V(0.026, 0.01, 0.08), V(0.034, 0.006, 0.0)], 0.0022);
     const hand = new THREE.Group(); hand.add(vein, inner, arm);
     group.add(hand);
     if (!opts || opts.lights !== false) { const cy = new THREE.PointLight(0x5fe8ff, 0.9, 1.6, 2); cy.position.set(0.02, 0.05, -0.08); hand.add(cy); }
     // framed like bench1: lower left, reaching in and up toward the middle of the view
-    const base = { p: V(-0.24, -0.215, -0.42), r: V(0.36, -0.62, 0.42) };
+    const base = { p: V(-0.2, -0.16, -0.34), r: V(0.9, -0.3, 0.7) };
     hand.position.copy(base.p); hand.rotation.set(base.r.x, base.r.y, base.r.z);
     return { group, hand, base, mats: { glass, vmat } };
   }
@@ -1278,6 +1343,7 @@ const R11KIT = (function () {
       leather: new THREE.MeshStandardMaterial({ color: 0x3a2416, roughness: 0.66, metalness: 0.04 }),
       steel: new THREE.MeshStandardMaterial({ color: 0x9aa1a8, roughness: 0.26, metalness: 1, envMapIntensity: 1.0 }),
       dark: new THREE.MeshStandardMaterial({ color: 0x55595e, roughness: 0.4, metalness: 1 }),
+      fuller: new THREE.MeshStandardMaterial({ color: 0x8a9096, roughness: 0.32, metalness: 1 }),
       brass: new THREE.MeshStandardMaterial({ color: 0x9c7a3c, roughness: 0.35, metalness: 1 }),
       iron: new THREE.MeshStandardMaterial({ color: 0x3a3b3d, roughness: 0.5, metalness: 0.9 }),
       wood: new THREE.MeshStandardMaterial({ color: 0x5a3a22, roughness: 0.7 }),
@@ -1308,7 +1374,7 @@ const R11KIT = (function () {
     const blade = (len, w0, w1, guardW, grip) => {
       const bg = new THREE.ExtrudeGeometry(bladeShape(THREE, w0, w1, len, w1 * 2.2), { depth: 0.004, bevelEnabled: true, bevelThickness: 0.0028, bevelSize: 0.0055, bevelSegments: 2 }); bg.translate(0, 0, -0.002);
       add(bg, L.steel, 0, 0.1);
-      add(new THREE.BoxGeometry(w0 * 0.22, len * 0.72, 0.0105), L.dark, 0, 0.1 + len * 0.38);
+      add(new THREE.BoxGeometry(w0 * 0.18, len * 0.7, 0.0102), L.fuller, 0, 0.1 + len * 0.38);
       // a cross-guard with turned-down quillons
       add(new THREE.BoxGeometry(guardW, 0.022, 0.03), L.iron, 0, 0.088);
       for (const s of [-1, 1]) { add(new THREE.CylinderGeometry(0.008, 0.011, 0.05, 8), L.iron, s * (guardW / 2 + 0.012), 0.08, 0, 0, 0, s * 0.9); add(new THREE.SphereGeometry(0.012, 8, 6), L.iron, s * (guardW / 2 + 0.03), 0.064); }
@@ -1373,7 +1439,7 @@ const R11KIT = (function () {
       const two = kind === 'spear' || kind === 'staff' || kind === 'maul' || kind === 'crossbow', gun = kind === 'pistol' || kind === 'crossbow';
       const base = gun ? { p: V(0.2, -0.2, -0.38), r: V(0.05, 0.08, 0.0) }
         : kind === 'fists' ? { p: V(0.24, -0.25, -0.4), r: V(-0.3, -0.3, 0.6) }
-        : { p: V(0.27, -0.27, -0.48), r: V(two ? -0.95 : -0.5, -0.12, 0.42) };
+        : { p: V(0.3, -0.235, -0.46), r: V(two ? -0.95 : -0.5, -0.2, 0.5) };
       if (gun) { hand.rotation.order = 'YXZ'; }
       hand.scale.setScalar(kind === 'fists' ? 1.1 : 0.82);
       hand.position.copy(base.p); hand.rotation.set(base.r.x, base.r.y, base.r.z);
