@@ -318,7 +318,7 @@ const R11BENCH = (function () {
     b.onclick = (ev) => {
       if (ev && ev.stopPropagation) ev.stopPropagation();
       const text = JSON.stringify(rep, null, 2), manual = () => {
-        const wrap = document.getElementById('r11b-copywrap'); if (!wrap) return;
+        b.textContent = 'Copy report'; const wrap = document.getElementById('r11b-copywrap'); if (!wrap) return;
         let ta = document.getElementById('r11b-ta');
         if (!ta) { const p = document.createElement('p'); p.textContent = 'Copy did not work: select the text below and copy it by hand'; wrap.appendChild(p); ta = document.createElement('textarea'); ta.id = 'r11b-ta'; ta.readOnly = true; ta.rows = 8; ta.style.cssText = 'width:100%;font:11px monospace'; wrap.appendChild(ta); }
         ta.value = text; ta.focus(); ta.select();

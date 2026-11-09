@@ -72,15 +72,17 @@ const check = (cond, label) => { if (cond) console.log('PASS ' + label); else { 
     // ---- run(): the game is put back exactly
     const before = await page.evaluate(() => {
       G.state = 'play'; loadMap('tavern', undefined); G.tod = 0.33; restoreGame(snapshotGame()); G.state = 'paused';   // a restore normalises the save exactly as the benchmark's own restore will
-      const s = snapshotGame(); delete s.when;
+      const s = snapshotGame(); delete s.when; for (const k in s.flags) if (/^p7t_/.test(k)) delete s.flags[k];   // p7t_* are wall-clock play-time counters that every snapshot advances
       window.__before = JSON.stringify(s); window.__cam = { id: G.mapId, x: Engine.cam.x, y: Engine.cam.y, dir: Engine.cam.dir };
       return window.__cam;
     });
-    const rep = await page.evaluate(async () => { const p = R11BENCH.run({ duration: 3000 }); const rep = await p; return rep; });
+    const mid = await page.evaluate(async () => { const p = R11BENCH.run({ duration: 3000 }); await new Promise((r) => setTimeout(r, 1500)); const m = { day: G.day, tod: G.tod, map: G.mapId, state: G.state, ev: !document.getElementById('event').classList.contains('hide') && getComputedStyle(document.getElementById('event')).display !== 'none' }; window.__rep = await p; return m; });
+    const rep = await page.evaluate(() => window.__rep);
+    check(mid.map === 'oakhaven' && mid.day === 17 && mid.day % 8 === 1 && Math.abs(mid.tod - 10 / 24) < 0.01 && mid.state === 'paused' && !mid.ev, 'mid-run: Oakhaven on an ordinary Rootday at 10:00, no card or event ' + JSON.stringify(mid));
     check(rep && rep.frames > 0, 'run({ duration: 3000 }) completes (' + (rep && rep.frames) + ' frames)');
-    const after = await page.evaluate(() => { const s = snapshotGame(); delete s.when; return { json: JSON.stringify(s), cam: { id: G.mapId, x: Engine.cam.x, y: Engine.cam.y, dir: Engine.cam.dir }, state: G.state, same: JSON.stringify(s) === window.__before }; });
+    const after = await page.evaluate(() => { const s = snapshotGame(); delete s.when; for (const k in s.flags) if (/^p7t_/.test(k)) delete s.flags[k]; return { json: JSON.stringify(s), cam: { id: G.mapId, x: Engine.cam.x, y: Engine.cam.y, dir: Engine.cam.dir }, state: G.state, same: JSON.stringify(s) === window.__before }; });
     let why = '';
-    if (!after.same) { why = await page.evaluate(() => { const s = snapshotGame(), b = JSON.parse(window.__before), out = []; const d = (x, y, pth) => { if (out.length > 8) return; if (x && y && typeof x === 'object' && typeof y === 'object') { for (const k of new Set([...Object.keys(x), ...Object.keys(y)])) d(x[k], y[k], pth + '.' + k); } else if (JSON.stringify(x) !== JSON.stringify(y)) out.push(pth + ' ' + JSON.stringify(x) + '->' + JSON.stringify(y)); }; d(b, s, ''); return out.join('; '); }); }
+    if (!after.same) { why = await page.evaluate(() => { const s = snapshotGame(), b = JSON.parse(window.__before), out = []; delete s.when; const d = (x, y, pth) => { if (out.length > 8) return; if (x && y && typeof x === 'object' && typeof y === 'object') { for (const k of new Set([...Object.keys(x), ...Object.keys(y)])) d(x[k], y[k], pth + '.' + k); } else if (JSON.stringify(x) !== JSON.stringify(y)) out.push(pth + ' ' + JSON.stringify(x) + '->' + JSON.stringify(y)); }; d(b, s, ''); return out.join('; '); }); }
     check(after.same, 'the game state afterwards equals the snapshot from before, JSON compared' + (why ? ' (differs: ' + why + ')' : ''));
     check(after.cam.id === before.id && Math.abs(after.cam.x - before.x) < 1e-9 && Math.abs(after.cam.y - before.y) < 1e-9 && Math.abs(after.cam.dir - before.dir) < 1e-9, 'the map and position are restored (' + JSON.stringify(after.cam) + ')');
     const fields = ['scene', 'renderer', 'tier', 'tierMode', 'date', 'frames', 'fps', 'avgMs', 'p50Ms', 'p95Ms', 'p99Ms', 'draws', 'triangles', 'renderSize', 'gpu', 'ua', 'dpr', 'restored'];
