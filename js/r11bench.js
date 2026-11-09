@@ -13,7 +13,8 @@ const R11BENCH = (function () {
   const KEY = 'octave.r11.v1';
   const TIERS = ['ultra', 'high', 'phone'];
   const BUDGET = { ultra: 1000 / 60, high: 1000 / 60, phone: 33 };   // ms per frame the renderScale tries to hold
-  const SCENE = { map: 'oakhaven', tod: 10 / 24, id: 'oakhaven-square-10:00' };
+  // day 17 is a Rootday (17 % 8 = 1): not Hearthday the Rite (day 10), not the Last Sheaf (2), not a Massday market (day % 8 = 3), not Canopy (31)
+  const SCENE = { map: 'oakhaven', tod: 10 / 24, day: 17, id: 'oakhaven-square-10:00' };
   const TEXTS = [
     'Graphics quality', 'Auto picks for your device; Ultra, High and Phone are fixed choices',
     'Auto: Ultra', 'Auto: High', 'Auto: Phone', 'Ultra', 'High', 'Phone',
@@ -246,10 +247,10 @@ const R11BENCH = (function () {
         prev = { state: G.state, pitch: Engine.cam.pitch || 0, bob: Engine.cam.bob || 0 };
         try { if (typeof closeModal === 'function') closeModal(); } catch (e) { /* none */ }
         G.state = 'paused'; G.keys = {};
-        G.tod = SCENE.tod; try { if (typeof Weather !== 'undefined' && Weather.hold) Weather.hold('clear'); } catch (e) { /* none */ }
+        G.tod = SCENE.tod; G.day = SCENE.day; try { if (typeof Weather !== 'undefined' && Weather.hold) Weather.hold('clear'); } catch (e) { /* none */ }
         const wasGreen = G.flags && G.flags.greening;
         loadMap(SCENE.map, { x: WAYPOINTS[0][0], y: WAYPOINTS[0][1], dir: 0 });
-        G.tod = SCENE.tod; G.fadeT = 0; G.state = 'paused'; Engine.cam.pitch = 0; Engine.cam.bob = 0;
+        G.tod = SCENE.tod; G.day = SCENE.day; G.fadeT = 0; G.state = 'paused'; Engine.cam.pitch = 0; Engine.cam.bob = 0;
         void wasGreen;
       } catch (e) { st.running = false; resolve(null); return; }
       const path = buildPath(G.map), frames = { dt: [], draws: [], tris: [] };
