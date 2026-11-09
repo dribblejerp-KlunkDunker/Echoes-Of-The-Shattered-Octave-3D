@@ -115,8 +115,8 @@ Texel density target: 400–850 px/m for anything within 10 m of the eye; props 
 under 256 px/m.
 
 **Wet cobbles.** The scan's joints (high roughness, low AO in its ARM map) hold water: albedo down to about 0.36,
-roughness down to 0.07, the normal bumps half-drowned. Stone tops are damp (albedo about 0.5, roughness about 0.34),
-so each stone catches a glint of sky.
+roughness down to 0.06, the normal bumps half-drowned. Stone tops are damp and dark (albedo about 0.46, roughness about 0.46),
+the joints (roughness 0.06) carry the sharp glints of sky.
 Puddle cells (a world-space noise, about 15% of the floor) fill the joints first, then go over the stones as still
 water (roughness 0.035, flat). The sky (the HDR environment) and the lamps (the point lights' highlights) show in the
 wet. Wetness follows the weather: damp by default under the Hush's grey sky, soaked when the weather says rain, drier

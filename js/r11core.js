@@ -939,8 +939,8 @@ vec3 NAME(vec3 c) {
   float r11h = 1.0 - r11j;
   r11Water = smoothstep(r11h - 0.08, r11h + 0.08, r11pud * 1.3 - 0.1);
   float r11wet = clamp(uR11Wet * (0.4 + 0.6 * r11j) + r11pud, 0.0, 1.0);
-  diffuseColor.rgb *= mix(1.0, mix(0.5, 0.26, r11j), r11wet) * (1.0 - 0.22 * r11Water);
-  roughnessFactor = mix(roughnessFactor, mix(0.34, 0.07, r11j), r11wet);
+  diffuseColor.rgb *= mix(1.0, mix(0.46, 0.24, r11j), r11wet) * (1.0 - 0.22 * r11Water);
+  roughnessFactor = mix(roughnessFactor, mix(0.46, 0.06, r11j), r11wet);
   roughnessFactor = mix(roughnessFactor, 0.035, r11Water);
 }`;
   const WET_PARS = `
@@ -958,7 +958,7 @@ float r11Noise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0
         .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\nnormal = normalize(mix(normal, nonPerturbedNormal, max(r11Water, 0.0)));');
     };
     m.customProgramCacheKey = () => 'r11wet3';
-    m.envMapIntensity = 1.0;   // the sky in the wet: the day's thinner fill (LOOK.ambDay) must not take the reflections with it
+    m.envMapIntensity = 0.8;   // the sky in the wet: the day's thinner fill (LOOK.ambDay) must not take the reflections with it
     m.userData.r11wet = true;
   }
   function wetFrame(env) {
