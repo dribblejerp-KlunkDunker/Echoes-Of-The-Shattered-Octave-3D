@@ -102,6 +102,7 @@ const R11KIT = (function () {
     M.boards = tinted(scanned(THREE, ctx, 'weathered_planks', { color: 0xb8a288 }));
     M.bark = scanned(THREE, ctx, 'bark_brown_02', { color: 0x6e6258, ns: 1.6 });
     M.iron = new THREE.MeshStandardMaterial({ color: 0x2b2c2e, roughness: 0.55, metalness: 0.85 });
+    M.ironwork = new THREE.MeshStandardMaterial({ color: 0x5a5148, roughness: 0.62, metalness: 0.55 });   // riveted iron, weathered
     M.glassDark = new THREE.MeshStandardMaterial({ color: 0x15191c, roughness: 0.08, metalness: 0.0, envMapIntensity: 1.3 });
     M.glassLit = new THREE.MeshStandardMaterial({ color: 0x2a1a0a, emissive: 0xffa040, emissiveIntensity: 2.2, roughness: 0.3 });
     M.flame = new THREE.MeshBasicMaterial({ color: new THREE.Color(1, 0.62, 0.25).multiplyScalar(6) });
@@ -768,35 +769,47 @@ const R11KIT = (function () {
     f.ibox('iron', 0.08, 1.4, 0.08, dm.x, dy + DH + R + 4.4, dm.z);
     if (o.landmarks) o.landmarks.push(['greenhall dome', f.at(dm.x, dm.z), dy + DH + R + 5]);
   }
-  function mast(B, f, w, d, o) {   // the mooring mast: "a tall timber pylon the Kestrel ties up to", "like a gallows"
-    const THREE = B.THREE, G = WALLM(), hw = w / 2 - 0.25, hd = d / 2 - 0.25;
-    // the crib: squared logs laid alternately, a closed timber base the size of the map's block
-    for (let y = 0.18, k = 0; y < G; y += 0.36, k++) {
-      for (const s of [-1, 1]) {
-        if (k % 2) f.ibox('timber', 0.36, 0.36, d, s * hw, y, 0, 0, 0, 0, 0x9a8a7a); else f.ibox('timber', w, 0.36, 0.36, 0, y, s * hd, 0, 0, 0, 0x9a8a7a);
+  // the mooring mast. Book One: "a hundred and twenty feet of riveted iron on four splayed legs in the bedrock of the quarry
+  // rim": a riveted iron lattice tower, 36.5 m in all, its four legs splayed to the corners of the map's mast block (so it
+  // stands on the cells that block you) and drawn in toward the head; ring girders and cross-bracing in every bay; the
+  // mooring head (drum, cone, ring) on top.
+  function mast(B, f, w, d, o) {
+    const THREE = B.THREE, H = 33.0, base = Math.min(w, d) / 2 - 0.35, top = 0.85, K = 'ironwork';
+    const at = (y, sx, sz) => { const r = base + (top - base) * (y / H); return [sx * r, sz * r]; };
+    const corners = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+    // footings in the rock, then the four legs
+    for (const [sx, sz] of corners) {
+      const [ax, az] = at(0, sx, sz);
+      f.part('stone', worldUV(THREE, new THREE.BoxGeometry(0.9, 0.5, 0.9), 1.4), ax, 0.25, az);
+      f.ibox('iron', 0.7, 0.06, 0.7, ax, 0.53, az);
+      const [bx, bz] = at(H, sx, sz);
+      f.beam(K, 0.34, ax, 0.5, az, bx, H, bz);
+      // rivet plates up the leg
+      for (let y = 1.6; y < H - 0.5; y += 1.6) { const [rx, rz] = at(y, sx, sz); f.ibox('iron', 0.42, 0.1, 0.42, rx, y, rz); }
+    }
+    // bays: a ring girder at each level, an X of bracing on every face between levels
+    const levels = []; for (let y = 0.5; y <= H + 0.01; ) { levels.push(y); const step = lerp(4.6, 2.6, y / H); y += step; }
+    if (levels[levels.length - 1] < H - 0.5) levels.push(H);
+    for (let li = 0; li < levels.length; li++) {
+      const y = levels[li];
+      for (let i = 0; i < 4; i++) {
+        const [sx, sz] = corners[i], [tx, tz] = corners[(i + 1) % 4];
+        const [ax, az] = at(y, sx, sz), [bx, bz] = at(y, tx, tz);
+        f.beam(K, li === 0 ? 0.26 : 0.2, ax, y, az, bx, y, bz);
+        if (li === 0) continue;
+        const y0 = levels[li - 1], [cx0, cz0] = at(y0, sx, sz), [dx0, dz0] = at(y0, tx, tz);
+        f.beam(K, 0.11, cx0, y0, cz0, bx, y, bz);
+        f.beam(K, 0.11, dx0, y0, dz0, ax, y, az);
       }
     }
-    f.part('boards', worldUV(THREE, new THREE.BoxGeometry(w - 0.5, G - 0.2, d - 0.5), 2.0), 0, (G - 0.2) / 2, 0);
-    f.part('boards', worldUV(THREE, new THREE.BoxGeometry(w, 0.2, d), 2.0), 0, G + 0.1, 0);
-    // the pylon: one great column of four bound timbers, iron bands, raking shores from the crib's corners, a ladder of cleats
-    const top = 30, cw = 1.3;
-    for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) f.ibox('timber', cw / 2 - 0.02, top - G, cw / 2 - 0.02, a * cw / 4, G + (top - G) / 2, b * cw / 4, 0, 0, 0, 0x8a7a6a);
-    for (let y = G + 1.5; y < top; y += 3.2) f.ibox('iron', cw + 0.08, 0.14, cw + 0.08, 0, y, 0);
-    for (const [ax, az] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) f.beam('timber', 0.4, ax * (Math.min(hw, hd) - 0.5), G, az * (Math.min(hw, hd) - 0.5), ax * cw / 2, G + 11, az * cw / 2);
-    for (let y = G + 0.6; y < top - 1; y += 0.55) f.ibox('timber', 0.36, 0.07, 0.12, 0, y, -cw / 2 - 0.05);
-    f.ibox('timber', cw + 0.6, 0.5, cw + 0.6, 0, top + 0.25, 0);
-    const b1 = cw / 2;
-    // the gallows-arm, out over the crib's corner (within the block), the mooring ring, a coil of cable
-    const ad = Math.min(hw, hd) * 1.25, aang = -PI / 4;
-    const af = f.sub(0, 0, aang + PI / 2);
-    af.ibox('timber', 0.4, 0.45, ad, 0, top - 0.6, ad / 2);
-    af.beam('timber', 0.32, 0, top - 4.6, b1 + 0.1, 0, top - 0.75, ad * 0.62);
-    af.ibox('timber', 0.5, 0.5, 0.9, 0, top - 0.6, -0.2);
-    const ring = new THREE.TorusGeometry(0.55, 0.07, 6, 18); const rp = af.at(0, ad - 0.3);
-    B.put('iron', ring, rp[0], top - 1.6, rp[1], af.ry + PI / 2);
-    B.put('rope', new THREE.CylinderGeometry(0.035, 0.035, 0.9, 5), rp[0], top - 0.85 - 0.1, rp[1]);
-    for (let i = 0; i < 4; i++) B.put('rope', new THREE.TorusGeometry(0.42 - i * 0.03, 0.05, 5, 16).rotateX(PI / 2), f.at(1.2, -1.0)[0], G + 0.28 + i * 0.1, f.at(1.2, -1.0)[1]);
-    if (o.landmarks) o.landmarks.push(['mooring mast', f.at(0, 0), top + 1]);
+    // the mooring head: a platform, a drum, a cone, the mooring ring and its arm
+    f.ibox(K, 2 * top + 0.9, 0.22, 2 * top + 0.9, 0, H + 0.11, 0);
+    f.part(K, new THREE.CylinderGeometry(1.0, 1.15, 1.6, 14), 0, H + 1.02, 0);
+    for (const yy of [0.3, 0.8, 1.3]) f.part('iron', new THREE.TorusGeometry(1.08, 0.04, 4, 20).rotateX(PI / 2), 0, H + 0.22 + yy, 0);
+    f.part(K, new THREE.ConeGeometry(1.05, 1.5, 14), 0, H + 2.57, 0);
+    f.part(K, new THREE.CylinderGeometry(0.08, 0.08, 0.8, 6), 0, H + 3.7, 0);
+    f.part('iron', new THREE.TorusGeometry(0.42, 0.06, 6, 18), 0, H + 3.3, 0, PI / 4);
+    if (o.landmarks) o.landmarks.push(['mooring mast', f.at(0, 0), H + 3.5]);
   }
   function wellHouse(B, f, o) {   // the well-house in the square: stone, layers of decrees, the dead Queen's glass seal (canon)
     const THREE = B.THREE, s = (o && o.s) || 2.6, h = 2.3;
@@ -1384,7 +1397,7 @@ const R11KIT = (function () {
   }
   function leatherMats(THREE) {
     return {
-      leather: new THREE.MeshStandardMaterial({ color: 0x3a2416, roughness: 0.66, metalness: 0.04 }),
+      leather: new THREE.MeshStandardMaterial({ color: 0x2e1c11, roughness: 0.58, metalness: 0.06 }),
       steel: new THREE.MeshStandardMaterial({ color: 0x9aa1a8, roughness: 0.26, metalness: 1, envMapIntensity: 1.0 }),
       dark: new THREE.MeshStandardMaterial({ color: 0x55595e, roughness: 0.4, metalness: 1 }),
       fuller: new THREE.MeshStandardMaterial({ color: 0x8a9096, roughness: 0.32, metalness: 1 }),
@@ -1395,18 +1408,31 @@ const R11KIT = (function () {
       wrap: new THREE.MeshStandardMaterial({ color: 0x2a1a10, roughness: 0.8 }),
     };
   }
-  // the gloved right fist around a grip on local y (the grip runs through the fist at the origin)
+  // the gloved right fist closed round a grip on local y (the grip runs up through it at the origin, the guard just above
+  // y = 0.077): palm on the grip's right, the back of the hand facing right and back toward the eye, the fingers wrapping
+  // round the front and the left, the thumb over the back of the grip under the guard, a cuff and sleeve to the lower right
   function fist(THREE, L, open) {
-    const g = new THREE.Group();
-    const palm = new THREE.Mesh(new THREE.CapsuleGeometry(0.044, 0.05, 4, 10).scale(1.15, 1.05, 0.85), L.leather); palm.position.set(0.034, 0.0, 0.008); g.add(palm);
+    const g = new THREE.Group(), V = (x, y, z) => new THREE.Vector3(x, y, z);
+    const mesh = (geo, m) => { const o = new THREE.Mesh(geo, m || L.leather); g.add(o); return o; };
+    // the back of the hand: a rounded block against the grip's right side
+    const back = new THREE.BoxGeometry(0.034, 0.1, 0.082, 2, 3, 3); { const p = back.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i); p.setX(i, x + 0.006 * (1 - (z / 0.041) * (z / 0.041))); } back.computeVertexNormals(); }
+    mesh(back).position.set(0.036, 0.002, 0.004);
+    // four fingers: from the knuckle row (front right) round the front and the left of the grip, ending at the back left
+    const R = 0.0265;
     for (let i = 0; i < 4; i++) {
-      const fg = new THREE.Mesh(new THREE.TorusGeometry(0.027, 0.0125, 7, 12, PI * 1.3), L.leather);
-      fg.position.set(0.004, 0.044 - i * 0.025, 0.0); fg.rotation.set(0, PI / 2, PI * 0.55); g.add(fg);
-      const kn = new THREE.Mesh(new THREE.SphereGeometry(0.0135, 8, 6), L.leather); kn.position.set(0.032, 0.044 - i * 0.025, -0.024); g.add(kn);
+      const y = 0.052 - i * 0.025, th = 0.0118 - i * 0.0006, pts = [];
+      for (let k = 0; k <= 8; k++) { const a = -PI * 0.22 - k / 8 * PI * 1.08, rr = R + (k < 2 ? 0.006 * (2 - k) : 0); pts.push(V(Math.cos(a) * rr + 0.004, y - k * 0.0012, Math.sin(a) * rr)); }
+      mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 16, th, 8, false));
+      mesh(new THREE.SphereGeometry(th * 1.05, 10, 8)).position.copy(pts[8]);
+      mesh(new THREE.SphereGeometry(th * 1.25, 10, 8)).position.copy(pts[0]);   // the knuckle
     }
-    const th = new THREE.Mesh(new THREE.CapsuleGeometry(0.0125, 0.045, 3, 8), L.leather); th.position.set(-0.012, 0.05, 0.022); th.rotation.set(0.3, 0, 1.2); g.add(th);
-    const cuff = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.07, 0.16, 12), L.leather); cuff.position.set(0.075, -0.075, 0.03); cuff.rotation.z = 0.85; g.add(cuff);
-    const sleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.09, 0.3, 12), new THREE.MeshStandardMaterial({ color: 0x2e2a24, roughness: 0.95 })); sleeve.position.set(0.19, -0.17, 0.05); sleeve.rotation.z = 0.85; g.add(sleeve);
+    // the thumb: from the heel of the hand over the back of the grip, just under the guard
+    const tp = [V(0.034, 0.01, 0.03), V(0.022, 0.04, 0.034), V(0.0, 0.058, 0.031), V(-0.02, 0.062, 0.022)];
+    mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(tp), 14, 0.0128, 8, false));
+    mesh(new THREE.SphereGeometry(0.0128, 10, 8)).position.copy(tp[3]);
+    // the cuff and sleeve, down and out to the lower right
+    const cuff = mesh(new THREE.CylinderGeometry(0.046, 0.056, 0.12, 14)); cuff.position.set(0.05, -0.085, 0.03); cuff.rotation.set(0.35, 0, 0.55);
+    const sleeve = mesh(new THREE.CylinderGeometry(0.064, 0.085, 0.34, 14), new THREE.MeshStandardMaterial({ color: 0x2e2a24, roughness: 0.95 })); sleeve.position.set(0.13, -0.24, 0.09); sleeve.rotation.set(0.35, 0, 0.55);
     if (open) g.scale.setScalar(1.0);
     return g;
   }
@@ -1421,7 +1447,7 @@ const R11KIT = (function () {
       add(new THREE.BoxGeometry(w0 * 0.18, len * 0.7, 0.0102), L.fuller, 0, 0.1 + len * 0.38);
       // a cross-guard with turned-down quillons
       add(new THREE.BoxGeometry(guardW, 0.022, 0.03), L.iron, 0, 0.088);
-      for (const s of [-1, 1]) { add(new THREE.CylinderGeometry(0.008, 0.011, 0.05, 8), L.iron, s * (guardW / 2 + 0.012), 0.08, 0, 0, 0, s * 0.9); add(new THREE.SphereGeometry(0.012, 8, 6), L.iron, s * (guardW / 2 + 0.03), 0.064); }
+      for (const s of [-1, 1]) { add(new THREE.CylinderGeometry(0.007, 0.009, 0.03, 8), L.iron, s * (guardW / 2 + 0.008), 0.084, 0, 0, 0, s * 1.1); add(new THREE.SphereGeometry(0.0085, 8, 6), L.iron, s * (guardW / 2 + 0.02), 0.078); }
       add(new THREE.CylinderGeometry(0.016, 0.018, grip, 10), L.wrap, 0, 0.077 - grip / 2);
       for (let i = 0; i < 6; i++) add(new THREE.TorusGeometry(0.0175, 0.003, 4, 10), L.wrap, 0, 0.07 - i * grip / 6, 0, PI / 2 + 0.25);
       add(new THREE.SphereGeometry(0.026, 12, 10).scale(1, 0.75, 0.8), L.iron, 0, 0.077 - grip - 0.012);
@@ -1465,7 +1491,7 @@ const R11KIT = (function () {
         break;
       }
       case 'fists': break;
-      case 'sword': blade(0.62, 0.045, 0.032, 0.2, 0.13); break;
+      case 'sword': blade(0.62, 0.045, 0.032, 0.17, 0.13); break;
       default: blade(0.55, 0.044, 0.03, 0.17, 0.12);
     }
     return g;
@@ -1492,9 +1518,9 @@ const R11KIT = (function () {
       const two = kind === 'spear' || kind === 'staff' || kind === 'maul' || kind === 'crossbow', gun = kind === 'pistol' || kind === 'crossbow';
       const base = gun ? { p: V(0.2, -0.2, -0.38), r: V(0.05, 0.08, 0.0) }
         : kind === 'fists' ? { p: V(0.24, -0.25, -0.4), r: V(-0.3, -0.3, 0.6) }
-        : { p: V(0.3, -0.235, -0.46), r: V(two ? -0.95 : -0.5, -0.2, 0.5) };
+        : { p: V(0.22, -0.175, -0.47), r: V(two ? -0.95 : -0.5, two ? -0.2 : 0.06, two ? 0.5 : 0.24) };
       if (gun) { hand.rotation.order = 'YXZ'; }
-      hand.scale.setScalar(kind === 'fists' ? 1.1 : 0.82);
+      hand.scale.setScalar(kind === 'fists' ? 1.1 : 0.9);
       hand.position.copy(base.p); hand.rotation.set(base.r.x, base.r.y, base.r.z);
       if (vmLights(opts)) {
         const hemi = new THREE.HemisphereLight(0xd9e2e6, 0x4a4036, 0.8); group.add(hemi);
