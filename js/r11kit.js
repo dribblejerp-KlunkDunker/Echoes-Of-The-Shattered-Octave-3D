@@ -36,8 +36,8 @@ const R11KIT = (function () {
   const T3 = (ctx) => (ctx && ctx.THREE) || (window.R11 && window.R11.THREE) || (window.R11THREE && window.R11THREE.THREE) || null;
   const addons = () => window.R11THREE || {};
   const TIERS = {
-    ultra: { leaves: 1800, ground: 9000, drift: 7000, ivy: 1, forest: 1600, props: 1, shadowSmall: true, puddle: 1, seg: 150, smoke: true },
-    high: { leaves: 1200, ground: 6000, drift: 5000, ivy: 1, forest: 1100, props: 1, shadowSmall: true, puddle: 1, seg: 120, smoke: true },
+    ultra: { leaves: 1800, ground: 12000, drift: 7000, ivy: 1, forest: 1600, props: 1, shadowSmall: true, puddle: 1, seg: 150, smoke: true },
+    high: { leaves: 1200, ground: 8000, drift: 5000, ivy: 1, forest: 1100, props: 1, shadowSmall: true, puddle: 1, seg: 120, smoke: true },
     phone: { leaves: 420, ground: 2400, drift: 2000, ivy: 0.55, forest: 500, props: 0.5, shadowSmall: false, puddle: 0.6, seg: 80, smoke: false },
   };
   const tierOf = (n) => TIERS[n] ? n : 'high';
@@ -1516,8 +1516,8 @@ gl_Position = projectionMatrix * mvPosition;`);
       for (let i = 0, nA = 0; i < T.ground * 6 && nA < T.ground; i++) {
         let x, z;
         const heroes = oaks.filter((q) => q.hero), u = rF();
-        if (heroes.length && u < 0.45) { const k = heroes[(rF() * heroes.length) | 0], a = rF() * PI * 2, rr = Math.pow(rF(), 0.7) * 11; x = k.x + Math.cos(a) * rr; z = k.z + Math.sin(a) * rr; }   // the square's old oaks drop the most
-        else if (oaks.length && u < 0.75) { const k = oaks[(rF() * oaks.length) | 0], a = rF() * PI * 2, rr = Math.sqrt(rF()) * 9 * (k.s / 1.8); x = k.x + Math.cos(a) * rr; z = k.z + Math.sin(a) * rr; }
+        if (heroes.length && u < 0.35) { const k = heroes[(rF() * heroes.length) | 0], a = rF() * PI * 2, rr = Math.pow(rF(), 0.7) * 11; x = k.x + Math.cos(a) * rr; z = k.z + Math.sin(a) * rr; }   // the square's old oaks drop the most
+        else if (oaks.length && u < 0.6) { const k = oaks[(rF() * oaks.length) | 0], a = rF() * PI * 2, rr = Math.sqrt(rF()) * 9 * (k.s / 1.8); x = k.x + Math.cos(a) * rr; z = k.z + Math.sin(a) * rr; }
         else { x = (2 + rF() * (map.w - 4)) * C; z = (2 + rF() * (map.h - 4)) * C; if (rF() * 4 > near(x / C, z / C)) continue; }   // blown about the square more than the back lanes
         if (!open(x, z)) continue;
         pts.push([x, z, rF() * PI * 2, 0, 0.6 + rF() * 0.9, tint(x, z, rF() < 0.3), rF()]); nA++;
