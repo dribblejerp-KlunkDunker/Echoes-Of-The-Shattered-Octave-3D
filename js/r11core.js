@@ -1069,7 +1069,10 @@ void main() {
     C.fov = 2 * Math.atan(rows / 2 / FX) * 180 / Math.PI; C.aspect = 320 / rows;
     R.sky.position.copy(C.position); R.sky.updateMatrixWorld();
     // the viewmodel camera
-    const vc = R.vmCam; vc.aspect = canvas.width / Math.max(1, canvas.height); vc.updateProjectionMatrix();
+    // framed on the view rows only (the HUD band covers the rest), so the hands sit in the picture, not under the panel;
+    // 40 degrees over the 150 view rows gives KIT's hands the size they have in its 52-degree full-frame harness
+    const vc = R.vmCam, vw = canvas.width, vh = canvas.height * LOG_H / Math.max(LOG_H, viewRows);
+    vc.fov = 40; vc.aspect = vw / Math.max(1, vh); vc.setViewOffset(vw, vh, 0, 0, vw, canvas.height); vc.updateProjectionMatrix();
     if (BB.mat) {
       const U = BB.mat.uniforms; U.uFwdH.value.set(cd, 0, sd); U.uCamR.value.set(-sd, 0, cd); U.uCamU.value.set(-stt * cd, ct, -stt * sd);
     }
@@ -1197,7 +1200,7 @@ void main() {
   function weaponKind() {
     try {
       const p = G.player, id = String(p.weapons ? p.weapons[p.weapon] : 'hands').toLowerCase();
-      if (id === 'hands' || id === 'fists') return 'hands';
+      if (id === 'hands' || id === 'fists') return 'fists';
       if (typeof R11KIT !== 'undefined' && R11KIT && typeof R11KIT.kindFor === 'function') { const k = R11KIT.kindFor(id); if (k) return k; }
       const rules = [[/sword|blade|sabre|saber|falchion|brand/, 'sword'], [/dagger|knife|dirk|stiletto/, 'dagger'], [/axe/, 'axe'], [/mace|club|hammer|cudgel|flail|maul/, 'mace'], [/spear|pike|halberd|glaive|lance/, 'spear'], [/crossbow|bow/, 'bow'], [/staff|rod|wand|cane/, 'staff']];
       for (const [re, k] of rules) if (re.test(id)) return k;
@@ -1215,6 +1218,17 @@ void main() {
       if (kind !== 'hands') { try { VM.weapon = K.viewmodel(kind); if (VM.weapon && VM.weapon.group) R.vmScene.add(VM.weapon.group); } catch (e) { warnOnce('kit viewmodel', e); } }
     }
     for (const v of [VM.arm, VM.weapon]) if (v && typeof v.update === 'function') { try { v.update(t, walk); } catch (e) { warnOnce('kit vm update', e); } }
+    // the swing and the draw/holster drop the pixel hands had (the same game state: G.attack, FPHANDS.st.lower)
+    const W = VM.weapon && VM.weapon.group;
+    if (W) {
+      let a = 0, low = 0, thrust = false;
+      try { if (G.attack && G.attack.t > 0 && G.attack.dur > 0) a = Math.sin(Math.min(1, Math.max(0, 1 - G.attack.t / G.attack.dur)) * Math.PI); } catch (e) { a = 0; }
+      try { if (typeof FPHANDS === 'object' && FPHANDS.st) low = Math.min(1, Math.max(0, +FPHANDS.st.lower || 0)); } catch (e) { low = 0; }
+      thrust = kind === 'spear' || kind === 'knife' || kind === 'dagger' || kind === 'pistol' || kind === 'crossbow' || kind === 'bow';
+      if (thrust) W.position.set(-0.03 * a, 0.02 * a - 0.35 * low, -0.12 * a);
+      else W.position.set(-0.16 * a, 0.05 * a - 0.35 * low, -0.04 * a);
+      W.rotation.set(thrust ? 0 : -0.55 * a, 0, thrust ? 0 : 0.95 * a);
+    }
   }
 
   // ================================================================================================ picking parity
@@ -1414,6 +1428,27 @@ void main() {
     Engine.pick = function (ents, maxDist) { if (mine() && typeof R3D !== 'undefined' && R3D.pick) return R3D.pick(ents, maxDist); return _pick.apply(this, arguments); };
     Engine.depthAt = function (x, y) { if (mine()) return depthAt(x, y); return _depth.apply(this, arguments); };
     Engine.materialAt = function (x, y) { if (mine()) return materialAt(x, y); return _mat.apply(this, arguments); };
+    // the pixel hands stand down while KIT's 3D hands are drawn (integration): every first-person picture is an
+    // Engine.images 'fp_*' entry (body21 swaps its tinted copies into those same keys), so the HUD layer skips those
+    // pictures for this frame; body21 (legs, head, the resting glass hand) sits the frame out; the base draw sees no weapon.
+    // Crosshair, names, messages and the panel draw as before. Pixel style never enters here.
+    if (typeof drawHUD === 'function') {
+      const _hud = drawHUD, NONE = { img: '__r11_none__', name: '', type: 'iron', speed: 0.4 };
+      const fpSet = () => { const s = new Set(); try { for (const k in Engine.images) if (k.slice(0, 3) === 'fp_') s.add(Engine.images[k]); } catch (e) { /* none */ } return s; };
+      drawHUD = function () {
+        if (!(st.inFrame && st.drew && VM.arm && VM.arm.group) || typeof Engine === 'undefined' || !Engine.ctx) return _hud.apply(this, arguments);
+        const ctx = Engine.ctx, own = Object.prototype.hasOwnProperty.call(ctx, 'drawImage'), prev = ctx.drawImage;
+        const g0 = typeof GFX !== 'undefined' ? GFX.body21 : undefined, cw = typeof currentWeapon === 'function' ? currentWeapon : null;
+        ctx.drawImage = function (img) { if (fpSet().has(img)) return; return prev.apply(this, arguments); };
+        if (typeof GFX !== 'undefined') GFX.body21 = false;
+        if (cw) currentWeapon = () => NONE;
+        try { return _hud.apply(this, arguments); } finally {
+          if (cw) currentWeapon = cw;
+          if (typeof GFX !== 'undefined') GFX.body21 = g0;
+          if (own) ctx.drawImage = prev; else delete ctx.drawImage;
+        }
+      };
+    }
     wireMenu();
     if (typeof GFX !== 'undefined' && GFX.onChange) GFX.onChange(() => { try { sync(); } catch (e) { warnOnce('sync', e); } });
   }
