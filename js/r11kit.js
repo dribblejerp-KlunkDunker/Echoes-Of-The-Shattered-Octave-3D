@@ -626,7 +626,7 @@ const R11KIT = (function () {
     // nave body (behind the porch), its side walls beside the porch, and the front wall with the porch arch through it
     f.part(C, worldUV(THREE, new THREE.BoxGeometry(NW, NH, D - PD), 2.6), xn, NH / 2, (-D / 2 + pz) / 2);
     for (const x of [nx0 + 0.4, nx1 - 0.4]) f.part(C, worldUV(THREE, new THREE.BoxGeometry(0.8, NH, PD + 0.8), 2.6), x, NH / 2, pz + (PD + 0.8) / 2 - 0.8 + 0.0);
-    const rh = 8.2, front = notchShape(THREE, NW, NH, px - xn, pw, 2.6, 4.3, true, rh);
+    const rh = NW * 0.52, front = notchShape(THREE, NW, NH, px - xn, pw, 2.6, 4.3, true, rh);
     // the great window over the porch: drawn as glass set into the front
     f.part(C, worldUV(THREE, new THREE.ExtrudeGeometry(front, { depth: 0.8, bevelEnabled: false }), 2.6), xn, 0, zf - 0.8);
     // the porch's inside: walls, vault, steps up to the door
@@ -672,7 +672,7 @@ const R11KIT = (function () {
     // buttresses on the front corners of the nave
     for (const x of [nx0, nx1]) f.part(C, worldUV(THREE, new THREE.BoxGeometry(0.9, NH * 0.8, 0.55), 2.6), x, NH * 0.4, zf - 0.27 + 0.27);
     // the bell-tower, where the map raises it; its belfry is open to the weather and nothing hangs in it (canon)
-    const t = o.tower || { x: xn, z: -D / 4 }, TW = clamp(o.towerW || 7, 5.5, 8), TS = NH + 11, BH = 5.2;
+    const t = o.tower || { x: xn, z: -D / 4 }, TW = clamp(o.towerW || 7, 5.5, 8), TS = NH + 13, BH = 5.2;
     f.part(C, worldUV(THREE, new THREE.BoxGeometry(TW, TS, TW), 2.6), t.x, TS / 2, t.z);
     f.part(C, worldUV(THREE, new THREE.BoxGeometry(TW + 0.5, 0.45, TW + 0.5), 2.6), t.x, TS, t.z);
     for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) f.part(C, worldUV(THREE, new THREE.BoxGeometry(1.5, BH, 1.5), 2.6), t.x + a * (TW / 2 - 0.75), TS + BH / 2, t.z + b * (TW / 2 - 0.75));
@@ -819,9 +819,9 @@ const R11KIT = (function () {
   }
   function plinth(B, f, size) {   // the empty bell-plinth in front of the Chapel: knee-high stone, nothing on it
     const THREE = B.THREE;
-    f.part('chapel', worldUV(THREE, new THREE.BoxGeometry(size, 0.4, size), 2.6), 0, 0.2, 0);
-    f.part('chapel', worldUV(THREE, new THREE.BoxGeometry(size * 0.72, 0.3, size * 0.72), 2.6), 0, 0.55, 0);
-    f.part('chapel', worldUV(THREE, new THREE.BoxGeometry(size * 0.5, 0.32, size * 0.5), 2.6), 0, 0.86, 0);
+    f.part('stone', worldUV(THREE, new THREE.BoxGeometry(size, 0.3, size), 1.8), 0, 0.15, 0);
+    f.part('stone', worldUV(THREE, new THREE.BoxGeometry(size * 0.72, 0.26, size * 0.72), 1.8), 0, 0.43, 0);
+    f.part('stone', worldUV(THREE, new THREE.BoxGeometry(size * 0.5, 0.26, size * 0.5), 1.8), 0, 0.69, 0);
     for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) f.ibox('iron', 0.08, 0.12, 0.08, a * size * 0.18, 1.08, b * size * 0.18);   // the stubs where the cradle was cut away
   }
   function stall(B, f, kind, r) {   // a market table under an awning (at the map's market tables)
@@ -913,7 +913,7 @@ const R11KIT = (function () {
         let prof = Math.pow(1 - t, R.p); if (R.ridge) prof *= 1 + R.ridge * Math.sin(t * 11 + R.seed * 2.7) * 0.5;
         const k = sstep(rr, R.r0, (R.r0 + R.r1) / 2) * (1 - sstep(rr, R.r1, R.r1 + Rmax * 0.15));
         let add = R.peak * prof * k;
-        if (R.snow) add *= 0.7 + 0.5 * ridged(x, z);
+        if (R.snow) add *= 0.45 + 0.85 * Math.pow(ridged(x, z), 1.5);
         if (add > h * 0.5) { h = Math.max(h, add + h * 0.4); if (add > 12) kind = R.snow ? 2 : R.chalk ? 3 : 4; }
       }
       H[i] = h; kindArr[i] = kind; p.setY(i, h);
@@ -924,7 +924,7 @@ const R11KIT = (function () {
       const fx = Math.floor((x * 0.8 + z * 0.6) / 140), fz = Math.floor((-x * 0.6 + z * 0.8) / 110), fh = hash2(fx, fz);
       if (fh < 0.3) c.setRGB(0.20, 0.22, 0.10); else if (fh < 0.55) c.setRGB(0.27, 0.24, 0.13); else if (fh < 0.7) c.setRGB(0.19, 0.15, 0.10); else c.setRGB(0.15, 0.19, 0.09);
       if (h > 22) c.lerp(new THREE.Color(0.10, 0.12, 0.07), sstep(h, 22, 45));
-      const snowLine = Rmax * 0.3 * 0.85 * 0.62;
+      const snowLine = Rmax * 0.3 * 0.85 * 0.5;
       if (k === 2) { c.setRGB(0.21, 0.22, 0.25); if (h > snowLine + snowLine * 0.15 * Math.sin(x * 0.02)) c.setRGB(0.70, 0.72, 0.76); }
       else if (k === 3) { c.lerp(new THREE.Color(0.62, 0.60, 0.54), sstep(h, 14, 40)); }
       else if (k === 4) { c.lerp(new THREE.Color(0.26, 0.25, 0.27), sstep(h, 20, 50) * 0.7); }
@@ -948,12 +948,12 @@ const R11KIT = (function () {
       left--;
       const ra2 = Math.sqrt(r()) * 70, aa = r() * PI * 2, x = wx + Math.cos(aa) * ra2, z = wz + Math.sin(aa) * ra2;
       const dx = Math.max(-x, 0, x - X1), dz = Math.max(-z, 0, z - Z1), dd = Math.hypot(dx, dz);
-      if (dd < 22 || dd > Rmax * 0.85) continue;
+      if (dd < 40 || dd > Rmax * 0.85) continue;
       const q = hAt(x, z); if (!q || q.k === 2 || q.k === 3) continue;
       const fx = Math.floor((x * 0.8 + z * 0.6) / 140), fz = Math.floor((-x * 0.6 + z * 0.8) / 110);
       if (q.h < 22 && hash2(fx + 7, fz - 3) > 0.45 && dd > 60) continue;   // woods on crests and in shaws, fields below
       const s = 2.6 + r() * 3; ob.position.set(x, q.h + s * 0.9, z); ob.scale.set(s, s * 1.25, s); ob.rotation.y = r() * 6; ob.updateMatrix();
-      forest.setMatrixAt(n, ob.matrix); col.setHSL(r() < .5 ? 0.07 + r() * .05 : 0.2 + r() * .08, 0.45, 0.09 + r() * .07); forest.setColorAt(n, col); n++;
+      forest.setMatrixAt(n, ob.matrix); col.setHSL(r() < .45 ? 0.07 + r() * .04 : 0.18 + r() * .08, 0.35, 0.07 + r() * .05); forest.setColorAt(n, col); n++;
     }
     forest.count = n; forest.instanceMatrix.needsUpdate = true; if (forest.instanceColor) forest.instanceColor.needsUpdate = true;
     forest.computeBoundingSphere(); forest.name = 'kit:far:forest'; forest.castShadow = false; forest.userData.max = n;
