@@ -124,7 +124,7 @@ const R11BENCH = (function () {
   // ---------------------------------------------------------------- the benchmark path
   // Corners are chosen on Oakhaven's open ground round the square; a Catmull-Rom closed spline smooths them and every
   // sample is checked against the map (a wall or a solid prop moves the sample to the nearest open cell).
-  const WAYPOINTS = [[17.5, 24.5], [24, 24.5], [30, 24.5], [36.5, 24.5], [43.5, 24.5], [43.5, 30], [43.5, 35], [37, 35.5], [30, 35.5], [23.5, 35.5], [17.5, 35], [17.5, 30], [14.5, 24.5]];
+  const WAYPOINTS = [[17.5, 24.5], [24, 24.5], [30, 24.5], [36.5, 24.5], [43.5, 24.5], [43.5, 30], [43.5, 35], [37, 35.5], [30, 35.5], [23.5, 35.5], [17.5, 35], [17.5, 30], [17.5, 27]];
   function openGrid(m) {
     const g = new Uint8Array(m.w * m.h);
     for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) g[y * m.w + x] = m.get(x, y) ? 1 : 0;
@@ -263,7 +263,7 @@ const R11BENCH = (function () {
         drawOverlay(false);
         try { if (typeof Weather !== 'undefined' && Weather.release) Weather.release(); } catch (e) { /* none */ }
         let restored = true;
-        try { restoreGame(snap); Engine.cam.pitch = prev.pitch; Engine.cam.bob = prev.bob; G.state = prev.state === 'event' ? 'play' : prev.state; if (G.state === 'paused') G.state = 'play'; G.fadeT = 0; }
+        try { restoreGame(snap); Engine.cam.pitch = prev.pitch; Engine.cam.bob = prev.bob; G.state = prev.state === 'event' ? 'play' : prev.state; G.fadeT = 0; }
         catch (e) { restored = false; try { console.warn('r11bench: restore failed', e); } catch (e2) { /* none */ } }
         st.running = false;
         const rep = buildReport(frames, { renderer: w, size, elapsed, aborted: R.aborted });
@@ -284,7 +284,7 @@ const R11BENCH = (function () {
         G.state = 'paused';
         if (n++ > 0) {
           frames.dt.push(dt);
-          const gi = gpuInfo(which()); frames.draws.push(gi ? gi[0] : 0); frames.tris.push(gi ? gi[1] : 0);
+          const gi = gpuInfo(which()); if (gi) { frames.draws.push(gi[0]); frames.tris.push(gi[1]); }
         }
         drawOverlay(true, (duration - (now - t0)) / 1000);
         requestAnimationFrame(step);
