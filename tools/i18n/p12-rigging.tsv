@@ -1,0 +1,60 @@
+# Phase 12 RIGGING: French for the Office grapnel, falling chandeliers and scaffolds, and shoving into deep water. english<TAB>french (vous form), per tools/i18n/glossary.fr.md. {0} is filled at run time. Merge with: node tools/i18n/merge-pairs.js tools/i18n/p12-rigging.tsv
+Office Grapnel	Grappin de l'Office
+A cutter-man's grapnel gun, Office issue, the line still spooled and OC-742 stencilled on the stock. Face an iron ring set in a post or beam and press 0 (Y on a pad, Hook on touch) to be hauled across. It only holds at rings, it is loud, and it will not fire for a couple of breaths after a blow.	Un pistolet à grappin de gabier de l'Office, dotation réglementaire, la ligne encore enroulée et OC-742 au pochoir sur la crosse. Faites face à un anneau de fer scellé dans un poteau ou une poutre et appuyez sur 0 (Y sur une manette, Grappin sur écran tactile) pour vous faire haler de l'autre côté. Il n'accroche qu'aux anneaux, il est bruyant, et il refuse de partir pendant quelques souffles après un coup reçu.
+A cache wedged into the rock, left by someone who came here by line.	Une cache coincée dans la roche, laissée par quelqu'un venu ici par la ligne.
+The wreck of a chandelier. The room is darker for it.	L'épave d'un lustre. La salle en est plus sombre.
+A chandelier hangs on a rusted chain that creaks when nobody touches it. A shot or a clean cut would bring it down.	Un lustre pend à une chaîne rouillée qui grince quand personne n'y touche. Un tir ou une entaille nette le ferait tomber.
+What is left of a scaffold.	Ce qu'il reste d'un échafaudage.
+Rotten timbers lashed with tarred rope. It ticks and settles when you stand near it.	Des madriers pourris ligaturés de corde goudronnée. Il craque et tasse quand on s'en approche.
+An iron ring set deep in old oak, bright on the inside where a line has run. A grapnel would hold here (0).	Un anneau de fer scellé profondément dans du vieux chêne, luisant à l'intérieur là où une ligne a couru. Un grappin tiendrait ici (0).
+An iron ring set deep in old oak, bright on the inside where a line has run.	Un anneau de fer scellé profondément dans du vieux chêne, luisant à l'intérieur là où une ligne a couru.
+A cutter-man's grapnel gun in the moss by the hull.	Un pistolet à grappin de gabier dans la mousse, près de la coque.
+The chain parts. For a breath the chandelier hangs in the air.	La chaîne cède. Un souffle durant, le lustre reste suspendu dans l'air.
+You put your weight to it. The lashings go, and the whole frame comes down.	Vous y mettez tout votre poids. Les ligatures lâchent et toute la charpente s'effondre.
+It comes down on them like a dropped bell.	Il leur tombe dessus comme une cloche lâchée.
+It hits the flags like a dropped bell. Every ear in the place has heard it.	Il heurte les dalles comme une cloche lâchée. Toutes les oreilles du lieu l'ont entendu.
+The falling iron clips you for {0}.	Le fer qui tombe vous érafle pour {0}.
+It comes down on them in a long splintering rush.	Il leur tombe dessus dans un long fracas d'éclats.
+It comes down with a long splintering rush. Anything near has heard.	Il s'effondre dans un long fracas d'éclats. Tout ce qui rôde près d'ici l'a entendu.
+A falling timber clips you for {0}.	Un madrier qui tombe vous érafle pour {0}.
+The chandelier	Le lustre
+The scaffold	L'échafaudage
+Your hands are not steady enough for another shot yet.	Vos mains ne sont pas encore assez fermes pour un autre tir.
+Your hands shake from the blow. Wait a moment.	Vos mains tremblent après le coup. Attendez un instant.
+Not now.	Pas maintenant.
+Not with that thing awake and watching you.	Pas avec cette chose éveillée qui vous guette.
+There is no room to land there.	Il n'y a pas de place pour atterrir là.
+The line fouls on something in the way.	La ligne s'accroche à quelque chose en travers du chemin.
+The grapnel bites. The line sings, and you go.	Le grappin mord. La ligne chante, et vous partez.
+You land with your ears ringing from the line.	Vous atterrissez, les oreilles bourdonnantes du sifflement de la ligne.
+The water closes over it, and the ripples settle.	L'eau se referme dessus, et les rides s'apaisent.
+Your shoulder is not ready for another.	Votre épaule n'est pas prête pour un autre.
+You put your shoulder into {0} and drive it off the bank.	Vous chargez {0} de l'épaule et le poussez hors de la berge.
+You shove {0} off the bank. The water closes over it.	Vous repoussez {0} hors de la berge. L'eau se referme dessus.
+The water takes {0}.	L'eau emporte {0}.
+It is too heavy to shove.	C'est trop lourd à pousser.
+No ring in view.	Aucun anneau en vue.
+Nothing here to push anything into.	Rien ici dans quoi pousser quoi que ce soit.
+Face an iron ring and press 0 (Y on a pad, Hook on touch).	Faites face à un anneau de fer et appuyez sur 0 (Y sur une manette, Grappin sur écran tactile).
+The moss is empty where the gear lay.	La mousse est vide là où gisait l'équipement.
+Grey coats on the wreck, between you and the gear. Not yet.	Des manteaux gris sur l'épave, entre vous et l'équipement. Pas encore.
+You take the Office grapnel off the moss. Its line is still spooled, and the stencil on the stock says OC-742.	Vous prenez le grappin de l'Office dans la mousse. Sa ligne est toujours enroulée, et le pochoir sur la crosse dit OC-742.
+I took a grapnel gun off the Office cutter in the Deep Woods. Where somebody set iron rings in old oak, it will haul me across to them. It is not a quiet thing, and it does not forgive a blow.	J'ai pris un pistolet à grappin sur le cotre de l'Office, dans les Bois profonds. Là où quelqu'un a scellé des anneaux de fer dans du vieux chêne, il me halera jusqu'à eux. Il n'a rien de discret, et il ne pardonne pas un coup reçu.
+Rigging	Gréement
+Grapnel	Grappin
+the Office hook, its iron rings and the hidden cache	le grappin de l'Office, ses anneaux de fer et la cache dissimulée
+Falling chandeliers and scaffolds	Lustres et échafaudages qui tombent
+cut or shoot them down onto what stands beneath	les trancher ou les abattre à la balle sur ce qui se tient dessous
+Shove into deep water	Pousser dans l'eau profonde
+small foes pushed or knocked off a bank are lost	les petits ennemis poussés ou repoussés d'une berge sont perdus
+Hook	Grappin
+Shove	Pousser
+Use the grapnel or shove	Utiliser le grappin ou pousser
+a chain parts	une chaîne cède
+a crash of iron	un fracas de fer
+timber groans	le bois gémit
+timber falling	le bois s'abat
+a line sings	une ligne chante
+a splash	un plouf
+a chain creaks	une chaîne grince
+timber ticks	le bois craque

@@ -1,0 +1,69 @@
+name: Expansion module tests
+
+on:
+  pull_request:
+    paths:
+      - 'phase*.js'
+      - 'js/**'
+      - 'index.html'
+      - 'sw.js'
+      - 'desktop/package.json'
+      - 'desktop/security.js'
+      - 'octave_complete_expansion_bundle.js'
+      - 'test/phase*.test.js'
+      - 'test/build_bundle.js'
+      - '.github/workflows/expansion-tests.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'phase*.js'
+      - 'js/**'
+      - 'index.html'
+      - 'sw.js'
+      - 'desktop/package.json'
+      - 'desktop/security.js'
+      - 'octave_complete_expansion_bundle.js'
+      - 'test/phase*.test.js'
+      - 'test/build_bundle.js'
+      - '.github/workflows/expansion-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  expansion-tests:
+    name: Expansion tests and bundle verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 22
+      - name: Check module and bundle syntax
+        run: |
+          for file in phase*.js octave_complete_expansion_bundle.js; do
+            node --check "$file"
+          done
+      - name: Run focused module tests
+        run: |
+          node test/phase1_completion.test.js
+          node test/phase1-integration.test.js
+          node test/phase2.test.js
+          node test/phase3.test.js
+          node test/phase4567.test.js
+      - name: Verify bundle reproducibility and module exports
+        run: |
+          node test/build_bundle.js
+          git diff --exit-code -- octave_complete_expansion_bundle.js
+          node <<'NODE'
+          const assert = require('node:assert/strict');
+          global.window = global;
+          require('./octave_complete_expansion_bundle.js');
+          const results = window.runOctaveExpansionTests();
+          assert.equal(Object.keys(results).filter(key => key !== 'allPassed').length, 10);
+          assert.equal(results.allPassed, true);
+          console.log('PASS: all 10 expansion module exports present');
+          NODE
+      - name: Run save-security regression tests
+        run: node test/security.test.js

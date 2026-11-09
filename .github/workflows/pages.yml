@@ -1,0 +1,44 @@
+name: Deploy to GitHub Pages
+
+# Publishes the playable game (not the story files, tests, screenshots or desktop sources) to GitHub Pages on every push
+# to main, or by hand. One-time setting in the repository: Settings > Pages > Build and deployment > Source: GitHub Actions.
+# The site is served from https://<owner>.github.io/<repo>/ ; every path in the game is relative, so the sub-path is fine.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5.1.0
+      - uses: actions/setup-node@v5.0.0
+        with:
+          node-version: 22
+      # derive the offline file lists from index.html and the asset folders, then copy exactly the served files
+      - name: Write the service worker's lists and stage the site
+        run: node tools/pwa/precache.js --stage _site
+      - uses: actions/configure-pages@v6.0.0
+      - uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5.0.1

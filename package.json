@@ -1,0 +1,16 @@
+{
+  "name": "echoes-of-the-shattered-octave",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Echoes of the Shattered Octave - Book One. No build step: the game is plain HTML, CSS and JavaScript. This manifest holds the repo's Node tools (an Archil disk for files that outlive a run).",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.19"
+  },
+  "scripts": {
+    "archil:check": "node tools/archil/check.mjs"
+  },
+  "dependencies": {
+    "disk": "1.8.0"
+  }
+}

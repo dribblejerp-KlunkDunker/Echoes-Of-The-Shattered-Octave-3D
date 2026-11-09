@@ -1,0 +1,98 @@
+# Phase 11, team TAVERN: english<TAB>french. Bones, the evening set, the cat of Whisper-Grove, and the three Options rows.
+Tavern games	Jeux de taverne
+Bones with Garrow Finch, and playing for the room, at the Boar & Dulcimer.	Les os avec Garrow Finch, et jouer pour la salle, au Sanglier & Tympanon.
+The cat	La chatte
+The stray of Whisper-Grove: feed her on three days and she follows you, and hisses at what you cannot see.	La chatte errante de Whisper-Grove : nourrissez-la trois jours et elle vous suit, et siffle contre ce que vous ne voyez pas.
+Performance timing	Précision du jeu
+Normal, a wider window, or auto-timing (the right lane at roughly the right moment).	Normale, fenêtre élargie, ou minutage automatique (la bonne voie à peu près au bon moment).
+Normal	Normale
+Wide window	Fenêtre large
+Auto-timing	Minutage auto
+On	Activé
+Off	Désactivé
+Garrow Finch	Garrow Finch
+Play Bones	Jouer aux Os
+Garrow slides the cup away. "Enough for one day. Come back when it has turned over."	Garrow écarte le gobelet. "Ça suffit pour aujourd'hui. Revenez quand la journée aura tourné."
+You have nothing to put on the table.	Vous n'avez rien à poser sur la table.
+Bones	Os
+Closest to fourteen wins. Take dice one at a time, up to four; go over fourteen and you bust. Garrow takes a die on eleven or less. Ties go to the table. Exactly fourteen pays double. Two ones on your first throw is a Quiet: the cup is void.	Le plus proche de quatorze l'emporte. Prenez les dés un à un, jusqu'à quatre ; au-delà de quatorze, vous sautez. Garrow prend un dé à onze ou moins. Les égalités vont à la table. Quatorze pile paie double. Deux as au premier lancer, c'est un Calme : le gobelet est nul.
+Stake	Mise
+Purse {0} · lost today {1} of {2}	Bourse {0} · perdu aujourd'hui {1} sur {2}
+Deal	Lancer
+Take a die	Prendre un dé
+Stand	Rester
+Again	Encore
+Leave the table	Quitter la table
+Less	Moins
+More	Plus
+Choose a stake, then deal.	Choisissez une mise, puis lancez.
+Your total is {0}. Take a die, or stand.	Votre total est {0}. Prenez un dé, ou restez.
+Garrow turns his hidden die over.	Garrow retourne son dé caché.
+Left / Right stake ±1 · Up / Down ±5 · Enter or Space deals and takes · S stands · Esc leaves · pad: A takes, X stands, B leaves, D-pad stakes	Gauche / Droite mise ±1 · Haut / Bas ±5 · Entrée ou Espace lance et prend · S reste · Échap quitte · manette : A prend, X reste, B quitte, croix directionnelle : mise
+Stand to end the throw, or press Escape again to walk away. The stake is lost.	Restez pour finir le lancer, ou appuyez encore sur Échap pour partir. La mise est perdue.
+A table with two sets of dice on it.	Une table avec deux séries de dés.
+You	Vous
+Garrow	Garrow
+You hold {0} to his {1}. He pays you {2}.	Vous avez {0} contre {1}. Il vous paie {2}.
+Fourteen, on the nose. Garrow whistles through his teeth and counts out {0}.	Quatorze pile. Garrow siffle entre ses dents et compte {0}.
+He holds {1} to your {0}. You pay {2}.	Il a {1} contre vos {0}. Vous payez {2}.
+Level at {0}, and level goes to the table. You pay {1}.	Égalité à {0}, et l'égalité va à la table. Vous payez {1}.
+Over fourteen: {0}. The bones are not sorry. You pay {1}.	Plus de quatorze : {0}. Les os ne sont pas désolés. Vous payez {1}.
+Garrow draws and goes over: {0}. He pays you {1}.	Garrow tire et dépasse : {0}. Il vous paie {1}.
+Two ones. The Quiet: the table goes still for a breath, the cup is void, and the stake is yours again.	Deux as. Le Calme : la table se fige un souffle, le gobelet est nul, et la mise vous revient.
+You leave the table in the middle of a throw. Garrow keeps the stake.	Vous quittez la table au milieu d'un lancer. Garrow garde la mise.
+Play for the room	Jouer pour la salle
+Play for the room (the Boar fills in the evening)	Jouer pour la salle (le Sanglier se remplit le soir)
+Play for the room (you have played tonight)	Jouer pour la salle (vous avez déjà joué ce soir)
+The Boar's Reel	La Gigue du Sanglier
+Notes fall to the line. Press the lane as each one lands.	Les notes tombent vers la ligne. Appuyez sur la voie quand chacune arrive.
+A S W D or the arrow keys · pad: X A Y B, Back puts it away · or tap a lane · Esc puts it away	A S W D ou les flèches · manette : X A Y B, Retour range l'instrument · ou touchez une voie · Échap range l'instrument
+Four lanes of falling notes and a line to meet them on.	Quatre voies de notes qui tombent et une ligne pour les rencontrer.
+Ready…	Prêt…
+Play	Jouer
+Put it away	Le ranger
+Left	Gauche
+Down	Bas
+Up	Haut
+Right	Droite
+You collect {0} sovereigns from the hat.	Vous ramassez {0} souverains dans le chapeau.
+The hat stays empty.	Le chapeau reste vide.
+The Hedge folk will remember it kindly.	Les gens de la Haie s'en souviendront avec bonté.
+You put the instrument away unfinished.	Vous rangez l'instrument sans avoir fini.
+Perfect {0} · Good {1} · Missed {2}	Parfaites {0} · Bonnes {1} · Manquées {2}
+Accuracy {0}%	Précision {0} %
+Close	Fermer
+A grey cat, wet to the elbows, sits where the water-light is best. She looks at the food in your hand and then at your face, in that order, as if one of them might be lying.	Une chatte grise, mouillée jusqu'aux coudes, est assise là où la lumière de l'eau est la meilleure. Elle regarde la nourriture dans votre main puis votre visage, dans cet ordre, comme si l'un des deux pouvait mentir.
+Offer the {0}	Offrir : {0}
+Scratch her ears	Lui gratter les oreilles
+Leave her be	La laisser tranquille
+She is not hungry. She has the look of someone who will be, tomorrow.	Elle n'a pas faim. Elle a l'air de quelqu'un qui aura faim demain.
+She takes it three feet off, eats with her back to you, and leaves at once. Not thanks. Acknowledgement.	Elle le prend à un mètre, mange en vous tournant le dos et s'en va aussitôt. Pas un merci. Une reconnaissance.
+She eats this one at arm's length, eyes on you the whole time. When she is done she does not leave.	Celui-ci, elle le mange à bout de bras, les yeux sur vous tout du long. Quand elle a fini, elle ne part pas.
+She finishes, washes one paw, and climbs onto your arm as though it had been agreed some time ago. She is yours, or you are hers. The cat has not said.	Elle finit, se lave une patte et grimpe sur votre bras comme si cela avait été convenu depuis longtemps. Elle est à vous, ou vous êtes à elle. La chatte ne l'a pas dit.
+A grey cat in Whisper-Grove has decided I am hers. She is not a Hollow. She remembers all of it and keeps her own counsel.	Une chatte grise de Whisper-Grove a décidé que j'étais à elle. Ce n'est pas un Creux. Elle se souvient de tout et garde ses pensées pour elle.
+What will you call her?	Comment l'appellerez-vous ?
+1-8 or Enter keeps the current name · Escape keeps it	1 à 8 choisit un nom · Entrée ou Échap garde le nom actuel
+Rename her	La renommer
+{0}. She considers it, and does not object.	{0}. Elle y réfléchit, et ne proteste pas.
+{0} leans her whole weight into your hand.	{0} appuie tout son poids dans votre main.
+{0} watches you with the patience of someone who has never been in a hurry.	{0} vous observe avec la patience de quelqu'un qui n'a jamais été pressé.
+Ask her to wait here	Lui demander d'attendre ici
+Ask her to come along	Lui demander de venir
+{0} sits. It is not a promise, only a sit.	{0} s'assoit. Ce n'est pas une promesse, seulement une pause.
+{0} gets up, stretches, and falls in behind your heels.	{0} se lève, s'étire et se met dans vos talons.
+{0} sits down outside and washes a paw. She does not do doors that echo.	{0} s'assoit dehors et se lave une patte. Elle ne fait pas les portes qui résonnent.
+{0} stops, ears flat, and hisses {1}.	{0} s'arrête, les oreilles plaquées, et siffle {1}.
+ahead of you	devant vous
+off to your right	sur votre droite
+behind you	derrière vous
+off to your left	sur votre gauche
+Garrow Finch, on a crate in the cellar, nudges a stool out with his boot. "Hetty's board says no dice, and Hetty's board is upstairs. A throw of bones, if you have a coin to lose?"	Garrow Finch, sur une caisse dans la cave, pousse un tabouret du bout de sa botte. "Le tableau de Hetty dit pas de dés, et le tableau de Hetty est en haut. Un lancer d'os, si vous avez une pièce à perdre ?"
+Garrow Finch, a quarry hauler off shift, shakes his cup inside his coat so it will not rattle. "Bones? One to twenty sovereigns. Nobody down here ever got rich, and nobody has had to leave."	Garrow Finch, charretier de la carrière sorti de son poste, secoue son gobelet sous son manteau pour qu'il ne claque pas. "Des os ? De un à vingt souverains. Personne ici en bas n'a jamais fait fortune, et personne n'a dû partir."
+"Bones, or back up the stair," says Garrow, and shakes the cup inside his coat.	"Des os, ou remontez l'escalier", dit Garrow, et il secoue le gobelet sous son manteau.
+Garrow's bones in the cellar, Hetty's taproom, the playing at a hand's width: all of it is on the wrong side of the Greening now. I still catch myself counting to fourteen.	Les os de Garrow dans la cave, la salle de Hetty, la musique à une largeur de main : tout cela est du mauvais côté du Verdissement, désormais. Il m'arrive encore de compter jusqu'à quatorze.
+You take out your instrument and play for the room the Narrow way, a hand's width loud, the tune carried by the fingers and not the breath. The Boar goes quiet in the ordinary way: the way a room does before someone tries.	Vous sortez votre instrument et jouez pour la salle à la manière de l'Étroit, à une largeur de main, l'air porté par les doigts et non par le souffle. Le Sanglier se tait de la façon ordinaire : celle d'une salle avant que quelqu'un essaie.
+Nobody looks up. Hetty collects the glasses.	Personne ne lève les yeux. Hetty ramasse les verres.
+A few people touch two fingers to the table, which is how the Boar applauds now. Someone puts two coins in the hat.	Quelques-uns posent deux doigts sur la table, c'est ainsi que le Sanglier applaudit désormais. Quelqu'un met deux pièces dans le chapeau.
+Half the room taps the last verse out on the tables with one finger, without a sound. Hetty sets a cup by your elbow.	La moitié de la salle bat le dernier couplet d'un doigt sur les tables, sans un bruit. Hetty pose une tasse près de votre coude.
+On the last bars the whole room lifts its hands and shakes them in the air, the silent applause, and nobody makes a sound. Even Hetty stops wiping the same glass.	Sur les dernières mesures, toute la salle lève les mains et les agite en l'air, les applaudissements muets, et personne ne fait un bruit. Même Hetty cesse d'essuyer le même verre.

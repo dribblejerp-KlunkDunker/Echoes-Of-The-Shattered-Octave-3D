@@ -1,0 +1,178 @@
+# Phase 15, team HEARTH: english<TAB>french. Camp cooking, Rounds, and boss trophies. Strings marked [PROPOSED] in TEXT.md.
+Camp cooking	Cuisine de camp
+cook carried food at camp fires, the Boar's hearth and your own: a short beat at the spit, and a small warmth from the meal.	cuisinez ce que vous portez aux feux de camp, au foyer du Sanglier et au vôtre : un court moment à la broche, et un peu de chaleur après le repas.
+Turning the spit	Tourner la broche
+turn it yourself at the marks, or let it turn itself (never worse than turning it well).	tournez-la vous-même aux repères, ou laissez-la tourner seule (jamais moins bien que si vous la tourniez bien).
+By hand	À la main
+Automatic	Automatique
+Rounds	Rounds
+Nessa Tolliver deals Rounds at the Boar & Dulcimer: a trick-taking card game for two to thirty sovereigns.	Nessa Tolliver donne les Rounds au Sanglier & Tympanon : un jeu de cartes à levées, de deux à trente souverains.
+Boss trophies	Trophées de boss
+bosses you have beaten leave a trophy to hang on the pegs of your house on Cooper's Row. Pride only.	les boss que vous avez vaincus laissent un trophée à accrocher aux chevilles de votre maison de la rue des Tonneliers. Rien que pour l'orgueil.
+On	Activé
+Off	Désactivé
+The camp fire	Le feu de camp
+The fire is low and steady. There is room beside it for a pan, and for a spit if you have something to put on it.	Le feu est bas et régulier. Il y a de la place à côté pour une poêle, et pour une broche si vous avez de quoi la garnir.
+Sit by the fire for a while.	Vous restez un moment près du feu.
+The hearth	Le foyer
+There is a corner of the grate kept free for a pan. Nobody here will mind, and nobody will watch.	Un coin de la grille est laissé libre pour une poêle. Personne ici ne s'en offusquera, et personne ne regardera.
+Your hearth	Votre foyer
+Banked and warm, and yours. The tempering brazier sits at one side, and the other side is a good place for a pan.	Braises couvertes, chaleur douce, et à vous. Le brasero de trempe occupe un côté, et l'autre convient très bien à une poêle.
+Craft, repair and brew.	Forger, réparer et brasser.
+Cook something.	Cuisiner quelque chose.
+Step back.	Reculer.
+Not with trouble this close.	Pas avec un danger si près.
+You have nothing to cook. A Run-Eel, hearth bread and moot-curd, or honey and willow-bark would do.	Vous n'avez rien à cuisiner. Une anguille de la course, du pain de l'âtre et du caillé du moot, ou du miel et de l'écorce de saule feraient l'affaire.
+Cooking	Cuisine
+What will you cook?	Que cuisinez-vous ?
+You need: {0}	Il vous faut : {0}
+ and 	 et 
+1-3 choose · Space, Enter or tap turns the spit · pad: A chooses and turns, X auto-turn, B leaves · Esc steps away	1-3 choisir · Espace, Entrée ou toucher tourne la broche · manette : A choisit et tourne, X tournage auto, B quitte · Échap s'écarte
+A pan and a spit over a low fire, with a marker crossing a bar below them.	Une poêle et une broche au-dessus d'un feu bas, avec un curseur qui traverse une barre en dessous.
+Turn the spit	Tourner la broche
+Auto-turn: on	Tournage auto : activé
+Auto-turn: off	Tournage auto : désactivé
+Step away	S'écarter
+The fire pops and settles. Turn the spit at each bright notch.	Le feu crépite et se tasse. Tournez la broche à chaque repère clair.
+Now.	Maintenant.
+Turned.	Tourné.
+That side catches.	Un côté attache.
+You take it off the heat before it is done.	Vous retirez le plat du feu avant la fin.
+Even all the way round, and it smells like a kitchen.	Uniforme jusqu'au bout, et cela sent la cuisine.
+Mostly even. One side is darker, and none the worse for it.	Presque uniforme. Un côté est plus sombre, sans que cela gâte rien.
+It caught on one side. It will still do.	Un côté a attaché. Cela fera l'affaire quand même.
+You forgot it was there. It is cooked, in the way a coal is cooked.	Vous l'avez oublié sur le feu. C'est cuit, comme un charbon est cuit.
+Eat it hot.	Le manger chaud.
+Wrap it for the road.	Envelopper pour la route.
+You wrap the {0} in a cloth and put it away.	Vous enveloppez ce plat ({0}) dans un linge et le rangez.
+Whatever you meant to cook is no longer in your pack.	Ce que vous vouliez cuisiner n'est plus dans votre sac.
+Smoked Run-Eel	Anguille fumée de la course
+A Run-Eel split, salted and turned over a fire until the skin crackles. It is richer than raw. Restores 20 health and 30 fatigue, and leaves you smoke-warmed.	Une anguille de la course fendue, salée et tournée sur le feu jusqu'à ce que la peau craque. Elle est plus riche que crue. Rend 20 points de santé et 30 de fatigue, et vous laisse réchauffé de fumée.
+You eat the smoked eel with your fingers. It tastes of river and woodsmoke.	Vous mangez l'anguille fumée avec les doigts. Elle a un goût de rivière et de fumée de bois.
+Toasted Round	Ronde grillée
+Hearth bread toasted over the coals with moot-curd melted into the crumb. Restores 16 health, 10 voice and 20 fatigue, and leaves you hearth-fed.	Du pain de l'âtre grillé sur les braises, avec du caillé du moot fondu dans la mie. Rend 16 points de santé, 10 de voix et 20 de fatigue, et vous laisse rassasié au coin du feu.
+The curd runs into the crumb. You eat it standing, the way the moot does.	Le caillé s'infiltre dans la mie. Vous mangez debout, comme on le fait au moot.
+Soothing Draught	Tisane apaisante
+Honey and willow-bark steeped hot in a tin cup. Restores 18 voice and 6 health, and leaves you easy-throated.	Du miel et de l'écorce de saule infusés chauds dans un gobelet de fer-blanc. Rend 18 points de voix et 6 de santé, et vous laisse la gorge détendue.
+Hot honey and bitter bark. Your throat unknots a little at a time.	Du miel chaud et une écorce amère. Votre gorge se dénoue peu à peu.
+Smoke the Run-Eel	Fumer l'anguille
+Toast the bread and curd	Griller le pain et le caillé
+Steep honey and willow-bark	Infuser le miel et l'écorce de saule
+Smoke-warmed	Réchauffé de fumée
+You get your breath back faster, and the road costs less hunger.	Vous reprenez votre souffle plus vite, et la route vous coûte moins de faim.
+Hearth-fed	Rassasié au foyer
+Cuts and bruises knit a little faster while nothing is hunting you.	Les coupures et les bleus guérissent un peu plus vite tant que rien ne vous traque.
+Easy throat	Gorge détendue
+Your voice returns faster while nothing is hunting you.	Votre voix revient plus vite tant que rien ne vous traque.
+{0} ({1}). {2}	{0} ({1}). {2}
+The new meal replaces the old warmth.	Ce nouveau repas remplace la chaleur de l'ancien.
+The warmth of the meal has gone. It was good while it lasted.	La chaleur du repas s'est dissipée. Elle était bonne tant qu'elle a duré.
+{0}: {1} left	{0} : il en reste {1}
+Salt on the edge, and then wait. A habit from Fortis. The woman who taught me weighed her salt.	Du sel sur le bord, et puis on attend. Une habitude de Fortis. Celle qui me l'a appris pesait son sel.
+I once cooked for forty engineers. Nobody died. That was the entire review.	J'ai cuisiné un jour pour quarante ingénieurs. Personne n'est mort. C'était toute l'évaluation.
+My mother toasted the heel of the loaf and gave it to whoever was crying. I was often at that table.	Ma mère grillait le talon du pain et le donnait à qui pleurait. J'étais souvent à cette table.
+That smell. Somebody is going to be kind to somebody tonight.	Cette odeur. Quelqu'un va être gentil avec quelqu'un, ce soir.
+Entry: a meal at a fire. I will not write down who ate what. Some things are better unfiled.	Mention : un repas près d'un feu. Je n'écrirai pas qui a mangé quoi. Certaines choses valent mieux non classées.
+Hearth smoke has no register. I find that restful.	La fumée de foyer n'a pas de registre. Je trouve cela reposant.
+Nessa Tolliver	Nessa Tolliver
+Nessa Tolliver, a ferrywoman off the Flume, shuffles a worn deck with one hand. "Evening. A round of Rounds, if you have the patience?"	Nessa Tolliver, passeuse sur le Flume, bat un jeu usé d'une seule main. "Bonsoir. Une partie de Rounds, si vous avez la patience ?"
+Nessa Tolliver shuffles twenty-four cards with the ease of someone who has done it on a moving boat. "Rounds. Two to thirty sovereigns. I only cheat the river."	Nessa Tolliver bat vingt-quatre cartes avec l'aisance de quelqu'un qui l'a fait sur un bateau en mouvement. "Rounds. De deux à trente souverains. Je ne triche que contre la rivière."
+"Rounds, or the next seat," says Nessa, and cuts the deck.	"Rounds, ou la place suivante", dit Nessa, et elle coupe le jeu.
+Play Rounds	Jouer aux Rounds
+Nessa squares the deck. "That is the lot for one day. The cards will keep till it has turned over."	Nessa aligne le jeu. "Cela fait le compte pour une journée. Les cartes attendront que le jour se retourne."
+You have nothing to stake.	Vous n'avez rien à miser.
+Nessa's deck, the table by the east window, the Boar: all of it is on the wrong side of the Greening now. I still lead the Cantor when I mean to be brave.	Le jeu de Nessa, la table près de la fenêtre est, le Sanglier : tout cela est du mauvais côté du Reverdissement, désormais. J'ouvre encore avec le Chantre quand je veux être brave.
+Rounds	Rounds
+Twenty-four cards: Bells, Reeds, Glass and Roots, each a 1, 2, 3, Deacon, Factor and Cantor (low to high). Six cards each; the turned card names trumps. Follow the suit led if you can. The highest trump takes a trick, else the highest of the suit led, and the winner leads. Four tricks win the stake and six pay double; three apiece is a push. Nessa never claims the double.	Vingt-quatre cartes : Cloches, Roseaux, Verre et Racines, chacune un 1, un 2, un 3, un Diacre, un Facteur et un Chantre (du plus bas au plus haut). Six cartes chacun ; la carte retournée désigne l'atout. Fournissez la couleur demandée si vous le pouvez. Le plus haut atout prend la levée, sinon la plus haute carte de la couleur demandée, et le gagnant ouvre. Quatre levées gagnent la mise et six la doublent ; trois partout, c'est nul. Nessa ne réclame jamais le double.
+Stake	Mise
+Purse {0} · lost today {1} of {2}	Bourse {0} · perdu aujourd'hui {1} sur {2}
+Deal	Donner
+Deal again	Redonner
+Leave the table	Quitter la table
+Less	Moins
+More	Plus
+Choose a stake, then deal.	Choisissez une mise, puis donnez.
+Left / Right stake ±1 · Up / Down ±5 · Enter or Space deals · in a hand: Left / Right choose, Enter plays, 1-6 plays that card · Esc leaves · pad: A plays, B leaves, D-pad chooses	Gauche / Droite mise ±1 · Haut / Bas ±5 · Entrée ou Espace donne · en main : Gauche / Droite choisir, Entrée joue, 1-6 joue cette carte · Échap quitte · manette : A joue, B quitte, croix directionnelle choisit
+Press Escape again, or choose Leave, to walk away. The stake is lost.	Appuyez encore sur Échap, ou choisissez Quitter, pour vous lever. La mise est perdue.
+A table with a card game laid out: her hand of backs, the turned trump card, and the trick being played.	Une table avec un jeu de cartes étalé : sa main de dos de cartes, la carte d'atout retournée et la levée en cours.
+Your hand	Votre main
+{0} of {1}	{0} de {1}
+Bells	Cloches
+Reeds	Roseaux
+Glass	Verre
+Roots	Racines
+1	1
+2	2
+3	3
+Deacon	Diacre
+Factor	Facteur
+Cantor	Chantre
+Nessa	Nessa
+You	Vous
+Trumps: {0}	Atout : {0}
+Tricks: you {0}, Nessa {1}	Levées : vous {0}, Nessa {1}
+You lead. Play a card.	Vous ouvrez. Jouez une carte.
+Nessa plays the {0}.	Nessa joue : {0}.
+Follow {0} if you can.	Fournissez {0} si vous le pouvez.
+You have no {0}: play anything.	Vous n'avez pas de {0} : jouez ce que vous voulez.
+You must follow {0}.	Vous devez fournir {0}.
+You take the trick with the {0}.	Vous prenez la levée avec : {0}.
+Nessa takes it with the {0}.	Nessa la prend avec : {0}.
+Nessa leads the {0}.	Nessa ouvre avec : {0}.
+You take {0} tricks to {1}. She pays you {2}.	Vous prenez {0} levées contre {1}. Elle vous paie {2}.
+All six. Nessa whistles, shakes her head, and counts out {0}.	Les six. Nessa siffle, secoue la tête et compte {0}.
+Three and three. The stake stays where it is.	Trois partout. La mise reste où elle est.
+She takes {1} to your {0}. You pay {2}.	Elle prend {1} levées contre {0} pour vous. Vous payez {2}.
+You leave the table in the middle of a hand. Nessa keeps the stake.	Vous quittez la table en pleine main. Nessa garde la mise.
+{0} is yours to keep. It would look well on a wall.	{0} : vous le gardez. Cela ferait bien sur un mur.
+Hang it on a peg in your house on Cooper's Row.	Accrochez-le à une cheville de votre maison de la rue des Tonneliers.
+A bare peg in the wall. Something won could hang here.	Une cheville nue dans le mur. Quelque chose de gagné pourrait y pendre.
+A bare peg	Une cheville nue
+What will you hang here?	Que voulez-vous accrocher ici ?
+You have nothing to hang. The bosses you beat leave something behind.	Vous n'avez rien à accrocher. Les boss que vous vainquez laissent quelque chose derrière eux.
+Another trophy…	Un autre trophée…
+Leave it bare.	La laisser nue.
+Take it down.	Le décrocher.
+Leave it hung.	Le laisser accroché.
+{0} of {1} trophies hang on the pegs.	{0} trophées sur {1} sont accrochés aux chevilles.
+Trophies	Trophées
+Hung	Accroché
+In your pack	Dans votre sac
+{0} of {1} won	{0} sur {1} gagnés
+Rounds won	Rounds gagnés
+The Borrowed Collar	Le Collier emprunté
+A collar of knotted cord, cut from the thing that wore the villagers' voices at the Hedge. It is only cord now.	Un collier de corde nouée, coupé à la chose qui portait les voix des villageois à la Haie. Ce n'est plus que de la corde.
+You hang the Borrowed Collar where the lamplight finds it. It stays quiet, which is the kindest thing it does.	Vous accrochez le Collier emprunté là où la lampe l'éclaire. Il reste silencieux, ce qui est la plus aimable chose qu'il fasse.
+The Split Funeral-Reed	Le Roseau funéraire fendu
+A mourning-reed split down its length, from the choir of the Mausoleum. It sounds nothing now, and it is the right nothing.	Un roseau de deuil fendu dans sa longueur, du chœur du Mausolée. Il ne sonne plus rien, et c'est le bon rien.
+You hang the split reed. For a moment you think you hear someone count to eight, and then the room is only a room.	Vous accrochez le roseau fendu. Un instant, vous croyez entendre quelqu'un compter jusqu'à huit, puis la pièce n'est plus qu'une pièce.
+The Requiem's Chord-Plate	La Plaque d'accord du Requiem
+A bronze plate engraved with a chord that has one voice too many, taken from the Requiem in the Mausoleum of Chords.	Une plaque de bronze gravée d'un accord qui a une voix de trop, prise sur le Requiem du Mausolée des Accords.
+The chord-plate goes up beside the lamp. It does not ring. You are glad of that.	La plaque d'accord se pose près de la lampe. Elle ne sonne pas. Vous en êtes content.
+The Aegis's Cheek-Plate	La Joue de l'Égide
+A brass plate from the Aegis of the Cloister, still scratched with a chalk hymn-number.	Une plaque de laiton de l'Égide du Cloître, encore griffée d'un numéro de cantique à la craie.
+The cheek-plate hangs crooked and you let it. It has earned crooked.	La joue de l'Égide pend de travers et vous la laissez. Elle a gagné le droit d'être de travers.
+The Hymn-Nine Slate	L'Ardoise du Cantique neuf
+A slate board from the Cloister, chalked HYMN 9. The Aegis chimed its alto line when you touched it.	Une ardoise du Cloître, marquée à la craie CANTIQUE 9. L'Égide a carillonné sa ligne d'alto quand vous l'avez touchée.
+You hang the slate. The alto line stays in your head all evening, and nobody minds.	Vous accrochez l'ardoise. La ligne d'alto reste dans votre tête toute la soirée, et personne n'y trouve à redire.
+The Weaver's Shuttle	La Navette de la Tisseuse
+A bobbin-shuttle of pale wood from the loom under Whisper-Grove. A little shroud-thread is still wound on it, in no colour.	Une navette-bobine de bois pâle du métier sous Whisper-Grove. Un peu de fil de linceul y est encore enroulé, sans couleur.
+You hang the shuttle by its cord. It turns once and stops.	Vous accrochez la navette par sa cordelette. Elle tourne une fois et s'arrête.
+The Pressman's Plate	La Plaque du Pressier
+A brass numbering-plate off Pressman Mallow's press-frame. The number is worn smooth.	Une plaque de numérotation en laiton du bâti de la presse du pressier Mallow. Le numéro est effacé.
+The press-plate goes on its peg. It is only a plate. You make yourself say so.	La plaque de presse prend sa cheville. Ce n'est qu'une plaque. Vous vous forcez à le dire.
+The Weaverling Spindle	Le Fuseau de la couvée
+A spindle of lift-silk wound by the Brood-Mother's get, light as breath. Whatever the silk was carrying has been let go.	Un fuseau de soie ascendante filée par la progéniture de la Mère-Couvée, léger comme un souffle. Ce que portait la soie a été relâché.
+You hang the spindle near the window. The draught moves it and nothing else.	Vous accrochez le fuseau près de la fenêtre. Le courant d'air le remue, et rien d'autre.
+Teller's Lanyard	La Lanière du guichetier
+A leather lanyard with a brass tag: TELLER, HOLD. On the back, scratched with a pin: 432. The hold is open now.	Une dragonne de cuir avec une plaque de laiton : TELLER, CALE. Au dos, gratté à l’épingle : 432. La cale est ouverte, maintenant.
+You hang Teller's lanyard. He counted your hold by ear. Four hundred and thirty-two is a number you will not stop knowing.	Vous accrochez la dragonne de Teller. Il a compté votre cale à l’oreille. Quatre cent trente-deux est un nombre que vous ne cesserez pas de connaître.
+The Horn-Lens	La Lentille du cor
+A thick glass lens from the Office cutter's listening-horn. Hold it up and the room looks back a little late.	Une épaisse lentille de verre du cor d'écoute du cutter de l'Office. Levez-la et la pièce vous regarde en retour, un peu en retard.
+The lens catches the lamp and throws a small round of light on the floor.	La lentille attrape la lampe et jette un petit rond de lumière sur le sol.
+The Felted Clapper	Le Battant feutré
+The clapper of the Unrung Bell, wrapped in grey felt so that it would never be heard. You have unwrapped it a little.	Le battant de la Cloche muette, enveloppé de feutre gris pour qu'on ne l'entende jamais. Vous l'avez un peu déballé.
+You hang the clapper on its peg, still half in its felt. It is easier to look at that way.	Vous accrochez le battant à sa cheville, encore à demi dans son feutre. C'est plus facile à regarder ainsi.
+The Captain's Gorget	La Gorgerette du capitaine
+A dented steel gorget stamped with Outrider-Captain Brennick's rank. Whoever wore it held his line.	Une gorgerette d'acier bosselée, estampillée du grade du capitaine éclaireur Brennick. Celui qui la portait tenait sa ligne.
+The gorget goes up on its peg, facing the door, as if it were still on watch.	La gorgerette prend sa cheville, face à la porte, comme si elle montait encore la garde.

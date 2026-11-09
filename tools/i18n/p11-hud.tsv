@@ -1,0 +1,14 @@
+# Phase 11 HUD: French for the new Graphics & access rows and the floating Parry number. english<TAB>french (vous form), per tools/i18n/glossary.fr.md
+Hit-direction marker	Indicateur de direction des coups
+a red arc at the edge of the view points at what hurt you	un arc rouge au bord de la vue indique ce qui vous a blessé
+Enemy health bars	Barres de vie des ennemis
+a thin bar over the foe you aim at or just hit	une fine barre au-dessus de l'ennemi visé ou tout juste touché
+Damage numbers	Chiffres de dégâts
+small numbers float up from hits you deal and take	de petits chiffres s'élèvent des coups donnés et reçus
+HUD style	Style de l'interface
+health, fatigue and Song power as bars or as organ pipes	santé, fatigue et puissance des Chants en barres ou en tuyaux d'orgue
+Bars	Barres
+Organ pipes	Tuyaux d'orgue
+Stillness tint	Teinte d'immobilité
+the edges of the view darken the longer you stay still and quiet	les bords de la vue s'assombrissent tant que vous restez immobile et silencieux
+Parry	Parade

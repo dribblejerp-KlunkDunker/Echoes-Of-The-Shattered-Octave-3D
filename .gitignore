@@ -1,0 +1,8 @@
+__pycache__/
+_site/
+node_modules/
+.env
+.env.*
+!.env.example
+tools/art/pixel3d/.render/
+tools/art/decals/.render/

@@ -1,0 +1,54 @@
+# Phase 12, team KIT: english<TAB>french. Fire flasks, damper jars, weighted nets: items, messages, Options rows. {0}-style placeholders are filled at run time.
+Oil Flask	Fiole d'huile
+Damper Jar	Pot d'étouffement
+Weighted Net	Filet lesté
+Oil flask	Fiole d'huile
+Damper jar	Pot d'étouffement
+Weighted net	Filet lesté
+Lamp-oil and a rag wick in a stoppered bottle. Thrown (O opens the throw panel), it bursts into a patch of fire where it lands: a few paces of flame that bar a passage and burn what stays in them. Loud, and bright. Never throw it where a neighbour can see.	De l'huile de lampe et une mèche de chiffon dans une bouteille bouchée. Lancée (O ouvre le panneau de lancer), elle éclate en une nappe de feu là où elle tombe : quelques pas de flammes qui barrent un passage et brûlent ce qui y reste. Bruyante, et lumineuse. Ne la lancez jamais là où un voisin peut voir.
+Wool-fat, wax and powdered lead-salt, sealed in a jar. Apothecaries use it on sickrooms. Thrown (O opens the throw panel), it breaks and takes the sound out of the air around it for a few breaths. It is only wax. It is not the Hush, and Bettany asks that you not say it is.	De la graisse de laine, de la cire et du sel de plomb en poudre, scellés dans un pot. Les apothicaires s'en servent dans les chambres de malades. Lancé (O ouvre le panneau de lancer), il se brise et retire le son de l'air alentour pendant quelques souffles. Ce n'est que de la cire. Ce n'est pas le Silence, et Bettany vous prie de ne pas le dire.
+Reed-cord knotted around fired-clay weights, the kind a corsair throws across a boarding deck. Thrown (O opens the throw panel) at a foe in front of you, it pins a small or ordinary one for a few seconds. Large things shrug it off, and some things are not there to be caught.	De la corde de roseau nouée autour de poids en terre cuite, comme les corsaires en lancent sur un pont d'abordage. Lancé (O ouvre le panneau de lancer) sur un ennemi en face de vous, il cloue un adversaire petit ou ordinaire pendant quelques secondes. Les grosses choses s'en moquent, et certaines choses ne sont pas là pour être prises.
+Oil flask: the glass bursts and the oil takes, {0} paces ahead. A patch of fire holds the floor.	Fiole d'huile : le verre éclate et l'huile prend, à {0} pas devant vous. Une nappe de feu tient le sol.
+Oil flask: it bursts on the water, and the oil floats there, and goes out.	Fiole d'huile : elle éclate sur l'eau, l'huile flotte là, et s'éteint.
+Too close. The oil would take you with it. Aim farther off.	Trop près. L'huile vous emporterait avec elle. Visez plus loin.
+The last flask is still burning. Give it a moment.	La dernière fiole brûle encore. Laissez-lui un instant.
+Someone sees the fire go up. The watch records it.	Quelqu'un voit le feu monter. Le guet le consigne.
+The fire dies down to black stones. The floor is as it was.	Le feu retombe en pierres noires. Le sol est comme avant.
+Damper jar: it breaks, {0} paces ahead, and the sound goes out of the air around it.	Pot d'étouffement : il se brise, à {0} pas devant vous, et le son quitte l'air alentour.
+The last jar's wax is still settling. Wait a few breaths.	La cire du dernier pot n'a pas fini de se figer. Attendez quelques souffles.
+The wax settles. Sound comes back, all at once.	La cire se fige. Le son revient, d'un seul coup.
+Your voice goes into the quiet and does not come back. The Song will not carry here.	Votre voix entre dans le calme et n'en revient pas. Le Chant ne portera pas ici.
+Silence {0}	Silence {0}
+Silence: no sound carries here	Silence : aucun son ne porte ici
+The fire does not seem to reach it.	Le feu ne semble pas l'atteindre.
+Weighted net: it opens over {0}, and the weights take it down.	Filet lesté : il s'ouvre sur {0}, et les poids l'entraînent au sol.
+Weighted net: {0} is too big to pin. The net drags at it, and it slows.	Filet lesté : {0} est trop gros pour être cloué. Le filet l'entrave, et il ralentit.
+There is nothing in the line of the throw to net.	Il n'y a rien à prendre dans la ligne du lancer.
+The net would not hold {0}.	Le filet ne retiendrait pas {0}.
+The net would settle over nothing that holds.	Le filet retomberait sur rien qui tienne.
+{0} is already tangled.	{0} est déjà empêtré.
+Frayed rope still hangs on {0}. A second net will not take yet.	De la corde effilochée pend encore à {0}. Un second filet ne prendra pas encore.
+{0} tears free of the net.	{0} se déchire hors du filet.
+Let the last throw land before throwing again.	Laissez le dernier lancer retomber avant d'en faire un autre.
+You cannot carry more than {0} of those.	Vous ne pouvez pas en porter plus de {0}.
+Pack full	Sac plein
+You have no use for that now.	Cela ne vous sert plus à rien pour l'instant.
+You have none of those left.	Il ne vous en reste plus.
+1 stone · 2 bottle · 3 lure reed · 4 oil flask · 5 damper jar · 6 weighted net · Escape leaves. Controller: A stone, X bottle, Y lure reed, LB flask, RB jar, LT net, B leaves.	1 pierre · 2 bouteille · 3 roseau-leurre · 4 fiole d'huile · 5 pot d'étouffement · 6 filet lesté · Échap quitte. Manette : A pierre, X bouteille, Y roseau-leurre, LB fiole, RB pot, LT filet, B quitte.
+1 stone · 2 bottle · 3 oil flask · 4 damper jar · 5 weighted net · Escape leaves. Controller: A stone, X bottle, LB flask, RB jar, LT net, B leaves.	1 pierre · 2 bouteille · 3 fiole d'huile · 4 pot d'étouffement · 5 filet lesté · Échap quitte. Manette : A pierre, X bouteille, LB fiole, RB pot, LT filet, B quitte.
+The number on each button throws it. Escape leaves. Controller: A stone, X bottle, LB flask, RB jar, LT net, B leaves.	Le numéro de chaque bouton le lance. Échap quitte. Manette : A pierre, X bouteille, LB fiole, RB pot, LT filet, B quitte.
+stones and bottles never deal damage. A flask burns, a jar silences, a net pins.	les pierres et les bouteilles ne font jamais de dégâts. Une fiole brûle, un pot fait taire, un filet cloue.
+Tools of the trade	Outils du métier
+Fire flasks	Fioles de feu
+a thrown flask of burning oil: bars a passage, burns, lights, is loud	une fiole d'huile enflammée lancée : barre un passage, brûle, éclaire, fait du bruit
+Damper jars	Pots d'étouffement
+a thrown jar that takes the sound out of the air for a few breaths	un pot lancé qui retire le son de l'air pendant quelques souffles
+Throwing nets	Filets de lancer
+a thrown net that pins a small or ordinary foe for a few seconds	un filet lancé qui cloue un ennemi petit ou ordinaire pendant quelques secondes
+Oil Flask (Burns Where Thrown)	Fiole d'huile (brûle là où elle tombe)
+Pressed reed-seed oil in an empty bottle, a rag for a wick.	De l'huile de graines de roseau pressées dans une bouteille vide, un chiffon pour mèche.
+Weighted Net (Pins a Foe)	Filet lesté (cloue un ennemi)
+Reed-cord, knotted, with two stones for weights.	De la corde de roseau nouée, avec deux pierres pour poids.
+A patch of burning oil	Une nappe d'huile en feu
+A tuft of grey wool-fat	Un flocon de graisse de laine grise
+A weighted net	Un filet lesté

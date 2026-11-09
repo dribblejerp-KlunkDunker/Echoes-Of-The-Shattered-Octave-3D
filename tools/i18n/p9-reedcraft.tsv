@@ -1,0 +1,79 @@
+Flume-Reed	Roseau du Bief|m
+Cut green from a bed by the Flume. It holds any pitch you give it, and it is dead by this time tomorrow. Not the old wind-reed, which went to sugar-glass in 412; but it will do.	Coupé vert dans une roselière au bord du Bief. Il tient toute hauteur qu'on lui donne, et il sera mort demain à la même heure. Ce n'est pas l'ancien roseau du vent, parti en verre de sucre en 412 ; mais il fera l'affaire.
+Dry Reed	Roseau sec|m
+Pale, brittle, and worth nothing. It will not hold a pitch. It will burn.	Pâle, cassant, sans aucune valeur. Il ne tient plus de hauteur. Il brûlera.
+Root-Note Reed	Roseau de la Note-racine|m
+A reed tuned to 174. Sound it against your breastbone and you stand a little straighter in the Narrow. One breath of use.	Un roseau accordé sur 174. Sonnez-le contre votre sternum et vous vous tenez un peu plus droit dans l'Étroit. Un seul souffle.
+Lure Reed	Roseau d'appel|m
+A thin, high reed. Thrown (O opens the throw panel), it lies where it lands and sounds one note a long while. Idle listeners go to look.	Un roseau mince et aigu. Lancé (O ouvre le panneau de lancer), il reste où il tombe et sonne une seule note très longtemps. Les guetteurs désœuvrés vont voir.
+Blank First Reed	Premier Roseau vierge|m
+Cut and slotted, and not yet tuned. In the Reach a reed like this hangs above every door, tuned to the one who sleeps behind it.	Taillé et fendu, mais pas encore accordé. Dans les Confins, un roseau comme celui-ci pend au-dessus de chaque porte, accordé sur celui qui dort derrière.
+Lure reed	Roseau d'appel
+A bed of Flume-reed, green and quiet in the wet. E cuts one.	Une roselière de roseaux du Bief, verte et silencieuse dans l'humidité. E en coupe un.
+A bed of Flume-reed. {0} still standing today.	Une roselière de roseaux du Bief. Il en reste {0} debout aujourd'hui.
+The reed bed is cut to the stubble. It will come again tomorrow.	La roselière est coupée à ras. Elle repoussera demain.
+You cut a Flume-reed low, at the joint. The bed hardly notices.	Vous coupez un roseau du Bief bas, au nœud. La roselière s'en aperçoit à peine.
+You cut the last Flume-reed. The bed will come again tomorrow.	Vous coupez le dernier roseau du Bief. La roselière repoussera demain.
+The bed is cut to the stubble. It will come again with the next day.	La roselière est coupée à ras. Elle repoussera avec le jour suivant.
+Your Flume-reed has gone pale and brittle.	Votre roseau du Bief est devenu pâle et cassant.
+Your Flume-reeds have gone pale and brittle.	Vos roseaux du Bief sont devenus pâles et cassants.
+You burn the dry reed. It gives a little smoke and no sound.	Vous brûlez le roseau sec. Un peu de fumée, aucun son.
+You feed the dry reeds to the fire. A little smoke, and no sound.	Vous donnez les roseaux secs au feu. Un peu de fumée, et aucun son.
+Root-note reed	Roseau de la Note-racine
+Two reeds, tuned to 174. Steadies you for a few breaths.	Deux roseaux, accordés sur 174. Vous raffermit pour quelques souffles.
+Tune the root-note reed	Accorder le roseau de la Note-racine
+Find 174 and hold it.	Trouvez 174 et tenez-le.
+One reed, tuned high and thin. Throw it to call the watch away.	Un roseau, accordé haut et mince. Lancez-le pour détourner le guet.
+Tune the lure reed	Accorder le roseau d'appel
+A two-note call. Follow it up and back.	Un appel à deux notes. Suivez-le vers le haut, puis vers le bas.
+You need {0} fresh Flume-reed for that.	Il vous faut {0} roseau du Bief frais pour cela.
+You need {0} fresh Flume-reeds for that.	Il vous faut {0} roseaux du Bief frais pour cela.
+You put the reed down, uncut.	Vous reposez le roseau, sans l'avoir fendu.
+The reed splits along the slot.	Le roseau se fend le long de la fente.
+The reed rings true. The offcut makes a second.	Le roseau sonne juste. La chute en fait un second.
+The reed sounds a little flat. It will do.	Le roseau sonne un peu bas. Ça suffira.
+You have no fresh Flume-reed to tune.	Vous n'avez aucun roseau du Bief frais à accorder.
+Tune a reed to {0}	Accorder un roseau sur {0}
+Tune a First Reed	Accorder un Premier Roseau
+Find their note, and hold it while it breathes.	Trouvez leur note, et tenez-la tant qu'elle respire.
+The reed finds {0}'s note and keeps it.	Le roseau trouve la note de {0} et la garde.
+The reed finds the note and keeps it.	Le roseau trouve la note et la garde.
+You sound the root-note reed against your breastbone, once, softly. Your hands warm. The air has a floor under it again.	Vous sonnez le roseau de la Note-racine contre votre sternum, une fois, doucement. Vos mains se réchauffent. L'air a de nouveau un sol sous lui.
+ The Hollows nearby slow, and stand.	 Les Creux alentour ralentissent, et s'immobilisent.
+Lure reed: sounds a thin note {0} paces ahead. Nearby listeners turn toward the impact.	Roseau d'appel : sonne une note mince à {0} pas devant vous. Les guetteurs proches se tournent vers l'impact.
+Lure reed: sounds a thin note {0} paces ahead. No idle listener reacts.	Roseau d'appel : sonne une note mince à {0} pas devant vous. Aucun guetteur désœuvré ne réagit.
+A constable glances over at the sound, then back to the street.	Un constable jette un coup d'œil vers le son, puis revient à la rue.
+Reeds	Roseaux
+Reeds ({0})	Roseaux ({0})
+(Flume-Reed ×{0})	(Roseau du Bief ×{0})
+Fresh Flume-reed ×{0} · they keep about {1} more hours · Dry reed ×{2}	Roseau du Bief frais ×{0} · ils tiennent encore environ {1} heures · Roseau sec ×{2}
+Fresh Flume-reed ×{0} · Dry reed ×{1}	Roseau du Bief frais ×{0} · Roseau sec ×{1}
+Tunings so far: {0} · the band is ±{1} cents.	Accords réussis ou tentés : {0} · la bande est de ±{1} cents.
+Tunings so far: {0} · the band is ±{1} cents (assist on).	Accords réussis ou tentés : {0} · la bande est de ±{1} cents (aide activée).
+Burn the dry reeds	Brûler les roseaux secs
+Back to the forge	Retour à la forge
+Back to rest	Retour au repos
+Back to inventory	Retour à l'inventaire
+Done	Terminé
+Tune a reed by the fire 	Accorder un roseau près du feu 
+— while the Flume-reed is still green.	— tant que le roseau du Bief est encore vert.
+1 stone · 2 bottle · 3 lure reed · Escape leaves. Controller: A stone, X bottle, Y lure reed, B leaves.	1 pierre · 2 bouteille · 3 roseau d'appel · Échap pour quitter. Manette : A pierre, X bouteille, Y roseau d'appel, B pour quitter.
+Hold the pitch	Tenez la hauteur
+Hold the pitch. The gold band is the note to hold. Your voice is the bright line. Steer up and down.	Tenez la hauteur. La bande dorée est la note à tenir. Votre voix est la ligne claire. Dirigez-la vers le haut et vers le bas.
+Put the reed down	Reposer le roseau
+W / S or Up / Down steer · drag with the mouse or a finger · left stick or D-pad · Esc puts the reed down.	W / S ou Haut / Bas pour diriger · glissez avec la souris ou un doigt · stick gauche ou croix directionnelle · Échap pour reposer le roseau.
+Holding.	Vous tenez.
+Off pitch.	Hors de la hauteur.
+Listen for the note.	Écoutez la note.
+Held {0}%.	Tenu à {0} %.
+Held {0}%	Tenu à {0} %
+Listen…	Écoutez…
+My first reed. Tobin wrote that he tuned each one against his own breastbone before he cut the slot. I held the cane to mine and hummed until the bone answered. It is not hard to find the note. It is hard to keep it.	Mon premier roseau. Tobin écrivait qu'il accordait chacun contre son propre sternum avant de fendre la fente. J'ai tenu la canne contre le mien et j'ai fredonné jusqu'à ce que l'os réponde. Trouver la note n'est pas difficile. La garder, si.
+The reed beds by the Flume went under with the Hedge. There are beds yet in the clearing, where the ground stays wet. A reed is only good for a day, so I will cut them as I need them.	Les roselières du Bief ont disparu avec la Haie. Il en reste dans la clairière, là où le sol reste humide. Un roseau ne vaut qu'un jour ; je les couperai donc au besoin.
+Reed-craft	Art du roseau
+Reed beds	Roselières
+Flume-reed to cut, the Reeds button at the forge, the lure in the throw menu	roseaux du Bief à couper, le bouton Roseaux à la forge, l'appel dans le menu de lancer
+Hold the Pitch assist	Aide pour Tenir la hauteur
+a wider band to follow	une bande plus large à suivre
+On	Activé
+Off	Désactivé

@@ -1,0 +1,89 @@
+{
+  "name": "shattered-octave",
+  "desktopName": "shattered-octave.desktop",
+  "productName": "Echoes of the Shattered Octave",
+  "version": "1.0.0",
+  "description": "Desktop shell for Echoes of the Shattered Octave - Book One. Loads the browser game unchanged.",
+  "main": "main.js",
+  "private": true,
+  "license": "UNLICENSED",
+  "author": "Echoes of the Shattered Octave <noreply@example.invalid>",
+  "homepage": "https://github.com/",
+  "scripts": {
+    "start": "electron .",
+    "icons": "node scripts/make-icons.js",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win nsis portable --x64",
+    "dist:mac": "electron-builder --mac dmg --universal",
+    "dist:linux": "electron-builder --linux AppImage deb --x64"
+  },
+  "devDependencies": {
+    "electron": "44.9.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "io.shatteredoctave.echoes",
+    "productName": "Echoes of the Shattered Octave",
+    "copyright": "Copyright (c) Echoes of the Shattered Octave contributors",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["main.js", "security.js", "package.json"],
+    "extraResources": [
+      {
+        "from": "..",
+        "to": "game",
+        "filter": [
+          "index.html",
+          "manifest.webmanifest",
+          "phase1_stealth_law_gameplay.js",
+          "assets/**/*",
+          "css/**/*",
+          "js/**/*",
+          "img/**/*",
+          "fonts/**/*",
+          "locales/**/*",
+          "voices/**/*.mp3",
+          "music/**/*",
+          "README.md"
+        ]
+      }
+    ],
+    "asar": true,
+    "electronFuses": {
+      "runAsNode": false,
+      "enableNodeOptionsEnvironmentVariable": false,
+      "enableNodeCliInspectArguments": false,
+      "enableEmbeddedAsarIntegrityValidation": true,
+      "onlyLoadAppFromAsar": true
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ]
+    },
+    "nsis": { "oneClick": false, "perMachine": false, "allowToChangeInstallationDirectory": true },
+    "mac": {
+      "icon": "build/icon.png",
+      "category": "public.app-category.role-playing-games",
+      "target": [{ "target": "dmg", "arch": ["universal"] }],
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
+    },
+    "linux": {
+      "icon": "build/icon.png",
+      "category": "Game",
+      "syncDesktopName": true,
+      "synopsis": "First-person dark-fantasy RPG",
+      "target": [
+        { "target": "AppImage", "arch": ["x64"] },
+        { "target": "deb", "arch": ["x64"] }
+      ],
+      "maintainer": "Echoes of the Shattered Octave <noreply@example.invalid>"
+    },
+    "publish": null
+  }
+}

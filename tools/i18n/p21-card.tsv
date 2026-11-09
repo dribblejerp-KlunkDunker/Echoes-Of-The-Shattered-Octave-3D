@@ -1,0 +1,34 @@
+# Phase 21, team CARD: english<TAB>french. The character card (js/card21.js: rotate buttons, view names, the Options row) and the photo mode upgrade (js/photo21.js: the extra bar row, filters, messages). Strings with {w}/{h} are filled in at run time.
+Character card	Fiche du personnage
+the figure in the inventory and Character panel: detailed pixel art built from your gear, or the simple painted doll	la figure de l’inventaire et du panneau Personnage : un pixel art détaillé tiré de votre équipement, ou la simple poupée peinte
+Detailed	Détaillée
+Simple	Simple
+Turn the figure left	Tourner la figure vers la gauche
+Turn the figure right	Tourner la figure vers la droite
+Front	Face
+Front right	Trois-quarts droit
+Right side	Profil droit
+Back right	Dos, côté droit
+Back	Dos
+Back left	Dos, côté gauche
+Left side	Profil gauche
+Front left	Trois-quarts gauche
+Save screenshot	Enregistrer la capture
+A PNG at your screen's full resolution, with the filter, tilt and depth of field you chose	Un PNG à la pleine résolution de votre écran, avec le filtre, l’inclinaison et la profondeur de champ choisis
+Free camera: On	Caméra libre : oui
+Free camera: Off	Caméra libre : non
+Depth of field: On	Profondeur de champ : oui
+Depth of field: Off	Profondeur de champ : non
+Vignette: On	Vignette : oui
+Vignette: Off	Vignette : non
+Filter: None	Filtre : aucun
+Warm dusk	Crépuscule chaud
+Frost	Givre
+Vivid	Vif
+Old print	Vieille estampe
+Noir	Noir
+Hush	Silence
+Screenshot saved ({w} x {h}).	Capture enregistrée ({w} x {h}).
+The screenshot could not be taken.	La capture n’a pas pu être prise.
+The screenshot could not be saved.	La capture n’a pas pu être enregistrée.
+Free camera · W A S D fly · R F up and down · arrows or drag look · Q E tilt · P saves a screenshot · Esc leaves	Caméra libre · W A S D pour voler · R F pour monter et descendre · flèches ou glisser pour regarder · Q E pour incliner · P enregistre une capture · Échap pour sortir

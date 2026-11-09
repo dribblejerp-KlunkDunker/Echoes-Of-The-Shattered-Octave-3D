@@ -1,0 +1,61 @@
+# Phase 19, team NET: english<TAB>french. The Play together lobby (title button, Options row), codes by hand, the connection chip. Strings with {name}/{ms}/{code} are filled in at run time (data-i18n off on those nodes); the Commander may wire them through t() later.
+Play together	Jouer ensemble
+Two travellers, one world. The host’s game is the world, and the host makes the story’s choices; the guest brings their own traveller and can join from a phone.	Deux voyageurs, un seul monde. La partie de l’hôte est le monde, et l’hôte fait les choix de l’histoire ; l’invité amène son propre voyageur et peut rejoindre depuis un téléphone.
+Your name	Votre nom
+Host a game	Accueillir une partie
+Your companion joins your world. Best on a computer.	Votre compagnon rejoint votre monde. De préférence sur un ordinateur.
+Host	Accueillir
+Join a game	Rejoindre une partie
+Type the code the host gives you, or scan their QR code with your phone’s camera.	Tapez le code que l’hôte vous donne, ou scannez son code QR avec l’appareil photo de votre téléphone.
+Join	Rejoindre
+No matchmaker? Use codes by hand	Pas de relais ? Échangez des codes à la main
+Your join code	Votre code d’accès
+QR code: scan it with a phone camera to open the game and join this session	Code QR : scannez-le avec l’appareil photo d’un téléphone pour ouvrir le jeu et rejoindre cette partie
+Your companion scans this with their phone’s camera, or opens the game, chooses Play together and types the code. Then start or load your game: they join you there.	Votre compagnon scanne ceci avec l’appareil photo de son téléphone, ou ouvre le jeu, choisit Jouer ensemble et tape le code. Puis commencez ou chargez votre partie : il vous y rejoint.
+Copy the link	Copier le lien
+Copied	Copié
+Copy	Copier
+Stop hosting	Cesser d’accueillir
+Leave	Partir
+Close	Fermer
+Back	Retour
+Continue	Continuer
+Opening the way…	Le chemin s’ouvre…
+Waiting for your companion…	En attente de votre compagnon…
+Finding the host…	Recherche de l’hôte…
+{name} has joined.	{name} vous a rejoint.
+Connected to {name}.	Connecté à {name}.
+Ping {ms} ms	Latence {ms} ms
+The host’s world opens here when their game is running.	Le monde de l’hôte s’ouvre ici quand sa partie est lancée.
+The connection to your companion is lost. Carry on: they can come back with the same code.	La liaison avec votre compagnon est perdue. Continuez : il peut revenir avec le même code.
+The connection is lost. Trying again…	La liaison est perdue. Nouvel essai…
+The connection is back.	La liaison est rétablie.
+Your companion has left.	Votre compagnon est parti.
+The session has ended.	La partie commune est terminée.
+No game with that code. Check it with the host.	Aucune partie avec ce code. Vérifiez-le auprès de l’hôte.
+That game already has two travellers.	Cette partie compte déjà deux voyageurs.
+That game is a different version. Both of you reload the page.	Cette partie est d’une autre version. Rechargez tous deux la page.
+The host did not answer. Check the code, or try codes by hand.	L’hôte n’a pas répondu. Vérifiez le code, ou échangez des codes à la main.
+The matchmaker cannot be reached. Try again, or use codes by hand.	Le relais est injoignable. Réessayez, ou échangez des codes à la main.
+Could not connect. Try again, or use codes by hand.	Connexion impossible. Réessayez, ou échangez des codes à la main.
+That is not a join code: six letters and numbers, like KRT-4MW.	Ce n’est pas un code d’accès : six lettres et chiffres, comme KRT-4MW.
+The desktop app does not go online. Use codes by hand, or play together in the browser version.	L’application de bureau ne va pas en ligne. Échangez des codes à la main, ou jouez ensemble dans la version navigateur.
+Codes by hand	Codes à la main
+No matchmaker needed: you swap two codes through any message app. It works at home or on mobile data.	Pas besoin de relais : vous échangez deux codes par n’importe quelle messagerie. Cela marche à la maison comme sur les données mobiles.
+I am hosting	J’accueille
+Make an invitation	Créer une invitation
+Send this invitation to your companion:	Envoyez cette invitation à votre compagnon :
+Paste their answer here:	Collez sa réponse ici :
+Connect	Se connecter
+I am joining	Je rejoins
+Paste the host’s invitation here:	Collez ici l’invitation de l’hôte :
+Make my answer	Créer ma réponse
+Send this answer back to the host:	Renvoyez cette réponse à l’hôte :
+Working…	En cours…
+That code is not right: copy all of it.	Ce code n’est pas bon : copiez-le en entier.
+Together · {name} · {ms} ms	Ensemble · {name} · {ms} ms
+Connection lost	Liaison perdue
+Hosting · {code}	Hôte · {code}
+host a two-player game or join one; the guest can be on a phone.	accueillir une partie à deux ou en rejoindre une ; l’invité peut être sur un téléphone.
+Open	Ouvrir
+Connected	Connecté

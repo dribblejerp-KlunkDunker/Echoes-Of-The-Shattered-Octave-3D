@@ -1,0 +1,46 @@
+# Phase 12, team ARMS: english<TAB>french. Shield bash, two-handed weapons, dual wielding. {0}-style placeholders are filled at run time.
+Quarry Great-Maul	Grand maillet de carrière
+A quarry sledge on an ash haft as long as a man, the head weighted with lead. Cracks bell-plate and golems; swings like a door closing. Two hands, so no shield.	Une masse de carrière sur un manche de frêne aussi long qu'un homme, la tête lestée de plomb. Fend la plaque de cloche et les golems ; elle se balance comme une porte qui se ferme. À deux mains, donc pas de bouclier.
+Long Glass-Edged Blade	Longue lame au fil de verre
+A corsair's two-handed blade, the edge ground out of salvaged Aether-Glass. It rings through the Cacophony. Two hands, so no shield.	Une lame de corsaire à deux mains, le fil taillé dans du verre d'éther de récupération. Elle sonne à travers la Cacophonie. À deux mains, donc pas de bouclier.
+Bell-Bronze Glaive	Glaive de bronze de cloche
+A curved bell-bronze blade on a six-foot shaft, struck from a chapel bell the Synod did not take. Reaches over a shield rim and past a hound. Two hands, so no shield.	Une lame courbe de bronze de cloche sur une hampe de six pieds, coulée dans une cloche de chapelle que le Synode n'a pas prise. Elle passe par-dessus le rebord d'un bouclier et au-delà d'un chien. À deux mains, donc pas de bouclier.
+Reed-Guard Dirk	Dague à garde de roseau
+A stiff, basket-hilted dirk for the off hand. Light enough to carry beside a blade. Rust Coast duellists call it the second word.	Une dague raide à garde en corbeille, pour la main gauche. Assez légère pour se porter à côté d'une lame. Les duellistes de la Côte Rouillée l'appellent le dernier mot.
+Your two-handed weapon leaves no hand for the shield.	Votre arme à deux mains ne laisse aucune main pour le bouclier.
+You have no shield on your arm.	Vous n'avez pas de bouclier au bras.
+Your shield arm is still numb from the last one.	Votre bras de bouclier est encore engourdi du dernier coup.
+You are too winded to put your weight behind it.	Vous êtes trop essoufflé pour y mettre votre poids.
+Your shield finds nothing but air.	Votre bouclier ne trouve que du vide.
+You drive the shield into {0}. It does not so much as shift.	Vous enfoncez le bouclier dans {0}. Il ne bouge même pas.
+Your shield-rim breaks {0}.	Le rebord de votre bouclier brise {0}.
+You hit {0} with the shield for {1}. It rocks on its heels but holds its ground.	Vous frappez {0} du bouclier pour {1}. Il vacille sur ses talons mais tient bon.
+Your shield slams {0} back a stride for {1}.	Votre bouclier repousse {0} d'une enjambée, pour {1}.
+Your shield pins {0} against the wall for {1}.	Votre bouclier plaque {0} contre le mur, pour {1}.
+You rest the shield against your leg: the {0} needs both hands.	Vous appuyez le bouclier contre votre jambe : {0} demande les deux mains.
+You sheathe the off-hand blade to take the {0} in both hands.	Vous rengainez la lame de la main gauche pour prendre {0} à deux mains.
+The shield takes your off hand; you sheathe the second blade.	Le bouclier occupe votre main gauche ; vous rengainez la seconde lame.
+The {0} is already in your main hand.	{0} est déjà dans votre main droite.
+Your hands are full with the {0}.	Vos mains sont prises par {0}.
+Fists and a glass arm do not pair with a second blade.	Les poings et un bras de verre ne vont pas avec une seconde lame.
+You take the shield off to carry a second blade.	Vous retirez le bouclier pour porter une seconde lame.
+The {0} goes in your off hand.	{0} passe dans votre main gauche.
+You sheathe the off-hand blade.	Vous rengainez la lame de la main gauche.
+You sling the {0} on your back and take up the {1} with the shield.	Vous passez {0} dans votre dos et prenez {1} avec le bouclier.
+The {0} needs both hands; you have nothing lighter to take up beside the shield.	{0} demande les deux mains ; vous n'avez rien de plus léger à prendre avec le bouclier.
+You sheathe the off-hand blade to take up the shield.	Vous rengainez la lame de la main gauche pour prendre le bouclier.
+Off hand	Main gauche
+Off hand: 	Main gauche : 
+Off hand? 	Main gauche ? 
+No light blade to carry in the off hand (a knife, short sword or dirk).	Aucune lame légère à porter dans la main gauche (un couteau, une épée courte ou une dague).
+{0}–{1} when it swings off-hand	{0}–{1} quand elle frappe de la main gauche
+Two blades alternate hands and swing a little faster; the off hand hits lighter, and two blades block worse than a shield. No shield, no two-handed weapon.	Deux lames alternent les mains et frappent un peu plus vite ; la main gauche frappe moins fort, et deux lames parent moins bien qu'un bouclier. Pas de bouclier, pas d'arme à deux mains.
+Two-handed weapons hit harder and reach further but swing slower and tire you; taking one up sets the shield aside.	Les armes à deux mains frappent plus fort et portent plus loin, mais sont plus lentes et vous fatiguent ; en prendre une écarte le bouclier.
+Shield bash	Coup de bouclier
+guard up and strike, or the . key: shoves and staggers a foe	garde levée puis frappe, ou la touche . : repousse et étourdit un ennemi
+Two-handed weapons	Armes à deux mains
+heavy grips hit harder, swing slower, and send the shield away	les prises lourdes frappent plus fort, plus lentement, et écartent le bouclier
+Dual wielding	Deux armes
+a light blade in the off hand, from the inventory	une lame légère dans la main gauche, depuis l'inventaire
+Bash	Bouclier
+Shield bash: shove and stagger the foe in front of you	Coup de bouclier : repousse et étourdit l'ennemi devant vous

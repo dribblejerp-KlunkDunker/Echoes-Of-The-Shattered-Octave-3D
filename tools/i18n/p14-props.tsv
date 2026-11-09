@@ -1,0 +1,22 @@
+# Phase 14, team PROPS: english<TAB>french. Mirrors, sealed doors, breakable barrels and crates: Options rows, descriptions, messages, captions.
+Phase 14: props	Phase 14 : accessoires
+Mirrors	Miroirs
+framed glass in a few rooms shows you, your gear and the room behind you	un verre encadré, dans quelques pièces, vous montre, avec votre équipement et la pièce derrière vous
+Sealed doors	Portes scellées
+doors held shut by story or magic show a thin shimmering skin; No flashes keeps it still, Reduce motion slows it	les portes tenues closes par l'histoire ou la magie portent une fine peau scintillante ; Sans flashs la fige, Réduire les mouvements la ralentit
+Breakables	Objets cassables
+barrels and crates can be smashed with a blow; pieces fall, some hold a little loot; owned crates in town are a crime	on peut fracasser tonneaux et caisses d'un coup ; les morceaux tombent, certains cachent un petit butin ; casser une caisse qui appartient à quelqu'un, en ville, est un délit
+On	Activé
+Off	Désactivé
+A tall mirror in a plain frame. A traveller looks back out of it, dressed as you are, and the room behind them is the room behind you.	Un grand miroir dans un cadre simple. Un voyageur vous y regarde, vêtu comme vous, et la pièce derrière lui est la pièce derrière vous.
+The glass is clear, which is more than anything else in the house is. A traveller looks back out of it, dressed as you are.	Le verre est limpide, ce qui n'est le cas de rien d'autre dans cette maison. Un voyageur vous y regarde, vêtu comme vous.
+The staves crack and hold.	Les douelles craquent et tiennent.
+The boards split and hold.	Les planches se fendent et tiennent.
+The barrel bursts its hoops.	Le tonneau fait éclater ses cerceaux.
+The crate splinters.	La caisse vole en éclats.
+Inside: {0}.	À l'intérieur : {0}.
+Nothing inside but straw and dust.	Rien à l'intérieur que de la paille et de la poussière.
+No one sees you do it.	Personne ne vous voit faire.
+damage to goods	des dégâts sur des marchandises
+[Wood splinters]	[Du bois vole en éclats]
+[Wood cracks]	[Du bois craque]

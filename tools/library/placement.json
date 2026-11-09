@@ -1,0 +1,308 @@
+{
+ "lib_a_orchard_craft": {
+  "how": "shelf",
+  "at": "lib_conservatory",
+  "shelf": "history"
+ },
+ "lib_a_first_history": {
+  "how": "shelf",
+  "at": "lib_conservatory",
+  "shelf": "history"
+ },
+ "lib_b_the_pruner": {
+  "how": "shelf",
+  "at": "lib_conservatory",
+  "shelf": "lives"
+ },
+ "lib_b_year_of_nights": {
+  "how": "shelf",
+  "at": "lib_conservatory",
+  "shelf": "lives"
+ },
+ "lib_b_shepherds_ear": {
+  "how": "shelf",
+  "at": "lib_conservatory",
+  "shelf": "lives"
+ },
+ "lib_c_fireside_tales": {
+  "how": "shelf",
+  "at": "lib_conservatory",
+  "shelf": "tales"
+ },
+ "lib_c_under_a_hands_width": {
+  "how": "shelf",
+  "at": "lib_conservatory",
+  "shelf": "tales"
+ },
+ "lib_c_tuppence_narrow": {
+  "how": "shelf",
+  "at": "lib_conservatory",
+  "shelf": "tales"
+ },
+ "lib_f_carrying_of_ketil": {
+  "how": "shelf",
+  "at": "lib_conservatory",
+  "shelf": "tales"
+ },
+ "lib_d_yewdale_herbal": {
+  "how": "shelf",
+  "at": "lib_conservatory",
+  "shelf": "craft"
+ },
+ "lib_e_off_the_slate": {
+  "how": "shelf",
+  "at": "lib_conservatory",
+  "shelf": "faith"
+ },
+ "lib_f_constancy_of_the_light": {
+  "how": "shelf",
+  "at": "lib_conservatory",
+  "shelf": "faith"
+ },
+ "lib_d_ears_after_dark": {
+  "how": "quest",
+  "at": "underhedge",
+  "quest": "ilse"
+ },
+ "lib_d_telling_the_bees": {
+  "how": "quest",
+  "at": "flume_road",
+  "quest": "ilse"
+ },
+ "lib_c_lamplighters_note": {
+  "how": "quest",
+  "at": "orla_house",
+  "quest": "ilse"
+ },
+ "lib_a_wool_wall": {
+  "how": "quest",
+  "at": "p22_hanger",
+  "quest": "ilse"
+ },
+ "lib_a_four_seconds": {
+  "how": "shelf",
+  "at": "lib_bonded",
+  "shelf": "history"
+ },
+ "lib_b_narrow_cry": {
+  "how": "shelf",
+  "at": "lib_bonded",
+  "shelf": "lives"
+ },
+ "lib_b_between_the_falls": {
+  "how": "shelf",
+  "at": "lib_bonded",
+  "shelf": "lives"
+ },
+ "lib_c_still_wheel": {
+  "how": "shelf",
+  "at": "lib_bonded",
+  "shelf": "tales"
+ },
+ "lib_c_hand_on_it": {
+  "how": "shelf",
+  "at": "lib_bonded",
+  "shelf": "tales"
+ },
+ "lib_f_overdue_ghazals": {
+  "how": "shelf",
+  "at": "lib_bonded",
+  "shelf": "tales"
+ },
+ "lib_d_reed_and_lamp": {
+  "how": "shelf",
+  "at": "lib_bonded",
+  "shelf": "craft"
+ },
+ "lib_e_undertow_reach": {
+  "how": "shelf",
+  "at": "lib_bonded",
+  "shelf": "faith"
+ },
+ "lib_e_honest_fire": {
+  "how": "shelf",
+  "at": "lib_bonded",
+  "shelf": "faith"
+ },
+ "lib_f_ruddock_timber_run": {
+  "how": "shelf",
+  "at": "lib_bonded",
+  "shelf": "world"
+ },
+ "lib_d_tank_and_envelope": {
+  "how": "pile",
+  "at": "p16k_kestrel_below"
+ },
+ "lib_f_fairweather_companion": {
+  "how": "shop",
+  "at": "lib_odile",
+  "price": 3
+ },
+ "lib_f_bastion_instructions": {
+  "how": "shop",
+  "at": "lib_odile",
+  "price": 2
+ },
+ "lib_c_saffery_lightfoot": {
+  "how": "quest",
+  "at": "flume_lowrings",
+  "quest": "odile"
+ },
+ "lib_a_going_up": {
+  "how": "quest",
+  "at": "flume_lowrings",
+  "quest": "odile"
+ },
+ "lib_d_narrow_larder": {
+  "how": "shop",
+  "at": "moor_bookseller",
+  "price": 1
+ },
+ "lib_c_last_sheaf_play": {
+  "how": "shop",
+  "at": "moor_bookseller",
+  "price": 1
+ },
+ "lib_a_almanack_419": {
+  "how": "shop",
+  "at": "moor_bookseller",
+  "price": 1
+ },
+ "lib_b_true_and_modest": {
+  "how": "shop",
+  "at": "vane",
+  "price": 3
+ },
+ "lib_f_long_mole_songs": {
+  "how": "pile",
+  "at": "p16k_kestrel_below"
+ },
+ "lib_a_greenroot_road": {
+  "how": "pile",
+  "at": "greenhall"
+ },
+ "lib_e_oakhaven_prospectus": {
+  "how": "pile",
+  "at": "greenhall"
+ },
+ "lib_a_hard_winter": {
+  "how": "pile",
+  "at": "chapel"
+ },
+ "lib_e_only_song_sermon": {
+  "how": "pile",
+  "at": "chapel"
+ },
+ "lib_e_digest_reach_law": {
+  "how": "pile",
+  "at": "watchhouse"
+ },
+ "lib_d_grafting_handbook": {
+  "how": "pile",
+  "at": "surgery"
+ },
+ "lib_d_rudds_almanac": {
+  "how": "pile",
+  "at": "p22_bellwether"
+ },
+ "lib_c_bellwether_book": {
+  "how": "pile",
+  "at": "p22_bellwether"
+ },
+ "lib_e_little_catechism": {
+  "how": "pile",
+  "at": "greenroot_chapel"
+ },
+ "lib_f_keep_talking_letters": {
+  "how": "pile",
+  "at": "greenroot_chapel"
+ },
+ "lib_d_fellers_book": {
+  "how": "pile",
+  "at": "clearing"
+ },
+ "lib_b_reeds_miner": {
+  "how": "pile",
+  "at": "clearing"
+ },
+ "lib_b_letters_from_the_gate": {
+  "how": "pile",
+  "at": "p16h_depot3"
+ },
+ "lib_e_already_quiet": {
+  "how": "pile",
+  "at": "deepwoods"
+ },
+ "lib_b_stone_then_glass": {
+  "how": "found",
+  "at": "quarry"
+ },
+ "lib_f_lantern_on_the_basin": {
+  "how": "shelf",
+  "at": "lib_moot",
+  "shelf": "world"
+ },
+ "lib_c_eight_keepers": {
+  "how": "gift",
+  "quest": "shelver"
+ },
+ "lib_a_what_is_written": {
+  "how": "shelf",
+  "at": "lib_scriptorium",
+  "shelf": "history"
+ },
+ "lib_e_veil_rule": {
+  "how": "shelf",
+  "at": "lib_scriptorium",
+  "shelf": "faith"
+ },
+ "lib_h_daybook": {
+  "how": "found",
+  "at": "lib_scriptorium"
+ },
+ "lib_g_plaza_and_canopy": {
+  "how": "shelf",
+  "at": "lib_moot",
+  "shelf": "history"
+ },
+ "lib_g_grove_primer": {
+  "how": "shelf",
+  "at": "lib_moot",
+  "shelf": "tales"
+ },
+ "lib_g_lamp_book": {
+  "how": "quest",
+  "at": "whispergrove",
+  "quest": "shelver"
+ },
+ "lib_g_midwife_daybook": {
+  "how": "quest",
+  "at": "catacombs",
+  "quest": "shelver"
+ },
+ "lib_g_basin_table": {
+  "how": "quest",
+  "at": "malting",
+  "quest": "shelver"
+ },
+ "lib_g_blue_ribbon": {
+  "how": "quest",
+  "at": "wickhouse",
+  "quest": "shelver"
+ },
+ "lib_g_bistre_commonplace": {
+  "how": "shelf",
+  "at": "lib_scriptorium",
+  "shelf": "lives"
+ },
+ "lib_g_pitched_hand_exercises": {
+  "how": "shelf",
+  "at": "lib_scriptorium",
+  "shelf": "craft"
+ },
+ "lib_g_orpiment_meditations": {
+  "how": "shelf",
+  "at": "lib_scriptorium",
+  "shelf": "faith"
+ }
+}

@@ -1,0 +1,73 @@
+# Phase 26, the Library of the Reach (js/library26.js): its frame. english<TAB>french. The books themselves: p26-library-books.tsv.
+Histories and chronicles	Histoires et chroniques
+Lives, letters and journals	Vies, lettres et journaux
+Tales and verse	Contes et vers
+Craft and the natural world	Métiers et monde naturel
+Faith, law and the press	Foi, loi et presse
+The wider world	Le vaste monde
+History	Histoire
+Chronicle	Chronique
+Almanac	Almanach
+Biography	Biographie
+Autobiography	Autobiographie
+Memoir	Mémoires
+Letters	Lettres
+Journal	Journal
+Folk tale	Conte populaire
+Fable	Fable
+Ghost story	Histoire de fantômes
+Romance	Roman d'amour
+Adventure	Aventure
+Children's book	Livre pour enfants
+Poetry	Poésie
+Songbook	Recueil de chansons
+Play-script	Pièce de théâtre
+Natural history	Histoire naturelle
+Herbal	Herbier
+Field guide	Guide de terrain
+Manual	Manuel
+Cookery	Cuisine
+Sermon	Sermon
+Catechism	Catéchisme
+Philosophy	Philosophie
+Law	Droit
+Politics	Politique
+Travel	Voyage
+Book	Livre
+the Reach beyond the Hedge	les Confins au-delà de la Haie
+the Drift-Kestrel	le Drift-Kestrel
+Whisper-Grove and the Woods	Whisper-Grove et les Bois
+Books	Livres
+Back to your library.	Retour à votre bibliothèque.
+One here you have not read.	Il y en a un ici que vous n'avez pas lu.
+You have read everything here.	Vous avez tout lu, ici.
+A few books, kept where someone could reach them.	Quelques livres, rangés là où l'on peut les atteindre.
+A shelf of books by the hearth, swollen with damp and read soft at the corners. Hetty lends them on trust.	Une étagère de livres près de l'âtre, gonflés d'humidité, aux coins usés par la lecture. Hetty les prête sur parole.
+The Cantor’s books, kept off the floor and away from the reeds.	Les livres de la Chantre, rangés loin du sol et loin des roseaux.
+The Greenhall’s books: ledgers, almanacs, and whatever the town clerks thought worth keeping.	Les livres du Greenhall : registres, almanachs, et tout ce que les greffiers de la ville ont jugé bon de garder.
+Rooke’s books, stacked under the window where the light is best for small print.	Les livres de Rooke, empilés sous la fenêtre, là où la lumière sert le mieux les petits caractères.
+Books left in the Chapel, some of them by people who should not have left them.	Des livres laissés dans la Chapelle, certains par des gens qui n'auraient pas dû les y laisser.
+Books in a meal-sack, kept dry on the beam.	Des livres dans un sac à farine, gardés au sec sur la poutre.
+Books in a crate under the eaves of the hut, wrapped against the wet.	Des livres dans une caisse sous l'avant-toit de la cabane, emballés contre l'humidité.
+A tea-chest of books on the wharf, for sale or swap, no questions.	Une caisse à thé pleine de livres sur le quai, à vendre ou à échanger, sans questions.
+The ship’s books, wedged into a rack so they do not fly about in weather.	Les livres du bord, calés dans un râtelier pour qu'ils ne volent pas par gros temps.
+Books in a saddlebag by the fire, dried and redried.	Des livres dans une sacoche près du feu, séchés et reséchés.
+Books the Office did not catalogue, or did and forgot.	Des livres que l'Office n'a pas catalogués, ou qu'il a catalogués puis oubliés.
+Books someone carried out of a house and could not carry further.	Des livres que quelqu'un a sortis d'une maison et n'a pas pu porter plus loin.
+Your Library	Votre bibliothèque
+Every book you have read, to read again anywhere.	Tous les livres que vous avez lus, à relire où que vous soyez.
+Books are shelved in houses, halls and camps across the province. Read one and it is yours to reread.	Des livres sont rangés dans les maisons, les salles et les camps de toute la province. Lisez-en un, et vous pourrez le relire.
+Open your library	Ouvrir votre bibliothèque
+A Reader of the Reach	Lecteur des Confins
+Read ten books from the Library of the Reach.	Lire dix livres de la Bibliothèque des Confins.
+Keeper of Shelves	Gardien des rayons
+Read twenty-five books from the Library of the Reach.	Lire vingt-cinq livres de la Bibliothèque des Confins.
+The Library of the Reach	La Bibliothèque des Confins
+Read every book in the Library of the Reach.	Lire tous les livres de la Bibliothèque des Confins.
+Added to your library ({0}/{1}).	Ajouté à votre bibliothèque ({0}/{1}).
+{0} here you have not read.	{0} ici que vous n'avez pas lus.
+Books — read ({0})	Livres — à lire ({0})
+Your Library ({0}/{1})	Votre bibliothèque ({0}/{1})
+{0} of {1} books read.	{0} livres lus sur {1}.
+Not yet found in {0}: {1}.	Pas encore trouvés ({0}) : {1}.
+✓ {0}	✓ {0}

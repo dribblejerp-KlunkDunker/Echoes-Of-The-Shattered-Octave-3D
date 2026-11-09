@@ -1,0 +1,8 @@
+{
+  "name": "Echoes of the Shattered Octave",
+  "description": "A first-person dark-fantasy retro RPG for the browser in the style of The Elder Scrolls II: Daggerfall. Explore Oakhaven, navigate the Narrow, and uncover the mysteries of the Shattered Octave.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

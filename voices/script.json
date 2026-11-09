@@ -1,0 +1,3635 @@
+{
+ "version": 1,
+ "lines": [
+  {
+   "id": "harrow.greet.polite",
+   "speaker": "harrow",
+   "kind": "greet",
+   "text": "Keep your voice down, friend, and welcome to what's left of Oakhaven.",
+   "source": "data.js NPCS.harrow.greet.polite",
+   "voiceOf": "harrow",
+   "delivery": "low, dry"
+  },
+  {
+   "id": "harrow.greet.normal",
+   "speaker": "harrow",
+   "kind": "greet",
+   "text": "Gate's shut after dusk. Keep it low.",
+   "source": "data.js NPCS.harrow.greet.normal",
+   "voiceOf": "harrow",
+   "delivery": "low"
+  },
+  {
+   "id": "harrow.greet.blunt",
+   "speaker": "harrow",
+   "kind": "greet",
+   "text": "You shout like that again and I'll put you out through the thorn myself.",
+   "source": "data.js NPCS.harrow.greet.blunt",
+   "voiceOf": "harrow",
+   "delivery": "low, flat threat"
+  },
+  {
+   "id": "lyra.greet.polite",
+   "speaker": "lyra",
+   "kind": "greet",
+   "text": "You came. Sit, keep your voice in your chest. I've a thing to ask that I should not ask anyone.",
+   "source": "data.js NPCS.lyra.greet.polite",
+   "voiceOf": "lyra",
+   "delivery": "low, warm, grave",
+   "when": "!(flags.lyra_wg_met || flags.lyra_dw_met)   // from voices.js lyraState(): after Whisper-Grove she is silent until flags.lyra_voice, then speaks as lyra_ruined"
+  },
+  {
+   "id": "lyra.greet.normal",
+   "speaker": "lyra",
+   "kind": "greet",
+   "text": "Come in, close the door. The lamp's lit; we can talk.",
+   "source": "data.js NPCS.lyra.greet.normal",
+   "voiceOf": "lyra",
+   "delivery": "low, warm",
+   "when": "!(flags.lyra_wg_met || flags.lyra_dw_met)   // from voices.js lyraState(): after Whisper-Grove she is silent until flags.lyra_voice, then speaks as lyra_ruined"
+  },
+  {
+   "id": "lyra.greet.blunt",
+   "speaker": "lyra",
+   "kind": "greet",
+   "text": "Lower. Please. There are things in this town that learn from every sound.",
+   "source": "data.js NPCS.lyra.greet.blunt",
+   "voiceOf": "lyra",
+   "delivery": "low, urgent, pleading",
+   "when": "!(flags.lyra_wg_met || flags.lyra_dw_met)   // from voices.js lyraState(): after Whisper-Grove she is silent until flags.lyra_voice, then speaks as lyra_ruined"
+  },
+  {
+   "id": "kaelen.greet.polite",
+   "speaker": "kaelen",
+   "kind": "greet",
+   "text": "Mind the bed, twenty paces off the door. No sound carries over it for a day. Say what you came to say.",
+   "source": "data.js NPCS.kaelen.greet.polite",
+   "voiceOf": "kaelen",
+   "delivery": "low, gravel, level"
+  },
+  {
+   "id": "kaelen.greet.normal",
+   "speaker": "kaelen",
+   "kind": "greet",
+   "text": "The hounds let you past. That means you came quietly. Good.",
+   "source": "data.js NPCS.kaelen.greet.normal",
+   "voiceOf": "kaelen",
+   "delivery": "low"
+  },
+  {
+   "id": "kaelen.greet.blunt",
+   "speaker": "kaelen",
+   "kind": "greet",
+   "text": "I don't build things anymore. I just know how they break. What do you want broken?",
+   "source": "data.js NPCS.kaelen.greet.blunt",
+   "voiceOf": "kaelen",
+   "delivery": "low, flat, tired"
+  },
+  {
+   "id": "hetty.greet.polite",
+   "speaker": "hetty",
+   "kind": "greet",
+   "text": "Sit anywhere that isn't broken. Small beer or smaller. We do not sing in here, not since Davin.",
+   "source": "data.js NPCS.hetty.greet.polite",
+   "voiceOf": "hetty",
+   "delivery": "normal"
+  },
+  {
+   "id": "hetty.greet.normal",
+   "speaker": "hetty",
+   "kind": "greet",
+   "text": "Beer's a copper. Rooms are a sovereign. Singing is free and it will get you killed.",
+   "source": "data.js NPCS.hetty.greet.normal",
+   "voiceOf": "hetty",
+   "delivery": "normal"
+  },
+  {
+   "id": "hetty.greet.blunt",
+   "speaker": "hetty",
+   "kind": "greet",
+   "text": "I've put bigger men than you out of here for raising their voice. Sit.",
+   "source": "data.js NPCS.hetty.greet.blunt",
+   "voiceOf": "hetty",
+   "delivery": "flat, hard"
+  },
+  {
+   "id": "vane.greet.polite",
+   "speaker": "vane",
+   "kind": "greet",
+   "text": "Every sailor dies, friend. The trick is to be somewhere else when it happens. Sit; I'm buying, because I'm frightened.",
+   "source": "data.js NPCS.vane.greet.polite",
+   "voiceOf": "vane",
+   "delivery": "bravado over fear"
+  },
+  {
+   "id": "vane.greet.normal",
+   "speaker": "vane",
+   "kind": "greet",
+   "text": "Corsair, Rust Coast, retired from the sea on account of the sea. What'll you have?",
+   "source": "data.js NPCS.vane.greet.normal",
+   "voiceOf": "vane",
+   "delivery": "normal"
+  },
+  {
+   "id": "vane.greet.blunt",
+   "speaker": "vane",
+   "kind": "greet",
+   "text": "Ha! You have the look of somebody about to tell me something I already know and have been drinking not to hear.",
+   "source": "data.js NPCS.vane.greet.blunt",
+   "voiceOf": "vane",
+   "delivery": "laughing, loud, bravado"
+  },
+  {
+   "id": "rooke.greet.polite",
+   "speaker": "rooke",
+   "kind": "greet",
+   "text": "I have cut more limbs than any butcher in the Reach and done every one with care. Sit. I will not chalk your door today.",
+   "source": "data.js NPCS.rooke.greet.polite",
+   "voiceOf": "rooke",
+   "delivery": "normal"
+  },
+  {
+   "id": "rooke.greet.normal",
+   "speaker": "rooke",
+   "kind": "greet",
+   "text": "The sap-mark means past cutting. Now it also means the Inquisitor's list. Keep that to yourself.",
+   "source": "data.js NPCS.rooke.greet.normal",
+   "voiceOf": "rooke",
+   "delivery": "normal"
+  },
+  {
+   "id": "rooke.greet.blunt",
+   "speaker": "rooke",
+   "kind": "greet",
+   "text": "Lower your voice in my surgery or I will lower it for you with a needle.",
+   "source": "data.js NPCS.rooke.greet.blunt",
+   "voiceOf": "rooke",
+   "delivery": "low, clinical menace"
+  },
+  {
+   "id": "orla.greet.polite",
+   "speaker": "orla",
+   "kind": "greet",
+   "text": "Come closer, I cannot turn. Are you here about Davin?",
+   "source": "data.js NPCS.orla.greet.polite",
+   "voiceOf": "orla",
+   "delivery": "normal"
+  },
+  {
+   "id": "orla.greet.normal",
+   "speaker": "orla",
+   "kind": "greet",
+   "text": "Mind the roots on the floor. They are mine.",
+   "source": "data.js NPCS.orla.greet.normal",
+   "voiceOf": "orla",
+   "delivery": "normal"
+  },
+  {
+   "id": "orla.greet.blunt",
+   "speaker": "orla",
+   "kind": "greet",
+   "text": "I am a tree with a tongue; shout at me if you like, I cannot leave.",
+   "source": "data.js NPCS.orla.greet.blunt",
+   "voiceOf": "orla",
+   "delivery": "dry, wry"
+  },
+  {
+   "id": "pim.greet.polite",
+   "speaker": "pim",
+   "kind": "greet",
+   "text": "Shh. Mam says I'm not to talk to anybody about my hands.",
+   "source": "data.js NPCS.pim.greet.polite",
+   "voiceOf": "pim",
+   "delivery": "whisper"
+  },
+  {
+   "id": "pim.greet.normal",
+   "speaker": "pim",
+   "kind": "greet",
+   "text": "I'm not supposed to be out. Don't tell.",
+   "source": "data.js NPCS.pim.greet.normal",
+   "voiceOf": "pim",
+   "delivery": "whisper"
+  },
+  {
+   "id": "vosk.greet.polite",
+   "speaker": "vosk",
+   "kind": "greet",
+   "text": "Pitch has a colour, through these lenses. Yours is an unremarkable brown. State your business.",
+   "source": "data.js NPCS.vosk.greet.polite",
+   "voiceOf": "vosk",
+   "delivery": "cool, precise"
+  },
+  {
+   "id": "vosk.greet.normal",
+   "speaker": "vosk",
+   "kind": "greet",
+   "text": "The Consortium pays this town's bread. Remember that before you speak.",
+   "source": "data.js NPCS.vosk.greet.normal",
+   "voiceOf": "vosk",
+   "delivery": "normal"
+  },
+  {
+   "id": "vosk.greet.blunt",
+   "speaker": "vosk",
+   "kind": "greet",
+   "text": "I have Legionnaires. You have a voice. One of those is replaceable.",
+   "source": "data.js NPCS.vosk.greet.blunt",
+   "voiceOf": "vosk",
+   "delivery": "cool, precise"
+  },
+  {
+   "id": "aldric.greet.polite",
+   "speaker": "aldric",
+   "kind": "greet",
+   "text": "The seal of Queen Maelis bids you welcome. Her signature on the decrees is famously steady for a woman dead a hundred and forty years.",
+   "source": "data.js NPCS.aldric.greet.polite",
+   "voiceOf": "aldric",
+   "delivery": "dry, weary irony"
+  },
+  {
+   "id": "aldric.greet.normal",
+   "speaker": "aldric",
+   "kind": "greet",
+   "text": "Yes? Be brief. I have the Factor at one shoulder and the Church at the other.",
+   "source": "data.js NPCS.aldric.greet.normal",
+   "voiceOf": "aldric",
+   "delivery": "normal"
+  },
+  {
+   "id": "aldric.greet.blunt",
+   "speaker": "aldric",
+   "kind": "greet",
+   "text": "You sold them, my son says. I fed them, I say. Which of us do you think is lying?",
+   "source": "data.js NPCS.aldric.greet.blunt",
+   "voiceOf": "aldric",
+   "delivery": "normal"
+  },
+  {
+   "id": "tobiah.greet.polite",
+   "speaker": "tobiah",
+   "kind": "greet",
+   "text": "Night shift. Keep it under the pumps and the bells won't turn. Are you — are you with him? With Engineer Vance?",
+   "source": "data.js NPCS.tobiah.greet.polite",
+   "voiceOf": "tobiah",
+   "delivery": "low"
+  },
+  {
+   "id": "tobiah.greet.normal",
+   "speaker": "tobiah",
+   "kind": "greet",
+   "text": "Nobody comes down here who isn't on the roster. Which you aren't.",
+   "source": "data.js NPCS.tobiah.greet.normal",
+   "voiceOf": "tobiah",
+   "delivery": "normal"
+  },
+  {
+   "id": "tobiah.greet.blunt",
+   "speaker": "tobiah",
+   "kind": "greet",
+   "text": "Quiet! The Legionnaire in Depot Three walks when it hears boots.",
+   "source": "data.js NPCS.tobiah.greet.blunt",
+   "voiceOf": "tobiah",
+   "delivery": "hissed whisper, urgent"
+  },
+  {
+   "id": "bettany.greet.polite",
+   "speaker": "bettany",
+   "kind": "greet",
+   "text": "Softly, love. What ails? I have tonic, I have honey for the throat, and I have shot, which I do not approve of and sell anyway.",
+   "source": "data.js NPCS.bettany.greet.polite",
+   "voiceOf": "bettany",
+   "delivery": "soft, motherly"
+  },
+  {
+   "id": "bettany.greet.normal",
+   "speaker": "bettany",
+   "kind": "greet",
+   "text": "Tonic's five. Honey's four. Shot's three the three. Keep your voice down while you count.",
+   "source": "data.js NPCS.bettany.greet.normal",
+   "voiceOf": "bettany",
+   "delivery": "normal"
+  },
+  {
+   "id": "bettany.greet.blunt",
+   "speaker": "bettany",
+   "kind": "greet",
+   "text": "I hummed half this town into the world. I will not be barked at in my own stall.",
+   "source": "data.js NPCS.bettany.greet.blunt",
+   "voiceOf": "bettany",
+   "delivery": "indignant, warm-voiced anger"
+  },
+  {
+   "id": "tam.greet.polite",
+   "speaker": "tam",
+   "kind": "greet",
+   "text": "Sit if you like. She comes on the water about this time. You will hear her if you keep still.",
+   "source": "data.js NPCS.tam.greet.polite",
+   "voiceOf": "tam",
+   "delivery": "murmur"
+  },
+  {
+   "id": "tam.greet.normal",
+   "speaker": "tam",
+   "kind": "greet",
+   "text": "Hm. You are standing where I listen.",
+   "source": "data.js NPCS.tam.greet.normal",
+   "voiceOf": "tam",
+   "delivery": "murmur"
+  },
+  {
+   "id": "tam.greet.blunt",
+   "speaker": "tam",
+   "kind": "greet",
+   "text": "Lower your voice. She will not come if you shout.",
+   "source": "data.js NPCS.tam.greet.blunt",
+   "voiceOf": "tam",
+   "delivery": "murmur, firm"
+  },
+  {
+   "id": "hob.greet.polite",
+   "speaker": "hob",
+   "kind": "greet",
+   "text": "Evening. Mind the vats; the lime does not care who you are.",
+   "source": "data.js NPCS.hob.greet.polite",
+   "voiceOf": "hob",
+   "delivery": "normal"
+  },
+  {
+   "id": "hob.greet.normal",
+   "speaker": "hob",
+   "kind": "greet",
+   "text": "Tannery's shut. Nobody wants leather off a town that is turning to wood.",
+   "source": "data.js NPCS.hob.greet.normal",
+   "voiceOf": "hob",
+   "delivery": "normal"
+  },
+  {
+   "id": "hob.greet.blunt",
+   "speaker": "hob",
+   "kind": "greet",
+   "text": "I have buried two apprentices this year. Try me.",
+   "source": "data.js NPCS.hob.greet.blunt",
+   "voiceOf": "hob",
+   "delivery": "flat, heavy"
+  },
+  {
+   "id": "nell.greet.polite",
+   "speaker": "nell",
+   "kind": "greet",
+   "text": "He is not to be looked at. Whoever you are. He has a cough.",
+   "source": "data.js NPCS.nell.greet.polite",
+   "voiceOf": "nell",
+   "delivery": "low, guarded"
+  },
+  {
+   "id": "nell.greet.normal",
+   "speaker": "nell",
+   "kind": "greet",
+   "text": "The mill is shut. Say what you want through the door next time.",
+   "source": "data.js NPCS.nell.greet.normal",
+   "voiceOf": "nell",
+   "delivery": "normal"
+  },
+  {
+   "id": "nell.greet.blunt",
+   "speaker": "nell",
+   "kind": "greet",
+   "text": "Get out of my mill.",
+   "source": "data.js NPCS.nell.greet.blunt",
+   "voiceOf": "nell",
+   "delivery": "sharp, low"
+  },
+  {
+   "id": "ignatius.greet.polite",
+   "speaker": "ignatius",
+   "kind": "greet",
+   "text": "The Note is held. You may speak under it. Quietly, and in tune.",
+   "source": "data.js NPCS.ignatius.greet.polite",
+   "voiceOf": "ignatius",
+   "delivery": "low, formal"
+  },
+  {
+   "id": "ignatius.greet.normal",
+   "speaker": "ignatius",
+   "kind": "greet",
+   "text": "This chapel had bells once. The Synod took them for bore-teeth, and it was right to. A bell is a voice with nobody inside it.",
+   "source": "data.js NPCS.ignatius.greet.normal",
+   "voiceOf": "ignatius",
+   "delivery": "normal"
+  },
+  {
+   "id": "ignatius.greet.blunt",
+   "speaker": "ignatius",
+   "kind": "greet",
+   "text": "I have burned men for less than that tone. I am tired, and the Note is long, and you will not try me again.",
+   "source": "data.js NPCS.ignatius.greet.blunt",
+   "voiceOf": "ignatius",
+   "delivery": "tired, very quiet, cold"
+  },
+  {
+   "id": "townsman.greet.polite",
+   "speaker": "townsman",
+   "kind": "greet",
+   "text": "Evening. Keep it low.",
+   "source": "data.js NPCS.townsman.greet.polite",
+   "voiceOf": "townsman",
+   "delivery": "low"
+  },
+  {
+   "id": "townsman.greet.normal",
+   "speaker": "townsman",
+   "kind": "greet",
+   "text": "Hm?",
+   "source": "data.js NPCS.townsman.greet.normal",
+   "voiceOf": "townsman",
+   "delivery": "grunt, low"
+  },
+  {
+   "id": "townsman.greet.blunt",
+   "speaker": "townsman",
+   "kind": "greet",
+   "text": "Lower your voice before something hears you.",
+   "source": "data.js NPCS.townsman.greet.blunt",
+   "voiceOf": "townsman",
+   "delivery": "urgent whisper"
+  },
+  {
+   "id": "townswoman.greet.polite",
+   "speaker": "townswoman",
+   "kind": "greet",
+   "text": "Blessings of the Narrow on you. Softly, now.",
+   "source": "data.js NPCS.townswoman.greet.polite",
+   "voiceOf": "townswoman",
+   "delivery": "low, devout"
+  },
+  {
+   "id": "townswoman.greet.normal",
+   "speaker": "townswoman",
+   "kind": "greet",
+   "text": "Yes? Quietly.",
+   "source": "data.js NPCS.townswoman.greet.normal",
+   "voiceOf": "townswoman",
+   "delivery": "low"
+  },
+  {
+   "id": "townswoman.greet.blunt",
+   "speaker": "townswoman",
+   "kind": "greet",
+   "text": "Hush! The children.",
+   "source": "data.js NPCS.townswoman.greet.blunt",
+   "voiceOf": "townswoman",
+   "delivery": "hissed whisper"
+  },
+  {
+   "id": "sable.greet.polite",
+   "speaker": "sable",
+   "kind": "greet",
+   "text": "Entry: a stranger, polite, at the wrong end of the continent. Sit. Not there. That is where the proctors will come from.",
+   "source": "data.js NPCS.sable.greet.polite",
+   "voiceOf": "sable",
+   "delivery": "soft, rhythmic, reading an entry"
+  },
+  {
+   "id": "sable.greet.normal",
+   "speaker": "sable",
+   "kind": "greet",
+   "text": "I am a list, not a cure. Say what you came to say.",
+   "source": "data.js NPCS.sable.greet.normal",
+   "voiceOf": "sable",
+   "delivery": "soft, flat"
+  },
+  {
+   "id": "sable.greet.blunt",
+   "speaker": "sable",
+   "kind": "greet",
+   "text": "Precision, please. I record everything, including the tone.",
+   "source": "data.js NPCS.sable.greet.blunt",
+   "voiceOf": "sable",
+   "delivery": "flat, exact"
+  },
+  {
+   "id": "vane_wg.greet.polite",
+   "speaker": "vane",
+   "kind": "greet",
+   "text": "Mind the ladder; the third rung is a liar. She'll hold at the mast-height as long as the tanks do, and the tanks are not what they were.",
+   "source": "data.js NPCS.vane_wg.greet.polite",
+   "voiceOf": "vane",
+   "delivery": "normal"
+  },
+  {
+   "id": "vane_wg.greet.normal",
+   "speaker": "vane",
+   "kind": "greet",
+   "text": "OK-114, under two coats of paint. She's initialled it eleven times, your scribe. I can tell by the way she looks at my hull.",
+   "source": "data.js NPCS.vane_wg.greet.normal",
+   "voiceOf": "vane",
+   "delivery": "normal"
+  },
+  {
+   "id": "vane_wg.greet.blunt",
+   "speaker": "vane",
+   "kind": "greet",
+   "text": "Say it quick. I don't like a city that doesn't fall down.",
+   "source": "data.js NPCS.vane_wg.greet.blunt",
+   "voiceOf": "vane",
+   "delivery": "normal"
+  },
+  {
+   "id": "kaelen_wg.greet.polite",
+   "speaker": "kaelen",
+   "kind": "greet",
+   "text": "Listen. Under the water. Seven forty-one, very faint. The presses.",
+   "source": "data.js NPCS.kaelen_wg.greet.polite",
+   "voiceOf": "kaelen",
+   "delivery": "normal"
+  },
+  {
+   "id": "kaelen_wg.greet.normal",
+   "speaker": "kaelen",
+   "kind": "greet",
+   "text": "This is a dead city that never fell down. That is a statistical anomaly. I do not like anomalies.",
+   "source": "data.js NPCS.kaelen_wg.greet.normal",
+   "voiceOf": "kaelen",
+   "delivery": "normal"
+  },
+  {
+   "id": "kaelen_wg.greet.blunt",
+   "speaker": "kaelen",
+   "kind": "greet",
+   "text": "My arm locks when that note is struck near it. Keep me away from the grey men, or keep them away from me.",
+   "source": "data.js NPCS.kaelen_wg.greet.blunt",
+   "voiceOf": "kaelen",
+   "delivery": "normal"
+  },
+  {
+   "id": "sable_wg.greet.polite",
+   "speaker": "sable",
+   "kind": "greet",
+   "text": "Entry: the stranger is polite in a drowned city. Noted.",
+   "source": "data.js NPCS.sable_wg.greet.polite",
+   "voiceOf": "sable",
+   "delivery": "soft, rhythmic, reading an entry"
+  },
+  {
+   "id": "sable_wg.greet.normal",
+   "speaker": "sable",
+   "kind": "greet",
+   "text": "I am a list, not a cure.",
+   "source": "data.js NPCS.sable_wg.greet.normal",
+   "voiceOf": "sable",
+   "delivery": "soft, flat"
+  },
+  {
+   "id": "sable_wg.greet.blunt",
+   "speaker": "sable",
+   "kind": "greet",
+   "text": "Precision, please. I record everything, including the tone.",
+   "source": "data.js NPCS.sable_wg.greet.blunt",
+   "voiceOf": "sable",
+   "delivery": "flat, exact",
+   "sameAs": "sable.greet.blunt"
+  },
+  {
+   "id": "halder.greet.polite",
+   "speaker": "halder",
+   "kind": "greet",
+   "text": "Four plates. The blue one is Bryony's.",
+   "source": "data.js NPCS.halder.greet.polite",
+   "voiceOf": "halder",
+   "delivery": "hollow-fragment",
+   "segments": [
+    "four plates",
+    "The blue one is Bryony's"
+   ]
+  },
+  {
+   "id": "halder.greet.normal",
+   "speaker": "halder",
+   "kind": "greet",
+   "text": "The boys will be in directly.",
+   "source": "data.js NPCS.halder.greet.normal",
+   "voiceOf": "halder",
+   "delivery": "hollow-fragment",
+   "segments": [
+    "the boys will be in directly"
+   ]
+  },
+  {
+   "id": "halder.greet.blunt",
+   "speaker": "halder",
+   "kind": "greet",
+   "text": "Sit, sit, there's four.",
+   "source": "data.js NPCS.halder.greet.blunt",
+   "voiceOf": "halder",
+   "delivery": "hollow-fragment",
+   "segments": [
+    "sit, sit, there's four"
+   ]
+  },
+  {
+   "id": "quist.greet.polite",
+   "speaker": "quist",
+   "kind": "greet",
+   "text": "Hot water? There is always hot water. Sit; the chair is clean. People hesitate less when the chair is clean.",
+   "source": "data.js NPCS.quist.greet.polite",
+   "voiceOf": "quist",
+   "delivery": "courteous, mild, unhurried"
+  },
+  {
+   "id": "quist.greet.normal",
+   "speaker": "quist",
+   "kind": "greet",
+   "text": "You are not on my list, which means you are on someone else's. Sit down.",
+   "source": "data.js NPCS.quist.greet.normal",
+   "voiceOf": "quist",
+   "delivery": "courteous, mild"
+  },
+  {
+   "id": "quist.greet.blunt",
+   "speaker": "quist",
+   "kind": "greet",
+   "text": "Lower your voice. There are people being registered in the next room, and it upsets them.",
+   "source": "data.js NPCS.quist.greet.blunt",
+   "voiceOf": "quist",
+   "delivery": "mild, low, courteous menace"
+  },
+  {
+   "id": "aegis_wg.greet.polite",
+   "speaker": "aegis",
+   "kind": "greet",
+   "text": "DEFEND THE SINGERS.",
+   "source": "data.js NPCS.aegis_wg.greet.polite",
+   "voiceOf": "aegis",
+   "delivery": "slow bronze chord-voice, capitals, stencilled"
+  },
+  {
+   "id": "aegis_wg.greet.normal",
+   "speaker": "aegis",
+   "kind": "greet",
+   "text": "DEFEND THE SINGERS.",
+   "source": "data.js NPCS.aegis_wg.greet.normal",
+   "voiceOf": "aegis",
+   "delivery": "slow bronze chord-voice, capitals, stencilled",
+   "sameAs": "aegis_wg.greet.polite"
+  },
+  {
+   "id": "lamplighter.greet.polite",
+   "speaker": "lamplighter",
+   "kind": "greet",
+   "text": "The lamps are late tonight.",
+   "source": "data.js NPCS.lamplighter.greet.polite",
+   "voiceOf": "lamplighter",
+   "delivery": "hollow-fragment",
+   "segments": [
+    "the lamps are late tonight"
+   ]
+  },
+  {
+   "id": "lamplighter.greet.normal",
+   "speaker": "lamplighter",
+   "kind": "greet",
+   "text": "The lamps are late tonight.",
+   "source": "data.js NPCS.lamplighter.greet.normal",
+   "voiceOf": "lamplighter",
+   "delivery": "hollow-fragment",
+   "segments": [
+    "the lamps are late tonight"
+   ],
+   "sameAs": "lamplighter.greet.polite"
+  },
+  {
+   "id": "lamplighter.greet.blunt",
+   "speaker": "lamplighter",
+   "kind": "greet",
+   "text": "The lamps are late tonight.",
+   "source": "data.js NPCS.lamplighter.greet.blunt",
+   "voiceOf": "lamplighter",
+   "delivery": "hollow-fragment",
+   "segments": [
+    "the lamps are late tonight"
+   ],
+   "sameAs": "lamplighter.greet.polite"
+  },
+  {
+   "id": "bettis.greet.polite",
+   "speaker": "bettis",
+   "kind": "greet",
+   "text": "Name, please.",
+   "source": "data.js NPCS.bettis.greet.polite",
+   "voiceOf": "bettis",
+   "delivery": "hollow-fragment",
+   "segments": [
+    "name, please"
+   ]
+  },
+  {
+   "id": "bettis.greet.normal",
+   "speaker": "bettis",
+   "kind": "greet",
+   "text": "Name, please.",
+   "source": "data.js NPCS.bettis.greet.normal",
+   "voiceOf": "bettis",
+   "delivery": "hollow-fragment",
+   "segments": [
+    "name, please"
+   ],
+   "sameAs": "bettis.greet.polite"
+  },
+  {
+   "id": "bettis.greet.blunt",
+   "speaker": "bettis",
+   "kind": "greet",
+   "text": "Name, please.",
+   "source": "data.js NPCS.bettis.greet.blunt",
+   "voiceOf": "bettis",
+   "delivery": "hollow-fragment",
+   "segments": [
+    "name, please"
+   ],
+   "sameAs": "bettis.greet.polite"
+  },
+  {
+   "id": "vane_dw.greet.polite",
+   "speaker": "vane",
+   "kind": "greet",
+   "text": "Ten heartbeats. I counted. This time I didn't cut.",
+   "source": "data.js NPCS.vane_dw.greet.polite",
+   "voiceOf": "vane",
+   "delivery": "quiet, raw, steady"
+  },
+  {
+   "id": "vane_dw.greet.normal",
+   "speaker": "vane",
+   "kind": "greet",
+   "text": "She's on her side in the willows with a hole in her number-two tank you could post a sheep through. We are not leaving by air today.",
+   "source": "data.js NPCS.vane_dw.greet.normal",
+   "voiceOf": "vane",
+   "delivery": "normal"
+  },
+  {
+   "id": "vane_dw.greet.blunt",
+   "speaker": "vane",
+   "kind": "greet",
+   "text": "Don't. I know. I put a tree through an Office cutter. It seemed like the thing to do.",
+   "source": "data.js NPCS.vane_dw.greet.blunt",
+   "voiceOf": "vane",
+   "delivery": "curt, tired"
+  },
+  {
+   "id": "tobiah_dw.greet.polite",
+   "speaker": "tobiah",
+   "kind": "greet",
+   "text": "Don't touch that. Or that. That one you can touch, it's already broken.",
+   "source": "data.js NPCS.tobiah_dw.greet.polite",
+   "voiceOf": "tobiah",
+   "delivery": "brisk, anxious"
+  },
+  {
+   "id": "tobiah_dw.greet.normal",
+   "speaker": "tobiah",
+   "kind": "greet",
+   "text": "Number-two tank. Look at it. I could weep. I nearly have.",
+   "source": "data.js NPCS.tobiah_dw.greet.normal",
+   "voiceOf": "tobiah",
+   "delivery": "despairing, dry"
+  },
+  {
+   "id": "tobiah_dw.greet.blunt",
+   "speaker": "tobiah",
+   "kind": "greet",
+   "text": "I'm an engine man in a forest. Say something useful or hold this.",
+   "source": "data.js NPCS.tobiah_dw.greet.blunt",
+   "voiceOf": "tobiah",
+   "delivery": "normal"
+  },
+  {
+   "id": "mags_dw.greet.normal",
+   "speaker": "mags",
+   "kind": "greet",
+   "text": "Slower. I read lips, not minds.",
+   "source": "data.js NPCS.mags_dw.greet.normal",
+   "voiceOf": "mags",
+   "delivery": "flat, dry; the first word is an instruction, the second sentence a dry aside",
+   "segments": [
+    "Slower,",
+    "I read lips, not minds."
+   ]
+  },
+  {
+   "id": "kaelen_dw.greet.normal",
+   "speaker": "kaelen",
+   "kind": "greet",
+   "text": "Seven forty-one is gone. I can hear the woods instead. They are very loud.",
+   "source": "data.js NPCS.kaelen_dw.greet.normal",
+   "voiceOf": "kaelen",
+   "delivery": "low, tired, strained"
+  },
+  {
+   "id": "kaelen_dw.greet.blunt",
+   "speaker": "kaelen",
+   "kind": "greet",
+   "text": "Not now.",
+   "source": "data.js NPCS.kaelen_dw.greet.blunt",
+   "voiceOf": "kaelen",
+   "delivery": "low, curt"
+  },
+  {
+   "id": "sable_dw.greet.polite",
+   "speaker": "sable",
+   "kind": "greet",
+   "text": "Entry: the Deep Woods. One wreck, eleven souls, a press, and me.",
+   "source": "data.js NPCS.sable_dw.greet.polite",
+   "voiceOf": "sable",
+   "delivery": "soft, rhythmic, reading an entry"
+  },
+  {
+   "id": "sable_dw.greet.normal",
+   "speaker": "sable",
+   "kind": "greet",
+   "text": "Two things left in the inventory, and the third does not feel like a gap. It feels like a shelf.",
+   "source": "data.js NPCS.sable_dw.greet.normal",
+   "voiceOf": "sable",
+   "delivery": "soft, wondering"
+  },
+  {
+   "id": "sable_dw.greet.blunt",
+   "speaker": "sable",
+   "kind": "greet",
+   "text": "I am counting. Wait.",
+   "source": "data.js NPCS.sable_dw.greet.blunt",
+   "voiceOf": "sable",
+   "delivery": "soft, counting under the breath"
+  },
+  {
+   "id": "aegis_dw.greet.polite",
+   "speaker": "aegis",
+   "kind": "greet",
+   "text": "DEFEND THE SINGERS.",
+   "source": "data.js NPCS.aegis_dw.greet.polite",
+   "voiceOf": "aegis",
+   "delivery": "slow bronze chord-voice, capitals, stencilled",
+   "sameAs": "aegis_wg.greet.polite"
+  },
+  {
+   "id": "aegis_dw.greet.normal",
+   "speaker": "aegis",
+   "kind": "greet",
+   "text": "DEFEND THE SINGERS.",
+   "source": "data.js NPCS.aegis_dw.greet.normal",
+   "voiceOf": "aegis",
+   "delivery": "slow bronze chord-voice, capitals, stencilled",
+   "sameAs": "aegis_wg.greet.polite"
+  },
+  {
+   "id": "sexton.greet.polite",
+   "speaker": "sexton",
+   "kind": "greet",
+   "text": "One more before the light goes. One more.",
+   "source": "data.js NPCS.sexton.greet.polite",
+   "voiceOf": "sexton",
+   "delivery": "hollow-fragment",
+   "segments": [
+    "one more before the light goes",
+    "one more"
+   ]
+  },
+  {
+   "id": "sexton.greet.normal",
+   "speaker": "sexton",
+   "kind": "greet",
+   "text": "Deep enough. Not deep enough. One more.",
+   "source": "data.js NPCS.sexton.greet.normal",
+   "voiceOf": "sexton",
+   "delivery": "hollow-fragment",
+   "segments": [
+    "deep enough",
+    "not deep enough",
+    "one more"
+   ]
+  },
+  {
+   "id": "mourner.greet.polite",
+   "speaker": "mourner",
+   "kind": "greet",
+   "text": "Lilies for the Cantor. Lilies.",
+   "source": "data.js NPCS.mourner.greet.polite",
+   "voiceOf": "mourner",
+   "delivery": "hollow-fragment",
+   "segments": [
+    "lilies for the Cantor",
+    "lilies"
+   ]
+  },
+  {
+   "id": "mourner.greet.normal",
+   "speaker": "mourner",
+   "kind": "greet",
+   "text": "We're late. The bell hasn't gone.",
+   "source": "data.js NPCS.mourner.greet.normal",
+   "voiceOf": "mourner",
+   "delivery": "hollow-fragment",
+   "segments": [
+    "we're late",
+    "the bell hasn't gone"
+   ]
+  },
+  {
+   "id": "wren_dw.greet.polite.1",
+   "speaker": "wren",
+   "kind": "greet",
+   "text": "Hello.",
+   "source": "data.js NPCS.wren_dw.greet.polite",
+   "voiceOf": "wren",
+   "delivery": "very loud, a child who forgets to be quiet",
+   "segments": [
+    "Hello,"
+   ]
+  },
+  {
+   "id": "wren_dw.greet.polite.2",
+   "speaker": "wren",
+   "kind": "greet",
+   "text": "Hello.",
+   "source": "data.js NPCS.wren_dw.greet.polite",
+   "voiceOf": "wren",
+   "delivery": "whisper, much more quietly, remembering",
+   "segments": [
+    "hello."
+   ]
+  },
+  {
+   "id": "wren_dw.greet.normal.1",
+   "speaker": "wren",
+   "kind": "greet",
+   "text": "Hello.",
+   "source": "data.js NPCS.wren_dw.greet.normal",
+   "voiceOf": "wren",
+   "delivery": "very loud, a child who forgets to be quiet",
+   "segments": [
+    "Hello,"
+   ],
+   "sameAs": "wren_dw.greet.polite.1"
+  },
+  {
+   "id": "wren_dw.greet.normal.2",
+   "speaker": "wren",
+   "kind": "greet",
+   "text": "Hello.",
+   "source": "data.js NPCS.wren_dw.greet.normal",
+   "voiceOf": "wren",
+   "delivery": "whisper, much more quietly, remembering",
+   "segments": [
+    "hello."
+   ],
+   "sameAs": "wren_dw.greet.polite.2"
+  },
+  {
+   "id": "weaver.voice.0",
+   "speaker": "weaver",
+   "kind": "mimic",
+   "source": "grove.js WEAVER_VOICES[0]",
+   "ref": {
+    "array": "WEAVER_VOICES",
+    "index": 0
+   },
+   "text": "{name}, come in now, the water's warm.",
+   "segments": [
+    "come in now, the water's warm"
+   ],
+   "voiceOf": "player_mother",
+   "delivery": "warm, coaxing, trailing; {name} is the player's FIRST name only (p.name.split(' ')[0]), said twice in the game text (\"{name}... {name}, come in now\"); function takes the player",
+   "template": true
+  },
+  {
+   "id": "weaver.voice.1",
+   "speaker": "weaver",
+   "kind": "mimic",
+   "source": "grove.js WEAVER_VOICES[1]",
+   "ref": {
+    "array": "WEAVER_VOICES",
+    "index": 1
+   },
+   "text": "The blue one is Bryony's. The boys will be in directly.",
+   "segments": [
+    "the blue one is Bryony's",
+    "the boys will be in directly"
+   ],
+   "voiceOf": "halder",
+   "delivery": "hollow-fragment, trailing off"
+  },
+  {
+   "id": "weaver.voice.2",
+   "speaker": "weaver",
+   "kind": "mimic",
+   "source": "grove.js WEAVER_VOICES[2]",
+   "ref": {
+    "array": "WEAVER_VOICES",
+    "index": 2
+   },
+   "text": null,
+   "sung": true,
+   "voiceOf": "lyra",
+   "delivery": "sung: the calling-song, beautifully, in Lyra's voice, the voice she does not have any more; no words in the game text",
+   "note": "melody only, no lyric given"
+  },
+  {
+   "id": "weaver.voice.3",
+   "speaker": "weaver",
+   "kind": "mimic",
+   "source": "grove.js WEAVER_VOICES[3]",
+   "ref": {
+    "array": "WEAVER_VOICES",
+    "index": 3
+   },
+   "text": "I am a list, not a cure.",
+   "segments": [
+    "I am a list, not a cure,"
+   ],
+   "voiceOf": "sable",
+   "delivery": "soft, flat; followed by laughter in eleven children's voices (nonverbal, mix separately)"
+  },
+  {
+   "id": "weaver.voice.4",
+   "speaker": "weaver",
+   "kind": "mimic",
+   "source": "grove.js WEAVER_VOICES[4]",
+   "ref": {
+    "array": "WEAVER_VOICES",
+    "index": 4
+   },
+   "text": "Hymn nine, page forty. All rise. All rise.",
+   "segments": [
+    "Hymn nine, page forty",
+    "all rise",
+    "all rise"
+   ],
+   "voiceOf": "chorus_congregation",
+   "delivery": "two hundred voices, all slightly out of time, trailing"
+  },
+  {
+   "id": "weaver.voice.5",
+   "speaker": "weaver",
+   "kind": "mimic",
+   "source": "grove.js WEAVER_VOICES[5]",
+   "ref": {
+    "array": "WEAVER_VOICES",
+    "index": 5
+   },
+   "text": "Seven forty-one. I wrote it down myself.",
+   "segments": [
+    "Seven forty-one,",
+    "I wrote it down myself."
+   ],
+   "voiceOf": "kaelen",
+   "delivery": "very gently, low"
+  },
+  {
+   "id": "wearer.coda.0",
+   "speaker": "wearer",
+   "kind": "mimic",
+   "source": "data.js CODA_VOICES_WEARER[0]",
+   "ref": {
+    "array": "CODA_VOICES_WEARER",
+    "index": 0
+   },
+   "text": "Lark. Lark, come in now, the house is warm.",
+   "segments": [
+    "Lark,",
+    "Lark, come in now, the house is warm."
+   ],
+   "voiceOf": "tobin",
+   "delivery": "warm, fatherly; the first \"Lark\" is a call, the rest follows"
+  },
+  {
+   "id": "wearer.coda.1",
+   "speaker": "wearer",
+   "kind": "mimic",
+   "source": "data.js CODA_VOICES_WEARER[1]",
+   "ref": {
+    "array": "CODA_VOICES_WEARER",
+    "index": 1
+   },
+   "text": "Line ninety-four. I initialled it. I was sure for three seconds.",
+   "segments": [
+    "Line ninety-four,",
+    "I initialled it. I was sure for three seconds."
+   ],
+   "voiceOf": "kaelen",
+   "delivery": "very tired, low"
+  },
+  {
+   "id": "wearer.coda.2",
+   "speaker": "wearer",
+   "kind": "mimic",
+   "source": "data.js CODA_VOICES_WEARER[2]",
+   "ref": {
+    "array": "CODA_VOICES_WEARER",
+    "index": 2
+   },
+   "text": null,
+   "sung": true,
+   "voiceOf": "tobin",
+   "delivery": "sung: the funeral office of Tobin Ashgrove in Tobin Ashgrove's voice, beautifully, a third above Lyra; no words in the game text"
+  },
+  {
+   "id": "wearer.coda.3",
+   "speaker": "wearer",
+   "kind": "mimic",
+   "source": "data.js CODA_VOICES_WEARER[3]",
+   "ref": {
+    "array": "CODA_VOICES_WEARER",
+    "index": 3
+   },
+   "text": "I can't read, lark. I only know what was said out loud.",
+   "segments": [
+    "I can't read, lark,",
+    "I only know what was said out loud."
+   ],
+   "voiceOf": "wearer",
+   "delivery": "gently; the text names no mimicked voice, only that it speaks gently and says \"lark\"",
+   "ambiguous": true
+  },
+  {
+   "id": "requiem.coda.0",
+   "speaker": "requiem",
+   "kind": "mimic",
+   "source": "data.js CODA_VOICES_REQUIEM[0]",
+   "ref": {
+    "array": "CODA_VOICES_REQUIEM",
+    "index": 0
+   },
+   "text": null,
+   "sung": true,
+   "voiceOf": "chorus_mourners",
+   "delivery": "sung: a funeral office for Marta Hale in a hundred voices, all mourners; no lyric in the game text"
+  },
+  {
+   "id": "requiem.coda.1",
+   "speaker": "requiem",
+   "kind": "mimic",
+   "source": "data.js CODA_VOICES_REQUIEM[1]",
+   "ref": {
+    "array": "CODA_VOICES_REQUIEM",
+    "index": 1
+   },
+   "text": "Earth to earth, note to note.",
+   "segments": [
+    "Earth to earth, note to note,"
+   ],
+   "voiceOf": "cantor_old",
+   "delivery": "sung, a Cantor three hundred years dead, solemn",
+   "sung": true
+  },
+  {
+   "id": "requiem.coda.2",
+   "speaker": "requiem",
+   "kind": "mimic",
+   "source": "data.js CODA_VOICES_REQUIEM[2]",
+   "ref": {
+    "array": "CODA_VOICES_REQUIEM",
+    "index": 2
+   },
+   "text": null,
+   "sung": true,
+   "voiceOf": "lyra_child",
+   "delivery": "sung: the calling-song in Lyra's own voice as she had it at twelve; no words in the game text"
+  },
+  {
+   "id": "requiem.coda.3",
+   "speaker": "requiem",
+   "kind": "mimic",
+   "source": "data.js CODA_VOICES_REQUIEM[3]",
+   "ref": {
+    "array": "CODA_VOICES_REQUIEM",
+    "index": 3
+   },
+   "text": "He was a good man, he was a good man, he was a good man.",
+   "segments": [
+    "he was a good man, he was a good man, he was a good man"
+   ],
+   "voiceOf": "chorus_mourners",
+   "delivery": "murmured litany, every voice that ever said it here, trailing"
+  },
+  {
+   "id": "wearer.hedge.0",
+   "speaker": "wearer",
+   "kind": "mimic",
+   "text": "{name}.",
+   "segments": [],
+   "verify": "voice beyond the Hedge",
+   "source": "game.js checkTriggers hedge_voice",
+   "voiceOf": "player_kin",
+   "delivery": "warm, exact, the way it used to say it when you were in trouble; {name} = the player's full name (G.player.name)",
+   "template": true,
+   "when": "trigger hedge_voice; voice is flags.bio_brother ? your brother : flags.bio_coast ? a first mate you once left in the water : someone you buried"
+  },
+  {
+   "id": "wearer.hedge.1",
+   "speaker": "wearer",
+   "kind": "mimic",
+   "text": "There's a way through. I can show you. Just say you're there.",
+   "segments": [
+    "There's a way through. I can show you. Just say you're there."
+   ],
+   "source": "game.js checkTriggers hedge_voice",
+   "voiceOf": "player_kin",
+   "delivery": "warm, coaxing",
+   "when": "trigger hedge_voice (same kin voice as wearer.hedge.0)"
+  },
+  {
+   "id": "wearer.hedge.answered",
+   "speaker": "wearer",
+   "kind": "mimic",
+   "text": "I'm here.",
+   "segments": [
+    "I'm here,"
+   ],
+   "source": "game.js checkTriggers hedge_voice (answer branch)",
+   "voiceOf": "player",
+   "delivery": "warm laugh, then the words in the player's own voice; recorded as a generic voice, cannot clone the player",
+   "when": "flags.hedge_answered"
+  },
+  {
+   "id": "wearer.mast.0",
+   "speaker": "wearer",
+   "kind": "mimic",
+   "text": "Grab the line.",
+   "segments": [
+    "Grab the line."
+   ],
+   "source": "game.js checkTriggers mast",
+   "voiceOf": "player",
+   "delivery": "exactly like you, urgent, helpful",
+   "when": "flags.greening && flags.hedge_answered && !flags.wearer_spawned"
+  },
+  {
+   "id": "aegis.boss.0",
+   "speaker": "aegis",
+   "kind": "boss",
+   "text": "DEFEND. THE. SINGERS.",
+   "segments": [
+    "DEFEND. THE. SINGERS."
+   ],
+   "source": "data.js NPCS.aegis_wg.quest",
+   "voiceOf": "aegis",
+   "delivery": "slow, three separate struck syllables-words, bronze chord under it",
+   "when": "!flags.aegis_spoke (first quest read)"
+  },
+  {
+   "id": "aegis.alert.0",
+   "speaker": "aegis",
+   "kind": "alert",
+   "text": "DEFEND THE SINGERS.",
+   "segments": [
+    "DEFEND THE SINGERS"
+   ],
+   "source": "grove.js aegisWake msg",
+   "voiceOf": "aegis",
+   "delivery": "loud bronze chord-voice; stencilled on its chest, awake hostile",
+   "when": "trigger aegis_wake"
+  },
+  {
+   "id": "aegis.defeat.0",
+   "speaker": "aegis",
+   "kind": "boss",
+   "text": "Forty-one thousand and five.",
+   "segments": [
+    "Forty-one thousand and five."
+   ],
+   "source": "grove.js aegisDestroyed",
+   "voiceOf": "wg41005",
+   "delivery": "a boy's voice from inside the bronze, small, saying a number; said three times in the game text (repeat x3 with a pause)",
+   "repeat": 3,
+   "when": "aegisDestroyed (Aegis killed, not calmed)"
+  },
+  {
+   "id": "core.death",
+   "speaker": "core_voice",
+   "kind": "death",
+   "text": "{name}.",
+   "verify": "a voice says",
+   "source": "game.js killEnemy",
+   "voiceOf": "core_voice",
+   "delivery": "a small voice from inside the cracked bell or core; said three times in the game text; each enemy carries a name (e.name) from NAMES_POOL or its map placement",
+   "template": true,
+   "repeat": 3,
+   "when": "enemy def.core && e.name; applies to legionnaire, proctor, marine, bosun, outrider, captain (and hushwarden)",
+   "names": [
+    "Tamsin Reed",
+    "Corwin Aye",
+    "Mirren Salk",
+    "Gethin Coote",
+    "Osric Dacre",
+    "Linus Harte",
+    "Bryn Pryor",
+    "Elspet Rowe",
+    "Dunstan Pell",
+    "Ivo Marrick",
+    "Sefa Lund",
+    "Ottilie Crane",
+    "Benet Owler",
+    "Maud Tanner",
+    "Ro Fenwick",
+    "Caddoc Vey",
+    "Elin Thorsby",
+    "Perrin Lusk",
+    "Hal Ransome",
+    "Edda Quill",
+    "Bosun Teller"
+   ]
+  },
+  {
+   "id": "deacon.sign.given",
+   "speaker": "deacon",
+   "kind": "boss",
+   "text": "SHE IS GIVEN. THE QUIET IS MERCIFUL. GO.",
+   "segments": [
+    "SHE IS GIVEN. THE QUIET IS MERCIFUL. GO."
+   ],
+   "signed": true,
+   "optional": true,
+   "source": "wilds.js wildsPeace",
+   "voiceOf": "deacon",
+   "delivery": "SIGNED in hand-cant in the game (his mouth is bound with linen). If voiced at all: a low murmur through linen. Safe to omit.",
+   "when": "flags.mags_cant (shown only if the player can read hand-cant)"
+  },
+  {
+   "id": "deacon.sign.who",
+   "speaker": "deacon",
+   "kind": "boss",
+   "text": "WHO TAUGHT YOU.",
+   "segments": [
+    "WHO TAUGHT YOU."
+   ],
+   "signed": true,
+   "optional": true,
+   "source": "wilds.js wildsPeace",
+   "voiceOf": "deacon",
+   "delivery": "SIGNED in hand-cant in the game (his mouth is bound with linen). If voiced at all: a low murmur through linen. Safe to omit.",
+   "when": "after the player signs \"The Hush is quiet. It is not merciful.\" (wildsPeace)"
+  },
+  {
+   "id": "deacon.sign.keep",
+   "speaker": "deacon",
+   "kind": "boss",
+   "text": "THEN SHE IS YOURS TO KEEP LOUD,",
+   "segments": [
+    "THEN SHE IS YOURS TO KEEP LOUD,"
+   ],
+   "signed": true,
+   "optional": true,
+   "source": "wilds.js wildsPeace",
+   "voiceOf": "deacon",
+   "delivery": "SIGNED in hand-cant in the game (his mouth is bound with linen). If voiced at all: a low murmur through linen. Safe to omit.",
+   "when": "after the player signs \"A woman who stopped hearing.\" (wildsPeace)"
+  },
+  {
+   "id": "kaelen.companion.join",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "About time. I go where it's loudest and break what's about to break. You keep us in the Narrow.",
+   "source": "party.js COMPANIONS.kaelen.join",
+   "voiceOf": "kaelen",
+   "delivery": "dry; the first words a wry greeting; a faint glass ring may sit under them",
+   "segments": [
+    "About time.",
+    "I go where it's loudest and break what's about to break. You keep us in the Narrow."
+   ]
+  },
+  {
+   "id": "kaelen.companion.map_mausoleum",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Hear that? The tombs are holding a chord under the floor. Something in here is about to break, and it isn't the stone.",
+   "source": "party.js PARTY_BARKS.kaelen['map:mausoleum']",
+   "voiceOf": "kaelen",
+   "delivery": "low, gravel, understated"
+  },
+  {
+   "id": "kaelen.companion.map_belfry",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Old bronze. Cracked at the lip, on the east side. Ring it hard and it'll go the rest of the way.",
+   "source": "party.js PARTY_BARKS.kaelen['map:belfry']",
+   "voiceOf": "kaelen",
+   "delivery": "low, gravel, understated"
+  },
+  {
+   "id": "kaelen.companion.quiet",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Quiet. Glass won't ring inside one. Iron, and keep moving.",
+   "source": "party.js PARTY_BARKS.kaelen.quiet",
+   "voiceOf": "kaelen",
+   "delivery": "low, urgent"
+  },
+  {
+   "id": "kaelen.companion.dirge",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "A funeral office with nobody in it. My arm hates it.",
+   "source": "party.js PARTY_BARKS.kaelen.dirge",
+   "voiceOf": "kaelen",
+   "delivery": "low, gravel, understated"
+  },
+  {
+   "id": "kaelen.companion.warden",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Marble. Hit it where it's already cracked: the elbows.",
+   "source": "party.js PARTY_BARKS.kaelen.warden",
+   "voiceOf": "kaelen",
+   "delivery": "low, gravel, understated"
+  },
+  {
+   "id": "kaelen.companion.horn",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Office. They hear better than they fight. Kill the horn first.",
+   "source": "party.js PARTY_BARKS.kaelen.horn",
+   "voiceOf": "kaelen",
+   "delivery": "low, gravel, understated"
+  },
+  {
+   "id": "kaelen.companion.weaverling",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Static on legs. Cut the threads, not the spider.",
+   "source": "party.js PARTY_BARKS.kaelen.weaverling",
+   "voiceOf": "kaelen",
+   "delivery": "low, gravel, understated"
+  },
+  {
+   "id": "kaelen.companion.broodmother",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "That one's full. I can hear them in her, waiting to hatch.",
+   "source": "party.js PARTY_BARKS.kaelen.broodmother",
+   "voiceOf": "kaelen",
+   "delivery": "low, uneasy"
+  },
+  {
+   "id": "kaelen.companion.tongueless",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "They're not making a sound. Not breathing, not footfalls. That takes practice.",
+   "source": "party.js PARTY_BARKS.kaelen.tongueless",
+   "voiceOf": "kaelen",
+   "delivery": "very low"
+  },
+  {
+   "id": "kaelen.companion.outrider",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Crossbows. Close the distance, or get a willow between you and them.",
+   "source": "party.js PARTY_BARKS.kaelen.outrider",
+   "voiceOf": "kaelen",
+   "delivery": "low, gravel, understated"
+  },
+  {
+   "id": "kaelen.companion.hushwarden",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Felted bell. Don't let it touch you before you've sung what you need.",
+   "source": "party.js PARTY_BARKS.kaelen.hushwarden",
+   "voiceOf": "kaelen",
+   "delivery": "low, gravel, understated"
+  },
+  {
+   "id": "kaelen.companion.hound",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Hounds. They won't touch the glass. Stay near me.",
+   "source": "party.js PARTY_BARKS.kaelen.hound",
+   "voiceOf": "kaelen",
+   "delivery": "low, gravel, understated"
+  },
+  {
+   "id": "kaelen.companion.hurt",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "You're bleeding into the moss. Back off and let me take it.",
+   "source": "party.js PARTY_BARKS.kaelen.hurt",
+   "voiceOf": "kaelen",
+   "delivery": "low, firm"
+  },
+  {
+   "id": "kaelen.companion.rest",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Wake me if the arm starts ringing. You'll hear it before I do.",
+   "source": "party.js PARTY_BARKS.kaelen.rest",
+   "voiceOf": "kaelen",
+   "delivery": "low, tired"
+  },
+  {
+   "id": "kaelen.companion.selfhurt",
+   "speaker": "kaelen",
+   "kind": "hurt",
+   "text": "I'm fine. The arm's ringing, that's all. Give me a minute.",
+   "source": "party.js PARTY_BARKS.kaelen.selfhurt",
+   "voiceOf": "kaelen",
+   "delivery": "pained, through the teeth, understated"
+  },
+  {
+   "id": "kaelen.companion.chat0",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "I don't build things anymore. I just know how they break.",
+   "source": "party.js PARTY_CHAT.kaelen[0]",
+   "voiceOf": "kaelen",
+   "delivery": "low, gravel, understated"
+  },
+  {
+   "id": "kaelen.companion.chat1",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Every willow here has a split about a hand above the root. Damp gets in. Give it ten years.",
+   "source": "party.js PARTY_CHAT.kaelen[1]",
+   "voiceOf": "kaelen",
+   "delivery": "low, gravel, understated"
+  },
+  {
+   "id": "kaelen.companion.chat2",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "The glass is louder out here. Like standing next to a bore that's still turning.",
+   "source": "party.js PARTY_CHAT.kaelen[2]",
+   "voiceOf": "kaelen",
+   "delivery": "low, gravel, understated"
+  },
+  {
+   "id": "kaelen.companion.chat3",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "My father sold the Root to keep the town fed. I keep trying to hate him for it. I keep doing the arithmetic instead.",
+   "source": "party.js PARTY_CHAT.kaelen[3]",
+   "voiceOf": "kaelen",
+   "delivery": "low, gravel, understated"
+  },
+  {
+   "id": "kaelen.companion.chat4",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Lyra taught me the Root note when we were nine. I still hum it when the arm's bad. Don't tell her.",
+   "source": "party.js PARTY_CHAT.kaelen[4]",
+   "voiceOf": "kaelen",
+   "delivery": "low, gravel, understated"
+  },
+  {
+   "id": "kaelen.companion.chat5",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Hounds won't come near the glass. Neither will most people. It's restful.",
+   "source": "party.js PARTY_CHAT.kaelen[5]",
+   "voiceOf": "kaelen",
+   "delivery": "low, gravel, understated"
+  },
+  {
+   "id": "kaelen.companion.boss0",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "There. That's what it sounds like when something stops.",
+   "source": "party.js PARTY_BOSS.kaelen[0]",
+   "voiceOf": "kaelen",
+   "delivery": "quiet, grim"
+  },
+  {
+   "id": "kaelen.companion.boss1",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Structural failure. Finally.",
+   "source": "party.js PARTY_BOSS.kaelen[1]",
+   "voiceOf": "kaelen",
+   "delivery": "dry"
+  },
+  {
+   "id": "kaelen.companion.boss2",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Next.",
+   "source": "party.js PARTY_BOSS.kaelen[2]",
+   "voiceOf": "kaelen",
+   "delivery": "flat; follows the narration that he flexes the glass hand until it stops ringing",
+   "segments": [
+    "Next."
+   ]
+  },
+  {
+   "id": "kaelen.companion.notyet",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Not yet. Rest first. Then ask me again.",
+   "source": "party.js camp dialogue (downed)",
+   "voiceOf": "kaelen",
+   "delivery": "low, tired, still sitting",
+   "when": "flags.part4 && G.party.downed.kaelen (camp, after he went down)",
+   "segments": [
+    "Not yet.",
+    "Rest first. Then ask me again."
+   ]
+  },
+  {
+   "id": "kaelen.companion.stay",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Suits me.",
+   "source": "party.js camp dialogue (\"Stay by the fire.\")",
+   "voiceOf": "kaelen",
+   "delivery": "dry"
+  },
+  {
+   "id": "kaelen.companion.gift_quiets",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Quiets. Iron, not glass. Get between them and her.",
+   "source": "wilds.js wildsGiftEvent partyLine",
+   "voiceOf": "kaelen",
+   "delivery": "urgent but low",
+   "when": "Kaelen is the active companion, order != wait, same map; hush-gift event"
+  },
+  {
+   "id": "kaelen.companion.gift_deacon",
+   "speaker": "kaelen",
+   "kind": "companion",
+   "text": "Five of them. I can hear the sickles. Say the word.",
+   "source": "wilds.js wildsDeacon partyLine",
+   "voiceOf": "kaelen",
+   "delivery": "very quiet, at your shoulder",
+   "when": "Kaelen is the active companion, order != wait, same map; Deacon event"
+  },
+  {
+   "id": "lyra.companion.join",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "I'll hum. Under the breath, the way the night-hummers do at the crossings. The Hush won't get near you while I'm humming. I can't do anything about the hounds.",
+   "source": "party.js COMPANIONS.lyra.join",
+   "voiceOf": "lyra_ruined",
+   "delivery": "low, warm",
+   "when": "flags.lyra_voice",
+   "segments": [
+    "I'll hum,",
+    "Under the breath, the way the night-hummers do at the crossings. The Hush won't get near you while I'm humming. I can't do anything about the hounds."
+   ]
+  },
+  {
+   "id": "lyra.companion.map_mausoleum",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "The House of the Veil. The scribes kept everyone's names in here. I never thought I'd walk on theirs.",
+   "source": "party.js PARTY_BARKS.lyra['map:mausoleum']",
+   "voiceOf": "lyra_ruined",
+   "delivery": "low, hushed, reverent",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.map_belfry",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "Nobody has rung for the dead out here in three years. You can hear it in the woods. They're waiting.",
+   "source": "party.js PARTY_BARKS.lyra['map:belfry']",
+   "voiceOf": "lyra_ruined",
+   "delivery": "low, hushed",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.dirge",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "That's the office for the dead, sung wrong. Every third line missing. It makes my teeth ache.",
+   "source": "party.js PARTY_BARKS.lyra.dirge",
+   "voiceOf": "lyra_ruined",
+   "delivery": "low, warm; her own ruined voice",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.quiet",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "I can't sing near it. Nothing can. Don't let it get between us.",
+   "source": "party.js PARTY_BARKS.lyra.quiet",
+   "voiceOf": "lyra_ruined",
+   "delivery": "low, tight",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.tongueless",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "They cut out their own tongues to be holy. I taught children whose parents did that.",
+   "source": "party.js PARTY_BARKS.lyra.tongueless",
+   "voiceOf": "lyra_ruined",
+   "delivery": "very low, sad",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.weaverling",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "They're wearing voices. Little ones. Don't listen too closely.",
+   "source": "party.js PARTY_BARKS.lyra.weaverling",
+   "voiceOf": "lyra_ruined",
+   "delivery": "whisper",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.hound",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "Hounds. Stay low. I'll keep us in the Narrow.",
+   "source": "party.js PARTY_BARKS.lyra.hound",
+   "voiceOf": "lyra_ruined",
+   "delivery": "whisper",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.horn",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "It's listening for me. It has been listening for me since Oakhaven.",
+   "source": "party.js PARTY_BARKS.lyra.horn",
+   "voiceOf": "lyra_ruined",
+   "delivery": "low, steady",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.warden",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "Chord-Wardens. They guard the Cantors. Nobody told them there's no one left to guard.",
+   "source": "party.js PARTY_BARKS.lyra.warden",
+   "voiceOf": "lyra_ruined",
+   "delivery": "low, warm; her own ruined voice",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.outrider",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "Grey coats. Keep me behind you.",
+   "source": "party.js PARTY_BARKS.lyra.outrider",
+   "voiceOf": "lyra_ruined",
+   "delivery": "whisper",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.hurt",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "Hold still. I've got you.",
+   "source": "party.js PARTY_BARKS.lyra.hurt",
+   "voiceOf": "lyra_ruined",
+   "delivery": "soft, close; the tending note",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.rest",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "I'll take first watch. I'll hum. Sleep.",
+   "source": "party.js PARTY_BARKS.lyra.rest",
+   "voiceOf": "lyra_ruined",
+   "delivery": "soft, warm",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.selfhurt",
+   "speaker": "lyra_ruined",
+   "kind": "hurt",
+   "text": "I'm not built for this. I'm a teacher.",
+   "source": "party.js PARTY_BARKS.lyra.selfhurt",
+   "voiceOf": "lyra_ruined",
+   "delivery": "shaken, breathy",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.chat0",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "I told my father once that a martyr is just a musician who gave up before the coda. He wrote it down.",
+   "source": "party.js PARTY_CHAT.lyra[0]",
+   "voiceOf": "lyra_ruined",
+   "delivery": "low, warm; her own ruined voice",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.chat1",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "Feet on the moss, not the twigs. Breathe through your nose. There. That's the Narrow. You're good at it.",
+   "source": "party.js PARTY_CHAT.lyra[1]",
+   "voiceOf": "lyra_ruined",
+   "delivery": "low, teaching",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.chat2",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "I remember the name of everyone I have sung into the ground. It's the only thing I'm vain about.",
+   "source": "party.js PARTY_CHAT.lyra[2]",
+   "voiceOf": "lyra_ruined",
+   "delivery": "low, warm; her own ruined voice",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.chat3",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "Kaelen hums when the arm is bad. He thinks I don't know. I'm the one who taught him that note.",
+   "source": "party.js PARTY_CHAT.lyra[3]",
+   "voiceOf": "lyra_ruined",
+   "delivery": "low, fond",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.chat4",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "The reed orchards used to sing in a west wind. Whole hillsides of them. You would have liked it.",
+   "source": "party.js PARTY_CHAT.lyra[4]",
+   "voiceOf": "lyra_ruined",
+   "delivery": "low, wistful",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.chat5",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "Don't thank me for the healing. Thank me when we're all home.",
+   "source": "party.js PARTY_CHAT.lyra[5]",
+   "voiceOf": "lyra_ruined",
+   "delivery": "low, warm; her own ruined voice",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.boss0",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "Rest now. Whoever you were.",
+   "source": "party.js PARTY_BOSS.lyra[0]",
+   "voiceOf": "lyra_ruined",
+   "delivery": "soft, grave",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.boss2",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "It's over. Breathe. It's over.",
+   "source": "party.js PARTY_BOSS.lyra[2]",
+   "voiceOf": "lyra_ruined",
+   "delivery": "soft, steadying",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.notyet",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "Not yet. Let me sit a while. Rest, and ask me again.",
+   "source": "party.js camp dialogue (downed)",
+   "voiceOf": "lyra_ruined",
+   "delivery": "low, tired",
+   "when": "flags.lyra_voice && G.party.downed.lyra",
+   "segments": [
+    "Not yet,",
+    "Let me sit a while. Rest, and ask me again."
+   ]
+  },
+  {
+   "id": "lyra.companion.stay",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "I'll keep it warm.",
+   "source": "party.js camp dialogue (\"Stay by the fire.\")",
+   "voiceOf": "lyra_ruined",
+   "delivery": "soft",
+   "when": "flags.lyra_voice"
+  },
+  {
+   "id": "lyra.companion.gift_quiets",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "Put out that lamp. Quiets go to the light. Put it out.",
+   "source": "wilds.js wildsGiftEvent partyLine",
+   "voiceOf": "lyra_ruined",
+   "delivery": "urgent, low, a sound she has never made before it",
+   "when": "flags.lyra_voice && Lyra is the active companion, order != wait, same map; hush-gift event",
+   "segments": [
+    "Put out that lamp,",
+    "Quiets go to the light. Put it out."
+   ]
+  },
+  {
+   "id": "lyra.companion.gift_deacon",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "He thinks he is being kind. That is the worst of it.",
+   "source": "wilds.js wildsDeacon partyLine",
+   "voiceOf": "lyra_ruined",
+   "delivery": "very quiet, behind you",
+   "when": "flags.lyra_voice && Lyra is the active companion, order != wait, same map; Deacon event"
+  },
+  {
+   "id": "lyra.companion.herald",
+   "speaker": "lyra_ruined",
+   "kind": "companion",
+   "text": "Tell him the Cantor says we heard the question too.",
+   "source": "coda.js codaAnswer",
+   "voiceOf": "lyra_ruined",
+   "delivery": "steady, her own ruined voice, formal",
+   "when": "flags.herald_by_lyra && flags.lyra_voice"
+  },
+  {
+   "id": "proctor.alert.0",
+   "speaker": "proctor",
+   "kind": "alert",
+   "text": "Resonance unregistered at this address.",
+   "source": "PROPOSED",
+   "voiceOf": "proctor",
+   "delivery": "flat Office dialect, processed, dispassionate"
+  },
+  {
+   "id": "proctor.alert.1",
+   "speaker": "proctor",
+   "kind": "alert",
+   "text": "Name not on the register. Reconciling.",
+   "source": "PROPOSED",
+   "voiceOf": "proctor",
+   "delivery": "flat Office dialect, processed, dispassionate"
+  },
+  {
+   "id": "proctor.alert.2",
+   "speaker": "proctor",
+   "kind": "alert",
+   "text": "Seven forty-one. Press tuned. Stand for grading.",
+   "source": "PROPOSED",
+   "voiceOf": "proctor",
+   "delivery": "flat Office dialect, processed, dispassionate, hand-press raised"
+  },
+  {
+   "id": "proctor.hurt.0",
+   "speaker": "proctor",
+   "kind": "hurt",
+   "text": "Form damaged.",
+   "source": "PROPOSED",
+   "voiceOf": "proctor",
+   "delivery": "flat Office dialect, processed, dispassionate, grunted"
+  },
+  {
+   "id": "proctor.hurt.1",
+   "speaker": "proctor",
+   "kind": "hurt",
+   "text": "Irregular. Entry amended.",
+   "source": "PROPOSED",
+   "voiceOf": "proctor",
+   "delivery": "flat Office dialect, processed, dispassionate, clipped"
+  },
+  {
+   "id": "legionnaire.alert.0",
+   "speaker": "legionnaire",
+   "kind": "alert",
+   "text": "The bell has heard you.",
+   "source": "PROPOSED",
+   "voiceOf": "legionnaire",
+   "delivery": "bell-throated, few words, liturgical cadence, brass resonance"
+  },
+  {
+   "id": "legionnaire.alert.1",
+   "speaker": "legionnaire",
+   "kind": "alert",
+   "text": "Hold the note. Hold.",
+   "source": "PROPOSED",
+   "voiceOf": "legionnaire",
+   "delivery": "bell-throated, few words, liturgical cadence, brass resonance, intoned"
+  },
+  {
+   "id": "legionnaire.alert.2",
+   "speaker": "legionnaire",
+   "kind": "alert",
+   "text": "Toll, and be answered.",
+   "source": "PROPOSED",
+   "voiceOf": "legionnaire",
+   "delivery": "bell-throated, few words, liturgical cadence, brass resonance, intoned"
+  },
+  {
+   "id": "legionnaire.hurt.0",
+   "speaker": "legionnaire",
+   "kind": "hurt",
+   "text": "Ring true.",
+   "source": "PROPOSED",
+   "voiceOf": "legionnaire",
+   "delivery": "bell-throated, few words, liturgical cadence, brass resonance, through the teeth"
+  },
+  {
+   "id": "legionnaire.hurt.1",
+   "speaker": "legionnaire",
+   "kind": "hurt",
+   "text": "Let it toll.",
+   "source": "PROPOSED",
+   "voiceOf": "legionnaire",
+   "delivery": "bell-throated, few words, liturgical cadence, brass resonance, strained"
+  },
+  {
+   "id": "marine.alert.0",
+   "speaker": "marine",
+   "kind": "alert",
+   "text": "Line out. Consignment sighted.",
+   "source": "PROPOSED",
+   "voiceOf": "marine",
+   "delivery": "flat Office dialect, boarding crew, hauling"
+  },
+  {
+   "id": "marine.alert.1",
+   "speaker": "marine",
+   "kind": "alert",
+   "text": "Grapnel cast. Draw in.",
+   "source": "PROPOSED",
+   "voiceOf": "marine",
+   "delivery": "flat Office dialect, boarding crew, hauling, effort"
+  },
+  {
+   "id": "marine.alert.2",
+   "speaker": "marine",
+   "kind": "alert",
+   "text": "Manifest short by one.",
+   "source": "PROPOSED",
+   "voiceOf": "marine",
+   "delivery": "flat Office dialect, boarding crew, hauling"
+  },
+  {
+   "id": "marine.hurt.0",
+   "speaker": "marine",
+   "kind": "hurt",
+   "text": "Line fouled.",
+   "source": "PROPOSED",
+   "voiceOf": "marine",
+   "delivery": "flat Office dialect, boarding crew, hauling, grunted"
+  },
+  {
+   "id": "marine.hurt.1",
+   "speaker": "marine",
+   "kind": "hurt",
+   "text": "Consignment disputes the manifest.",
+   "source": "PROPOSED",
+   "voiceOf": "marine",
+   "delivery": "flat Office dialect, boarding crew, hauling, winded"
+  },
+  {
+   "id": "bosun.intro.0",
+   "speaker": "bosun",
+   "kind": "intro",
+   "text": "Consignment Nineteen. Count is correct.",
+   "source": "PROPOSED",
+   "voiceOf": "bosun",
+   "delivery": "flat Office dialect, polite, exact, keeps the count"
+  },
+  {
+   "id": "bosun.alert.0",
+   "speaker": "bosun",
+   "kind": "alert",
+   "text": "Count stands at four hundred thirty-two.",
+   "source": "PROPOSED",
+   "voiceOf": "bosun",
+   "delivery": "flat Office dialect, polite, exact, keeps the count"
+  },
+  {
+   "id": "bosun.alert.1",
+   "speaker": "bosun",
+   "kind": "alert",
+   "text": "Nothing leaves the hold unreconciled.",
+   "source": "PROPOSED",
+   "voiceOf": "bosun",
+   "delivery": "flat Office dialect, polite, exact, keeps the count"
+  },
+  {
+   "id": "bosun.alert.2",
+   "speaker": "bosun",
+   "kind": "alert",
+   "text": "Hold key is accounted for.",
+   "source": "PROPOSED",
+   "voiceOf": "bosun",
+   "delivery": "flat Office dialect, polite, exact, keeps the count, a hand on the lanyard"
+  },
+  {
+   "id": "bosun.hurt.0",
+   "speaker": "bosun",
+   "kind": "hurt",
+   "text": "Count disturbed.",
+   "source": "PROPOSED",
+   "voiceOf": "bosun",
+   "delivery": "flat Office dialect, polite, exact, keeps the count, grunted"
+  },
+  {
+   "id": "bosun.hurt.1",
+   "speaker": "bosun",
+   "kind": "hurt",
+   "text": "Tally interrupted. Recounting.",
+   "source": "PROPOSED",
+   "voiceOf": "bosun",
+   "delivery": "flat Office dialect, polite, exact, keeps the count, winded"
+  },
+  {
+   "id": "bosun.defeat.0",
+   "speaker": "bosun",
+   "kind": "defeat",
+   "text": "The count is unfinished. Enter it.",
+   "source": "PROPOSED",
+   "voiceOf": "bosun",
+   "delivery": "flat Office dialect, polite, exact, keeps the count, failing, still polite"
+  },
+  {
+   "id": "outrider.alert.0",
+   "speaker": "outrider",
+   "kind": "alert",
+   "text": "Discrepancy at forty feet.",
+   "source": "PROPOSED",
+   "voiceOf": "outrider",
+   "delivery": "flat Office dialect, crossbowman, calm and distant"
+  },
+  {
+   "id": "outrider.alert.1",
+   "speaker": "outrider",
+   "kind": "alert",
+   "text": "Bolt assigned. Column informed.",
+   "source": "PROPOSED",
+   "voiceOf": "outrider",
+   "delivery": "flat Office dialect, crossbowman, calm and distant"
+  },
+  {
+   "id": "outrider.alert.2",
+   "speaker": "outrider",
+   "kind": "alert",
+   "text": "Resonance sighted. Reporting.",
+   "source": "PROPOSED",
+   "voiceOf": "outrider",
+   "delivery": "flat Office dialect, crossbowman, calm and distant"
+  },
+  {
+   "id": "outrider.hurt.0",
+   "speaker": "outrider",
+   "kind": "hurt",
+   "text": "Irregular. Noted.",
+   "source": "PROPOSED",
+   "voiceOf": "outrider",
+   "delivery": "flat Office dialect, crossbowman, calm and distant, clipped"
+  },
+  {
+   "id": "outrider.hurt.1",
+   "speaker": "outrider",
+   "kind": "hurt",
+   "text": "Position reassessed.",
+   "source": "PROPOSED",
+   "voiceOf": "outrider",
+   "delivery": "flat Office dialect, crossbowman, calm and distant, strained"
+  },
+  {
+   "id": "captain.intro.0",
+   "speaker": "captain",
+   "kind": "intro",
+   "text": "OC-742 stopped reporting. I am reconciling that.",
+   "source": "PROPOSED",
+   "voiceOf": "captain",
+   "delivery": "flat Office dialect, officer, unhurried, not raising his voice"
+  },
+  {
+   "id": "captain.alert.0",
+   "speaker": "captain",
+   "kind": "alert",
+   "text": "Lantern lit. The column keeps time.",
+   "source": "PROPOSED",
+   "voiceOf": "captain",
+   "delivery": "flat Office dialect, officer, unhurried, not raising his voice"
+  },
+  {
+   "id": "captain.alert.1",
+   "speaker": "captain",
+   "kind": "alert",
+   "text": "No hurry. Everything reconciles.",
+   "source": "PROPOSED",
+   "voiceOf": "captain",
+   "delivery": "flat Office dialect, officer, unhurried, not raising his voice"
+  },
+  {
+   "id": "captain.alert.2",
+   "speaker": "captain",
+   "kind": "alert",
+   "text": "Lights to the track.",
+   "source": "PROPOSED",
+   "voiceOf": "captain",
+   "delivery": "flat Office dialect, officer, unhurried, not raising his voice, the rally; as he swings the hush-lantern twice"
+  },
+  {
+   "id": "captain.hurt.0",
+   "speaker": "captain",
+   "kind": "hurt",
+   "text": "Noted. Amended.",
+   "source": "PROPOSED",
+   "voiceOf": "captain",
+   "delivery": "flat Office dialect, officer, unhurried, not raising his voice, clipped"
+  },
+  {
+   "id": "captain.hurt.1",
+   "speaker": "captain",
+   "kind": "hurt",
+   "text": "The column will hear of this.",
+   "source": "PROPOSED",
+   "voiceOf": "captain",
+   "delivery": "flat Office dialect, officer, unhurried, not raising his voice, strained"
+  },
+  {
+   "id": "captain.defeat.0",
+   "speaker": "captain",
+   "kind": "defeat",
+   "text": "Report unfinished. File it.",
+   "source": "PROPOSED",
+   "voiceOf": "captain",
+   "delivery": "flat Office dialect, officer, unhurried, not raising his voice, failing, lantern guttering"
+  },
+  {
+   "id": "pressman.intro.0",
+   "speaker": "pressman",
+   "kind": "intro",
+   "text": "Off the register. Second pressing.",
+   "source": "PROPOSED",
+   "voiceOf": "pressman",
+   "delivery": "slow, heavy, flat Office dialect, a clerk who does second pressings, bored, thick with felt and brass"
+  },
+  {
+   "id": "pressman.alert.0",
+   "speaker": "pressman",
+   "kind": "alert",
+   "text": "Name not found. Filing the absence.",
+   "source": "PROPOSED",
+   "voiceOf": "pressman",
+   "delivery": "slow, heavy, flat Office dialect, a clerk who does second pressings, bored, thick with felt and brass"
+  },
+  {
+   "id": "pressman.alert.1",
+   "speaker": "pressman",
+   "kind": "alert",
+   "text": "Round continues. One entry to strike.",
+   "source": "PROPOSED",
+   "voiceOf": "pressman",
+   "delivery": "slow, heavy, flat Office dialect, a clerk who does second pressings, bored, thick with felt and brass"
+  },
+  {
+   "id": "pressman.alert.2",
+   "speaker": "pressman",
+   "kind": "alert",
+   "text": "Nothing here was ever filed.",
+   "source": "PROPOSED",
+   "voiceOf": "pressman",
+   "delivery": "slow, heavy, flat Office dialect, a clerk who does second pressings, bored, thick with felt and brass"
+  },
+  {
+   "id": "pressman.hurt.0",
+   "speaker": "pressman",
+   "kind": "hurt",
+   "text": "Misfiled.",
+   "source": "PROPOSED",
+   "voiceOf": "pressman",
+   "delivery": "slow, heavy, flat Office dialect, a clerk who does second pressings, bored, thick with felt and brass, grunted"
+  },
+  {
+   "id": "pressman.hurt.1",
+   "speaker": "pressman",
+   "kind": "hurt",
+   "text": "That will not be remembered.",
+   "source": "PROPOSED",
+   "voiceOf": "pressman",
+   "delivery": "slow, heavy, flat Office dialect, a clerk who does second pressings, bored, thick with felt and brass"
+  },
+  {
+   "id": "pressman.death.0",
+   "speaker": "pressman",
+   "kind": "death",
+   "text": "Round incomplete. Close the book.",
+   "source": "PROPOSED",
+   "voiceOf": "pressman",
+   "delivery": "slow, heavy, flat Office dialect, a clerk who does second pressings, bored, thick with felt and brass, failing"
+  },
+  {
+   "id": "pressman.defeat.0",
+   "speaker": "pressman",
+   "kind": "defeat",
+   "text": "I won't recall this. Nor will you.",
+   "source": "PROPOSED",
+   "voiceOf": "pressman",
+   "delivery": "slow, heavy, flat Office dialect, a clerk who does second pressings, bored, thick with felt and brass, failing, almost kind"
+  },
+  {
+   "id": "ignatius.open.catechism.0",
+   "speaker": "ignatius",
+   "kind": "narration",
+   "text": "What is holiness?",
+   "source": "cinematic24.js SHOTS (the Catechism of the Pure Note: Book One, Prologue epigraph); the opening cinematic",
+   "voiceOf": "ignatius",
+   "delivery": "formal, carried"
+  },
+  {
+   "id": "chorus_congregation.open.catechism.0",
+   "speaker": "chorus_congregation",
+   "kind": "narration",
+   "text": "One note, held without end.",
+   "source": "cinematic24.js SHOTS (the Catechism of the Pure Note: Book One, Prologue epigraph); the opening cinematic",
+   "voiceOf": "chorus_congregation",
+   "delivery": "formal"
+  },
+  {
+   "id": "ignatius.open.catechism.1",
+   "speaker": "ignatius",
+   "kind": "narration",
+   "text": "What is sin?",
+   "source": "cinematic24.js SHOTS (the Catechism of the Pure Note: Book One, Prologue epigraph); the opening cinematic",
+   "voiceOf": "ignatius",
+   "delivery": "formal, carried"
+  },
+  {
+   "id": "chorus_congregation.open.catechism.1",
+   "speaker": "chorus_congregation",
+   "kind": "narration",
+   "text": "The second note.",
+   "source": "cinematic24.js SHOTS (the Catechism of the Pure Note: Book One, Prologue epigraph); the opening cinematic",
+   "voiceOf": "chorus_congregation",
+   "delivery": "formal"
+  },
+  {
+   "id": "narrator.open.0",
+   "speaker": "narrator",
+   "kind": "narration",
+   "text": "It is autumn, in the four hundred and nineteenth year of the Synod Reckoning. Seven years ago the Light let go.",
+   "source": "data.js INTRO[0]; cinematic24.js SHOTS",
+   "voiceOf": "narrator",
+   "delivery": "grave, unhurried"
+  },
+  {
+   "id": "narrator.open.1",
+   "speaker": "narrator",
+   "kind": "narration",
+   "text": "You have come up the Greenroot road to Oakhaven, capital of the Resonant Reach, a town that lives inside a hedge three men deep of thorn and packed wool, planted to swallow its own sounds.",
+   "source": "data.js INTRO[1]; cinematic24.js SHOTS",
+   "voiceOf": "narrator",
+   "delivery": "grave, unhurried"
+  },
+  {
+   "id": "narrator.open.2",
+   "speaker": "narrator",
+   "kind": "narration",
+   "text": "Too loud brings the hounds. Too still brings the Hush. Every child here can skip to the rhyme.",
+   "source": "data.js INTRO[2]; cinematic24.js SHOTS",
+   "voiceOf": "narrator",
+   "delivery": "grave, unhurried"
+  },
+  {
+   "id": "narrator.open.3",
+   "speaker": "narrator",
+   "kind": "narration",
+   "text": "The Church is coming up the road behind you, singing under glass-fire. In nine days it will hold its Pure Note over this town, and a Cantor will be walked down a shaft in white to sing a god to sleep.",
+   "source": "data.js INTRO[3]; cinematic24.js SHOTS",
+   "voiceOf": "narrator",
+   "delivery": "grave, unhurried"
+  },
+  {
+   "id": "narrator.open.4",
+   "speaker": "narrator",
+   "kind": "narration",
+   "text": "Nobody has rung a bell in Oakhaven since the Synod took them all for bore-teeth. Tonight is Nullday, the old rest-day, the day people fear.",
+   "source": "data.js INTRO[4]; cinematic24.js SHOTS",
+   "voiceOf": "narrator",
+   "delivery": "grave, unhurried"
+  },
+  {
+   "id": "ignatius.open.onenote",
+   "speaker": "ignatius",
+   "kind": "narration",
+   "text": "One note. One law. One hand.",
+   "source": "cinematic24.js SHOTS (Book One, Prologue: Ignatius at the three hundredth sunrise); over the Synod column",
+   "voiceOf": "ignatius",
+   "delivery": "formal, carried"
+  },
+  {
+   "id": "harrow.open.0",
+   "speaker": "harrow",
+   "kind": "narration",
+   "text": "You came up the Greenroot road? Then you heard what's behind you, singing.",
+   "source": "[PROPOSED] cinematic24.js SHOTS: the gate-warden at the North Gate, the opening cinematic",
+   "voiceOf": "harrow",
+   "delivery": "low, dry"
+  },
+  {
+   "id": "harrow.open.1",
+   "speaker": "harrow",
+   "kind": "narration",
+   "text": "Keep your voice in your chest, friend. And welcome to what's left of Oakhaven.",
+   "source": "[PROPOSED] cinematic24.js SHOTS: the gate-warden at the North Gate, the opening cinematic",
+   "voiceOf": "harrow",
+   "delivery": "low"
+  },
+  {
+   "id": "tobiah.rite.honour",
+   "speaker": "tobiah",
+   "kind": "narration",
+   "text": "It's an honour to meet you, ma'am. Truly. I'm Tobiah Marsh. My mother used to take me to hear the Sky Choir.",
+   "source": "rite43.js TX.frame (Book One ch. 9–10)",
+   "voiceOf": "tobiah",
+   "delivery": "low, shy, eager"
+  },
+  {
+   "id": "tobiah.rite.hurt",
+   "speaker": "tobiah",
+   "kind": "narration",
+   "text": "They say it doesn't hurt very much. After the first part.",
+   "source": "rite43.js TX.frame (Book One ch. 9–10)",
+   "voiceOf": "tobiah",
+   "delivery": "low, kind, unsure"
+  },
+  {
+   "id": "sister.rite.daughter",
+   "speaker": "sister",
+   "kind": "narration",
+   "text": "Daughter. Daughter, the instrument.",
+   "source": "rite43.js TX.pumps (Book One ch. 9–10)",
+   "voiceOf": "sister",
+   "delivery": "low, gentle, reproving"
+  },
+  {
+   "id": "vosk.rite.interesting",
+   "speaker": "vosk",
+   "kind": "narration",
+   "text": "Interesting. Did you see that, Inquisitor?",
+   "source": "rite43.js TX.pumps (Book One ch. 9–10)",
+   "voiceOf": "vosk",
+   "delivery": "cool, precise"
+  },
+  {
+   "id": "ignatius.rite.gracious",
+   "speaker": "ignatius",
+   "kind": "narration",
+   "text": "I saw a Cantor be gracious to a tool. An error, but a small one. Bring her to the casing.",
+   "source": "rite43.js TX.pumps (Book One ch. 9–10)",
+   "voiceOf": "ignatius",
+   "delivery": "low, formal"
+  },
+  {
+   "id": "ignatius.rite.rubric",
+   "speaker": "ignatius",
+   "kind": "narration",
+   "text": "Holy daughter. You are the hand that steadies the patient. You hold the Light still, that it may be relieved of its excess. Blessed is the single note. Blessed is the throat that holds it. Blessed is the hand that keeps the throat.",
+   "source": "rite43.js TX.lullaby (Book One ch. 9–10)",
+   "voiceOf": "ignatius",
+   "delivery": "formal, carried"
+  },
+  {
+   "id": "ignatius.rite.engineer",
+   "speaker": "ignatius",
+   "kind": "narration",
+   "text": "Engineer.",
+   "source": "rite43.js TX.lullaby (Book One ch. 9–10)",
+   "voiceOf": "ignatius",
+   "delivery": "low, formal"
+  },
+  {
+   "id": "ignatius.rite.closer",
+   "speaker": "ignatius",
+   "kind": "narration",
+   "text": "Closer, Engineer. I must be able to see.",
+   "source": "rite43.js TX.needleHint (Book One ch. 9–10)",
+   "voiceOf": "ignatius",
+   "delivery": "low, formal"
+  },
+  {
+   "id": "ignatius.rite.blood",
+   "speaker": "ignatius",
+   "kind": "narration",
+   "text": "Blood. Good. It should bleed a little at the seating. The Foundry girls used to bleed for days.",
+   "source": "rite43.js TX.needleGood (Book One ch. 9–10)",
+   "voiceOf": "ignatius",
+   "delivery": "low, calm"
+  },
+  {
+   "id": "ignatius.rite.notch",
+   "speaker": "ignatius",
+   "kind": "narration",
+   "text": "No. Closer, Engineer. At the notch. Angled up and back, into the fold of the voice itself. I have seated forty of these.",
+   "source": "rite43.js TX.needleSeen (Book One ch. 9–10)",
+   "voiceOf": "ignatius",
+   "delivery": "low, quite gently"
+  },
+  {
+   "id": "ignatius.rite.speak",
+   "speaker": "ignatius",
+   "kind": "narration",
+   "text": "Speak, daughter.",
+   "source": "rite43.js TX.needleGood (Book One ch. 9–10)",
+   "voiceOf": "ignatius",
+   "delivery": "low, formal"
+  },
+  {
+   "id": "lyra_fortunate.rite.fortunate",
+   "speaker": "lyra_fortunate",
+   "kind": "narration",
+   "text": "I. Am. Fortunate.",
+   "source": "rite43.js TX.needleGood (Book One ch. 9–10)",
+   "voiceOf": "lyra_fortunate",
+   "delivery": "flat, every word on one pitch, 174, not a hair off",
+   "beats": 0.55
+  },
+  {
+   "id": "ignatius.rite.sheis",
+   "speaker": "ignatius",
+   "kind": "narration",
+   "text": "She is.",
+   "source": "rite43.js TX.needleGood (Book One ch. 9–10)",
+   "voiceOf": "ignatius",
+   "delivery": "low, satisfied"
+  },
+  {
+   "id": "tobiah.rite.span",
+   "speaker": "tobiah",
+   "kind": "narration",
+   "text": "Head at one span! One span and holding!",
+   "source": "rite43.js TX.hold (Book One ch. 9–10)",
+   "voiceOf": "tobiah",
+   "delivery": "shout, over machinery"
+  },
+  {
+   "id": "tobiah.rite.matching",
+   "speaker": "tobiah",
+   "kind": "narration",
+   "text": "Pitch coming up. It's, gods, look at it, it's matching.",
+   "source": "rite43.js TX.hold (Book One ch. 9–10)",
+   "voiceOf": "tobiah",
+   "delivery": "awed, rising"
+  },
+  {
+   "id": "vosk.rite.markit",
+   "speaker": "vosk",
+   "kind": "narration",
+   "text": "Mark it.",
+   "source": "rite43.js TX.hold (Book One ch. 9–10)",
+   "voiceOf": "vosk",
+   "delivery": "cool, precise"
+  },
+  {
+   "id": "kaelen.rite.slippage",
+   "speaker": "kaelen",
+   "kind": "narration",
+   "text": "Slippage on the lock. I can hear it.",
+   "source": "rite43.js TX.hold (Book One ch. 9–10)",
+   "voiceOf": "kaelen",
+   "delivery": "low, flat"
+  },
+  {
+   "id": "kaelen.rite.spanner",
+   "speaker": "kaelen",
+   "kind": "narration",
+   "text": "Spanner. Tobiah, sit on the rail there and call the pitch to me every ten seconds.",
+   "source": "rite43.js TX.hold (Book One ch. 9–10)",
+   "voiceOf": "kaelen",
+   "delivery": "low, level"
+  },
+  {
+   "id": "tobiah.rite.call1",
+   "speaker": "tobiah",
+   "kind": "narration",
+   "text": "Pitch, one-seventy-four. Holding.",
+   "source": "rite43.js TX.pitchCall (Book One ch. 9–10)",
+   "voiceOf": "tobiah",
+   "delivery": "loud, over machinery"
+  },
+  {
+   "id": "tobiah.rite.call2",
+   "speaker": "tobiah",
+   "kind": "narration",
+   "text": "One-seventy-four. It's matching her, sir. It's, it's coming up to meet her.",
+   "source": "rite43.js TX.pitchCall2 (Book One ch. 9–10)",
+   "voiceOf": "tobiah",
+   "delivery": "loud, uneasy"
+  },
+  {
+   "id": "vosk.rite.plate",
+   "speaker": "vosk",
+   "kind": "narration",
+   "text": "Engineer Vance. What are you doing at that plate?",
+   "source": "rite43.js TX.voskTurns (Book One ch. 9–10)",
+   "voiceOf": "vosk",
+   "delivery": "cool, precise"
+  },
+  {
+   "id": "vosk.rite.stepaway",
+   "speaker": "vosk",
+   "kind": "narration",
+   "text": "Engineer Vance, step away from the drum.",
+   "source": "rite43.js TX.boltsLost (Book One ch. 9–10)",
+   "voiceOf": "vosk",
+   "delivery": "cool, precise, through a speaking-trumpet"
+  },
+  {
+   "id": "tobiah.rite.whatsthat",
+   "speaker": "tobiah",
+   "kind": "narration",
+   "text": "Sir, what's that?",
+   "source": "rite43.js TX.lock (Book One ch. 9–10)",
+   "voiceOf": "tobiah",
+   "delivery": "anxious"
+  },
+  {
+   "id": "kaelen.rite.holdon",
+   "speaker": "kaelen",
+   "kind": "narration",
+   "text": "You'll want to hold onto something.",
+   "source": "rite43.js TX.lock (Book One ch. 9–10)",
+   "voiceOf": "kaelen",
+   "delivery": "low, flat"
+  },
+  {
+   "id": "ignatius.rite.holdnote",
+   "speaker": "ignatius",
+   "kind": "narration",
+   "text": "The hold! Hold the note! Daughter, hold the note!",
+   "source": "rite43.js TX.lock (Book One ch. 9–10)",
+   "voiceOf": "ignatius",
+   "delivery": "shout, desperate"
+  },
+  {
+   "id": "kaelen.rite.singitdown",
+   "speaker": "kaelen",
+   "kind": "narration",
+   "text": "Lyra! Sing it down!",
+   "source": "rite43.js TX.lock (Book One ch. 9–10)",
+   "voiceOf": "kaelen",
+   "delivery": "shout"
+  },
+  {
+   "id": "vosk.rite.enough",
+   "speaker": "vosk",
+   "kind": "narration",
+   "text": "Enough. Engineer, I would very much like to know what you thought you were",
+   "source": "rite43.js TX.enough (Book One ch. 9–10)",
+   "voiceOf": "vosk",
+   "delivery": "cool, cut off"
+  },
+  {
+   "id": "aldric_tube.rite.seal",
+   "speaker": "aldric_tube",
+   "kind": "narration",
+   "text": "Sealing the vault. Governor's authority, under the works charter. Factor, I'm sorry. The bleed-back's coming up the shaft, and it's coming fast, and there's four hundred feet of men above it. Sixty seconds on the reservoir gates. Anyone below, get to the cage.",
+   "source": "rite43.js TX.tube (Book One ch. 9–10)",
+   "voiceOf": "aldric_tube",
+   "delivery": "tired, level, down a speaking-tube"
+  },
+  {
+   "id": "kaelen.rite.da",
+   "speaker": "kaelen",
+   "kind": "narration",
+   "text": "Da.",
+   "source": "rite43.js TX.tube (Book One ch. 9–10)",
+   "voiceOf": "kaelen",
+   "delivery": "low"
+  },
+  {
+   "id": "aldric_tube.rite.kaelen",
+   "speaker": "aldric_tube",
+   "kind": "narration",
+   "text": "Kaelen.",
+   "source": "rite43.js TX.tube (Book One ch. 9–10)",
+   "voiceOf": "aldric_tube",
+   "delivery": "low, stopped"
+  },
+  {
+   "id": "kaelen.rite.dontrun",
+   "speaker": "kaelen",
+   "kind": "narration",
+   "text": "Don't run the purge. The Root's wounded. If you dump forty thousand gallons of raw glass into an open casing, it will not seal, it will",
+   "source": "rite43.js TX.tube (Book One ch. 9–10)",
+   "voiceOf": "kaelen",
+   "delivery": "urgent, low"
+  },
+  {
+   "id": "aldric_tube.rite.iknow",
+   "speaker": "aldric_tube",
+   "kind": "narration",
+   "text": "I know what it will do. I've got Tam's widow's grandson on the day shift on the third terrace, and I have to choose between a hole and a town. Get to the cage, boy. I'm counting.",
+   "source": "rite43.js TX.tube (Book One ch. 9–10)",
+   "voiceOf": "aldric_tube",
+   "delivery": "tired, level"
+  },
+  {
+   "id": "aldric_tube.rite.c41",
+   "speaker": "aldric_tube",
+   "kind": "narration",
+   "text": "Forty-one. Forty.",
+   "source": "rite43.js TX.tube (Book One ch. 9–10)",
+   "voiceOf": "aldric_tube",
+   "delivery": "low, even, counting"
+  },
+  {
+   "id": "aldric_tube.rite.c30",
+   "speaker": "aldric_tube",
+   "kind": "narration",
+   "text": "Thirty.",
+   "source": "rite43.js TX.aldric30 (Book One ch. 9–10)",
+   "voiceOf": "aldric_tube",
+   "delivery": "low, even, counting"
+  },
+  {
+   "id": "aldric_tube.rite.c20",
+   "speaker": "aldric_tube",
+   "kind": "narration",
+   "text": "Twenty. Get to the cage, boy.",
+   "source": "rite43.js TX.aldric20 (Book One ch. 9–10)",
+   "voiceOf": "aldric_tube",
+   "delivery": "low, even, counting"
+  },
+  {
+   "id": "aldric_tube.rite.c10",
+   "speaker": "aldric_tube",
+   "kind": "narration",
+   "text": "Ten.",
+   "source": "rite43.js TX.aldric10 (Book One ch. 9–10)",
+   "voiceOf": "aldric_tube",
+   "delivery": "low, even, counting"
+  },
+  {
+   "id": "aldric_tube.rite.c5",
+   "speaker": "aldric_tube",
+   "kind": "narration",
+   "text": "Five. Four.",
+   "source": "rite43.js TX.aldric5 (Book One ch. 9–10)",
+   "voiceOf": "aldric_tube",
+   "delivery": "low, even, counting"
+  },
+  {
+   "id": "aldric_tube.rite.c2",
+   "speaker": "aldric_tube",
+   "kind": "narration",
+   "text": "Two. One.",
+   "source": "rite43.js TX.aldric2 (Book One ch. 9–10)",
+   "voiceOf": "aldric_tube",
+   "delivery": "low, even, counting"
+  },
+  {
+   "id": "lyra_ruined.rite.pumps",
+   "speaker": "lyra_ruined",
+   "kind": "narration",
+   "text": "The pumps.",
+   "source": "rite43.js TX.tube (Book One ch. 9–10)",
+   "voiceOf": "lyra_ruined",
+   "delivery": "what is left of her voice"
+  },
+  {
+   "id": "kaelen.rite.up",
+   "speaker": "kaelen",
+   "kind": "narration",
+   "text": "Up. Up.",
+   "source": "rite43.js TX.pour (Book One ch. 9–10)",
+   "voiceOf": "kaelen",
+   "delivery": "urgent"
+  },
+  {
+   "id": "pumpman.rite.name",
+   "speaker": "pumpman",
+   "kind": "narration",
+   "text": "{name}",
+   "names": [
+    "Edders",
+    "Ruhl",
+    "Caine",
+    "Ott",
+    "Sennet",
+    "Vey",
+    "Marrow",
+    "Hale B."
+   ],
+   "source": "rite43.js LEFT (Book One ch. 19, 24: the eight pump-men)",
+   "voiceOf": "pumpman",
+   "delivery": "hollow-fragment, a breath of a man"
+  },
+  {
+   "id": "tobiah.green.road",
+   "speaker": "tobiah",
+   "kind": "narration",
+   "text": "The road's still open! It's going over the fields. The road's still...",
+   "source": "greening44.js TX.quarry (Book One ch. 11)",
+   "delivery": "shout"
+  },
+  {
+   "id": "lyra_ruined.green.gate",
+   "speaker": "lyra_ruined",
+   "kind": "narration",
+   "text": "The gate. Kael, the gate.",
+   "source": "greening44.js TX.town (Book One ch. 11)"
+  },
+  {
+   "id": "kaelen.green.isee",
+   "speaker": "kaelen",
+   "kind": "narration",
+   "text": "I see it.",
+   "source": "greening44.js TX.town (Book One ch. 11)",
+   "delivery": "low"
+  },
+  {
+   "id": "townswoman.green.punched",
+   "speaker": "townswoman",
+   "kind": "narration",
+   "text": "I punched it down, I punched it down, I punched it down.",
+   "source": "greening44.js TX.bakery (Book One ch. 11)",
+   "delivery": "tired"
+  },
+  {
+   "id": "lyra_ruined.green.behind",
+   "speaker": "lyra_ruined",
+   "kind": "narration",
+   "text": "Behind me! In a line! Hands on the shoulder in front! Behind me!",
+   "source": "greening44.js TX.well (Book One ch. 11)",
+   "delivery": "shout"
+  },
+  {
+   "id": "lyra_ruined.green.orla",
+   "speaker": "lyra_ruined",
+   "kind": "narration",
+   "text": "Orla.",
+   "source": "greening44.js TX.square (Book One ch. 11)"
+  },
+  {
+   "id": "rooke.green.couldnot",
+   "speaker": "rooke",
+   "kind": "narration",
+   "text": "I could not get near her. The floor's gone. The whole floor of that house is roots up to my knees and moving, and I am fifty-two years old and I could not get across it with a bag in my hand. I tried twice.",
+   "source": "greening44.js TX.square (Book One ch. 11)",
+   "delivery": "tired"
+  },
+  {
+   "id": "rooke.green.go",
+   "speaker": "rooke",
+   "kind": "narration",
+   "text": "Take it. I'll hold the line here. Go on, girl. Go.",
+   "source": "greening44.js TX.square (Book One ch. 11)"
+  },
+  {
+   "id": "orla.green.late",
+   "speaker": "orla",
+   "kind": "narration",
+   "text": "You're late, lovey.",
+   "source": "greening44.js TX.orla (Book One ch. 11)"
+  },
+  {
+   "id": "lyra_ruined.green.hurt",
+   "speaker": "lyra_ruined",
+   "kind": "narration",
+   "text": "Does it hurt.",
+   "source": "greening44.js TX.orla2 (Book One ch. 11)",
+   "delivery": "whisper"
+  },
+  {
+   "id": "orla.green.held",
+   "speaker": "orla",
+   "kind": "narration",
+   "text": "No. I told you. It's like being held. It's very green, isn't it. I can hear it growing. I can hear the whole Reach growing. Isn't that a sound.",
+   "source": "greening44.js TX.orla2 (Book One ch. 11)",
+   "delivery": "whisper"
+  },
+  {
+   "id": "orla.green.now",
+   "speaker": "orla",
+   "kind": "narration",
+   "text": "Now, girl. Now. All the lines.",
+   "source": "greening44.js TX.orla2 (Book One ch. 11)"
+  },
+  {
+   "id": "kaelen.green.line",
+   "speaker": "kaelen",
+   "kind": "narration",
+   "text": "Lyra. Lyra. The line's moving. Rooke's got them to the square and the square's going. The gate.",
+   "source": "greening44.js TX.orlaHounds (Book One ch. 11)"
+  },
+  {
+   "id": "lyra_ruined.green.closed",
+   "speaker": "lyra_ruined",
+   "kind": "narration",
+   "text": "The gate's closed.",
+   "source": "greening44.js TX.orlaHounds (Book One ch. 11)"
+  },
+  {
+   "id": "kaelen.green.open",
+   "speaker": "kaelen",
+   "kind": "narration",
+   "text": "Then we open it.",
+   "source": "greening44.js TX.orlaHounds (Book One ch. 11)",
+   "delivery": "low"
+  },
+  {
+   "id": "wearer.green.lark",
+   "speaker": "wearer",
+   "kind": "narration",
+   "text": "Lark.",
+   "source": "greening44.js TX.hedgeLark (Book One ch. 11)",
+   "voiceOf": "tobin",
+   "delivery": "murmur"
+  },
+  {
+   "id": "wearer.green.lark2",
+   "speaker": "wearer",
+   "kind": "narration",
+   "text": "Lark, there's a way through down here. I can see it from this side. Come along the thorn to me, lark, and bring them with you.",
+   "source": "greening44.js TX.hedgeLark2 (Book One ch. 11)",
+   "voiceOf": "tobin",
+   "delivery": "murmur"
+  },
+  {
+   "id": "wearer.green.tam",
+   "speaker": "wearer",
+   "kind": "narration",
+   "text": "Tammy, there's a gap here. Bring the little ones first.",
+   "source": "greening44.js TX.hedgeTam (Book One ch. 11)",
+   "voiceOf": "tam"
+  },
+  {
+   "id": "wearer.green.lyra",
+   "speaker": "wearer",
+   "kind": "narration",
+   "text": "This way. This way. Follow me. I know the way out.",
+   "source": "greening44.js TX.hedgeLyra (Book One ch. 11)",
+   "voiceOf": "lyra"
+  },
+  {
+   "id": "wearer.green.davin",
+   "speaker": "wearer",
+   "kind": "narration",
+   "text": "The last sheaf's in, and the barley's high.",
+   "source": "greening44.js TX.hedgeDavin (Book One ch. 11)",
+   "voiceOf": "davin",
+   "delivery": "whisper"
+  },
+  {
+   "id": "lyra_ruined.green.dont",
+   "speaker": "lyra_ruined",
+   "kind": "narration",
+   "text": "Don't answer it!",
+   "source": "greening44.js TX.dont (Book One ch. 11)",
+   "delivery": "shout"
+  },
+  {
+   "id": "lyra_ruined.green.dont2",
+   "speaker": "lyra_ruined",
+   "kind": "narration",
+   "text": "Don't answer it! It isn't them! It was never them! Whatever it says, whatever voice, don't answer, don't go to it, don't let go of each other!",
+   "source": "greening44.js TX.dont (Book One ch. 11)",
+   "delivery": "shout"
+  },
+  {
+   "id": "ada.green.tobin",
+   "speaker": "ada",
+   "kind": "narration",
+   "text": "Tobin?",
+   "source": "greening44.js TX.ada (Book One ch. 11)"
+  },
+  {
+   "id": "ada.green.isthatyou",
+   "speaker": "ada",
+   "kind": "narration",
+   "text": "Tobin Ashgrove, is that you?",
+   "source": "greening44.js TX.ada (Book One ch. 11)"
+  },
+  {
+   "id": "wearer.green.helloada",
+   "speaker": "wearer",
+   "kind": "narration",
+   "text": "Hello, Ada.",
+   "source": "greening44.js TX.ada (Book One ch. 11)",
+   "voiceOf": "tobin",
+   "delivery": "murmur"
+  },
+  {
+   "id": "wearer.green.easy",
+   "speaker": "wearer",
+   "kind": "narration",
+   "text": "Oh, it's easy, come on. It's easy from this side.",
+   "source": "greening44.js TX.adaAfter (Book One ch. 11)",
+   "voiceOf": "ada"
+  },
+  {
+   "id": "kaelen.green.lookup",
+   "speaker": "kaelen",
+   "kind": "narration",
+   "text": "Lyra. Look up.",
+   "source": "greening44.js TX.chapel (Book One ch. 11)",
+   "delivery": "low"
+  },
+  {
+   "id": "vane.rope.arms",
+   "speaker": "vane",
+   "kind": "narration",
+   "text": "Arms! One with arms, for the drum!",
+   "source": "rope45.js TX.line (Book One ch. 12)",
+   "delivery": "shout"
+  },
+  {
+   "id": "vane.rope.four",
+   "speaker": "vane",
+   "kind": "narration",
+   "text": "Four.",
+   "source": "rope45.js TX.four (Book One ch. 12)"
+  },
+  {
+   "id": "vane.rope.eight",
+   "speaker": "vane",
+   "kind": "narration",
+   "text": "Eight.",
+   "source": "rope45.js TX.eight (Book One ch. 12)"
+  },
+  {
+   "id": "vane.rope.eleven",
+   "speaker": "vane",
+   "kind": "narration",
+   "text": "Eleven.",
+   "source": "rope45.js TX.eleven (Book One ch. 12)"
+  },
+  {
+   "id": "engineer.rope.captain",
+   "speaker": "engineer",
+   "kind": "narration",
+   "text": "Captain...",
+   "source": "rope45.js TX.captain (Book One ch. 12)"
+  },
+  {
+   "id": "vane.rope.icancount",
+   "speaker": "vane",
+   "kind": "narration",
+   "text": "I can count.",
+   "source": "rope45.js TX.captain (Book One ch. 12)",
+   "delivery": "low"
+  },
+  {
+   "id": "vane.rope.fifteen",
+   "speaker": "vane",
+   "kind": "narration",
+   "text": "Thirteen. Fifteen.",
+   "source": "rope45.js TX.fifteen (Book One ch. 12)"
+  },
+  {
+   "id": "vane.rope.up",
+   "speaker": "vane",
+   "kind": "narration",
+   "text": "Up. Mags, up, get them...",
+   "source": "rope45.js TX.vaneUp (Book One ch. 12)",
+   "delivery": "shout"
+  },
+  {
+   "id": "kaelen.rope.getthemup",
+   "speaker": "kaelen",
+   "kind": "narration",
+   "text": "Get them up!",
+   "source": "rope45.js TX.kaelenStruck (Book One ch. 12)",
+   "delivery": "shout"
+  },
+  {
+   "id": "engineer.rope.down",
+   "speaker": "engineer",
+   "kind": "narration",
+   "text": "Captain, we are at twenty-one souls and the crates and we are going down. Not slow. Look at the trees. Look at the trees, Captain...",
+   "source": "rope45.js TX.threeUp (Book One ch. 12)"
+  },
+  {
+   "id": "kaelen.rope.iknow",
+   "speaker": "kaelen",
+   "kind": "narration",
+   "text": "I know. I know. They're coming.",
+   "source": "rope45.js TX.lyraDeck (Book One ch. 12)",
+   "delivery": "low"
+  },
+  {
+   "id": "aldric.rope.you",
+   "speaker": "aldric",
+   "kind": "narration",
+   "text": "You. Up with her. Keep her on the knot.",
+   "source": "rope45.js TX.lyraFoot (Book One ch. 12)",
+   "delivery": "low"
+  },
+  {
+   "id": "vane.rope.takeup",
+   "speaker": "vane",
+   "kind": "narration",
+   "text": "Take her up.",
+   "source": "rope45.js TX.lastLoad (Book One ch. 12)"
+  },
+  {
+   "id": "engineer.rope.drum",
+   "speaker": "engineer",
+   "kind": "narration",
+   "text": "The drum, Captain, the drum's coming out of the deck...",
+   "source": "rope45.js TX.drumOut (Book One ch. 12)",
+   "delivery": "shout"
+  },
+  {
+   "id": "vane.rope.n1",
+   "speaker": "vane",
+   "kind": "narration",
+   "text": "One.",
+   "source": "rope45.js TX.c1 (Book One ch. 12)",
+   "delivery": "whisper"
+  },
+  {
+   "id": "vane.rope.n2",
+   "speaker": "vane",
+   "kind": "narration",
+   "text": "Two.",
+   "source": "rope45.js TX.c2 (Book One ch. 12)",
+   "delivery": "whisper"
+  },
+  {
+   "id": "vane.rope.n3",
+   "speaker": "vane",
+   "kind": "narration",
+   "text": "Three.",
+   "source": "rope45.js TX.c3 (Book One ch. 12)",
+   "delivery": "whisper"
+  },
+  {
+   "id": "vane.rope.n4",
+   "speaker": "vane",
+   "kind": "narration",
+   "text": "Four.",
+   "source": "rope45.js TX.c4 (Book One ch. 12)",
+   "delivery": "whisper"
+  },
+  {
+   "id": "vane.rope.n5",
+   "speaker": "vane",
+   "kind": "narration",
+   "text": "Five.",
+   "source": "rope45.js TX.c5 (Book One ch. 12)",
+   "delivery": "whisper"
+  },
+  {
+   "id": "vane.rope.n6",
+   "speaker": "vane",
+   "kind": "narration",
+   "text": "Six.",
+   "source": "rope45.js TX.c6 (Book One ch. 12)",
+   "delivery": "whisper"
+  },
+  {
+   "id": "vane.rope.n7",
+   "speaker": "vane",
+   "kind": "narration",
+   "text": "Seven.",
+   "source": "rope45.js TX.c7 (Book One ch. 12)",
+   "delivery": "whisper"
+  },
+  {
+   "id": "vane.rope.n8",
+   "speaker": "vane",
+   "kind": "narration",
+   "text": "Eight.",
+   "source": "rope45.js TX.c8 (Book One ch. 12)",
+   "delivery": "whisper"
+  },
+  {
+   "id": "vane.rope.n9",
+   "speaker": "vane",
+   "kind": "narration",
+   "text": "Nine.",
+   "source": "rope45.js TX.c9 (Book One ch. 12)",
+   "delivery": "whisper"
+  },
+  {
+   "id": "vane.rope.n10",
+   "speaker": "vane",
+   "kind": "narration",
+   "text": "Ten.",
+   "source": "rope45.js TX.c10 (Book One ch. 12)",
+   "delivery": "whisper"
+  },
+  {
+   "id": "kaelen.rope.doit",
+   "speaker": "kaelen",
+   "kind": "narration",
+   "text": "Do it.",
+   "source": "rope45.js TX.c9 (Book One ch. 12)",
+   "delivery": "low"
+  },
+  {
+   "id": "weaver.rope.echo",
+   "speaker": "weaver",
+   "kind": "narration",
+   "text": "I have watched you choose this four hundred and eleven times.",
+   "source": "rope45.js TX.echo (Book One ch. 12)",
+   "delivery": "murmur"
+  }
+ ],
+ "skipped": [
+  {
+   "id": "pim.greet.blunt",
+   "reason": "ellipsis only, a silence (no words)",
+   "original": "..."
+  },
+  {
+   "id": "lyra_wg.greet.polite",
+   "reason": "pure narration: she has no voice and writes on a slate (silent character)",
+   "original": "She has no voice at all. She writes on a slate, and turns it to you."
+  },
+  {
+   "id": "lyra_wg.greet.normal",
+   "reason": "pure narration: she has no voice and writes on a slate (silent character)",
+   "original": "She has no voice at all. She writes on a slate, and turns it to you."
+  },
+  {
+   "id": "lyra_wg.greet.blunt",
+   "reason": "pure narration: she has no voice (silent character)",
+   "original": "She looks at you for a long moment, and does not write anything."
+  },
+  {
+   "id": "aegis_wg.greet.blunt",
+   "reason": "pure narration; it chimes the alto line (nonverbal, chord)",
+   "original": "Its torso-plates shiver. Then, very softly, it chimes the alto line."
+  },
+  {
+   "id": "cat.greet.polite",
+   "reason": "pure narration: the cat makes no spoken words (mew, if anything, is a nonverbal sound)",
+   "original": "The cat does not care."
+  },
+  {
+   "id": "cat.greet.normal",
+   "reason": "pure narration: the cat makes no spoken words (mew, if anything, is a nonverbal sound)",
+   "original": "The cat does not care."
+  },
+  {
+   "id": "cat.greet.blunt",
+   "reason": "pure narration: the cat makes no spoken words (mew, if anything, is a nonverbal sound)",
+   "original": "The cat does not care."
+  },
+  {
+   "id": "mags_dw.greet.polite",
+   "reason": "pure narration",
+   "original": "She watches your mouth, not your eyes, and nods once."
+  },
+  {
+   "id": "mags_dw.greet.blunt",
+   "reason": "pure narration",
+   "original": "She looks at you for a long moment and goes back to splicing one-handed."
+  },
+  {
+   "id": "lyra_dw.greet.polite",
+   "reason": "pure narration: Lyra is silent here until flag lyra_voice, and the greeting text is narration in any case",
+   "original": "She is sitting on a crate with her slate on her knees, listening to the trees."
+  },
+  {
+   "id": "lyra_dw.greet.normal",
+   "reason": "pure narration: Lyra is silent here until flag lyra_voice, and the greeting text is narration in any case",
+   "original": "She is listening north, toward the Mausoleum, with her whole body."
+  },
+  {
+   "id": "lyra_dw.greet.blunt",
+   "reason": "pure narration: Lyra is silent here until flag lyra_voice, and the greeting text is narration in any case",
+   "original": "She does not look up."
+  },
+  {
+   "id": "kaelen_dw.greet.polite",
+   "reason": "pure narration",
+   "original": "He is sitting with his back to the wreck, his glass arm across his knees, not looking at Lyra."
+  },
+  {
+   "id": "aegis_dw.greet.blunt",
+   "reason": "pure narration; it chimes the alto line (nonverbal, chord)",
+   "original": "Its torso-plates shiver. Then, very softly, it chimes the alto line."
+  },
+  {
+   "id": "sexton.greet.blunt",
+   "reason": "pure narration",
+   "original": "He does not stop digging."
+  },
+  {
+   "id": "herald.greet.polite",
+   "reason": "pure narration: the herald's greeting is stage direction; the writ itself is read in codaHerald() as narrated text, not quoted speech",
+   "original": "He has walked nine miles alone, and he is going to read it aloud, because the form requires it."
+  },
+  {
+   "id": "herald.greet.normal",
+   "reason": "pure narration: the herald's greeting is stage direction; the writ itself is read in codaHerald() as narrated text, not quoted speech",
+   "original": "He unrolls the writ. His hands are perfectly steady."
+  },
+  {
+   "id": "herald.greet.blunt",
+   "reason": "pure narration: the herald's greeting is stage direction; the writ itself is read in codaHerald() as narrated text, not quoted speech",
+   "original": "He waits for you to finish, and then he unrolls the writ."
+  },
+  {
+   "id": "mourner.greet.blunt",
+   "reason": "pure narration",
+   "original": "She walks past you with her lilies."
+  },
+  {
+   "id": "wren.greet.polite",
+   "reason": "pure narration: she sings, no words given",
+   "original": "She does not stop singing."
+  },
+  {
+   "id": "wren.greet.normal",
+   "reason": "pure narration: she sings, no words given",
+   "original": "She does not stop singing."
+  },
+  {
+   "id": "wren.greet.blunt",
+   "reason": "pure narration: she sings, no words given",
+   "original": "She does not stop singing."
+  },
+  {
+   "id": "wren_dw.greet.blunt",
+   "reason": "pure narration",
+   "original": "She looks at you, and at your weapon, and decides you are all right."
+  },
+  {
+   "id": "lyra.companion.boss1",
+   "reason": "PARTY_BOSS.lyra[1] is narration (she sings two bars of the burial office, no words)"
+  },
+  {
+   "id": "kaelen.companion.ability",
+   "reason": "party.js has no spoken ability shout or order acknowledgement: all are narration (Kaelen falls in behind you; Kaelen's glass arm comes down...; Lyra sings the calling-song...). Nothing to voice verbatim."
+  },
+  {
+   "id": "companion.downed",
+   "reason": "partyDowned() is narration only; the spoken downed lines are the camp \"Not yet.\" refusals, recorded as kaelen.companion.notyet and lyra.companion.notyet"
+  },
+  {
+   "id": "wearer.porch.confession",
+   "reason": "grove.js wearer_porch: the Wearer recites Kaelen's confession in indirect speech (calibration, line ninety-four, the girl bleeding into her collar); no direct quote to record"
+  },
+  {
+   "id": "deacon.death",
+   "reason": "wildsBossDown: \"The Deacon ... goes down without a sound, which is what he wanted.\" A spoken death or defeat line would contradict game text."
+  },
+  {
+   "id": "deacon.alert.0",
+   "reason": "Commander: the Deacon's mouth is bound with linen and he goes down without a sound (wilds.js); he signs, so he has no spoken barks"
+  },
+  {
+   "id": "deacon.alert.1",
+   "reason": "Commander: the Deacon's mouth is bound with linen and he goes down without a sound (wilds.js); he signs, so he has no spoken barks"
+  },
+  {
+   "id": "deacon.alert.2",
+   "reason": "Commander: the Deacon's mouth is bound with linen and he goes down without a sound (wilds.js); he signs, so he has no spoken barks"
+  },
+  {
+   "id": "deacon.hurt.0",
+   "reason": "Commander: the Deacon's mouth is bound with linen and he goes down without a sound (wilds.js); he signs, so he has no spoken barks"
+  },
+  {
+   "id": "deacon.hurt.1",
+   "reason": "Commander: the Deacon's mouth is bound with linen and he goes down without a sound (wilds.js); he signs, so he has no spoken barks"
+  }
+ ],
+ "nonverbal": {
+  "hound": "growl, snarl and bark (static in it)",
+  "golem": "steam vent, grinding rumble",
+  "mites": "chitter, hiss",
+  "weaverling": "chitter, many small mouths whispering",
+  "drowned": "shriek / wail in seventy voices (game text: it screams; keep it non-verbal)",
+  "dirge": "keen, a funeral hum with lines missing",
+  "warden": "marble toll, a low funeral bell, hum from the open mouth",
+  "horn": "blare, brass bray, dial ticking",
+  "broodmother": "hiss, click, low rasp",
+  "cat": "mew"
+ },
+ "silent": {
+  "quiet": "A Quiet: silent, no sound at all",
+  "hushmoth": "Hush-Moths: silent",
+  "tongueless": "Tongueless of the Quiet Faith: no tongue, no sound",
+  "hushwarden": "Office Hushwarden: def.mute, silent",
+  "lyra_wg": "Lyra at Whisper-Grove: no voice, slate only",
+  "lyra_dw": "Lyra at the Deep Woods: silent until flags.lyra_voice"
+ },
+ "speakers": {
+  "harrow": {
+   "name": "Old Harrow, gate-warden",
+   "who": "Old gate-warden of Oakhaven; dry, gruff, low-voiced; shuts the gate after dusk and puts shouters out through the thorn."
+  },
+  "lyra": {
+   "name": "Lyra Ashgrove, Cantor of Oakhaven",
+   "who": "Cantor of Oakhaven, Tobin Ashgrove's daughter; a trained, clear, warm voice with a fierce moral spine; voiced only before Whisper-Grove."
+  },
+  "lyra_ruined": {
+   "name": "Lyra Ashgrove, her own ruined voice",
+   "who": "Lyra after she lost her voice; speaks again only once Kaelen has told her everything (flags.lyra_voice): low, breath-heavy and cracked, a Cantor's diction and warmth still under it."
+  },
+  "kaelen": {
+   "name": "Kaelen Vance, the Dissonant Blade",
+   "who": "Governor's son and former Chief Resonant Engineer for the Synod; glass left arm from the Foundry; lives outside the Hedge; weary, understated, low gravel, dry; wants to carry all of it alone."
+  },
+  "hetty": {
+   "name": "Hetty Bram of the Boar & Dulcimer",
+   "who": "Landlady of Oakhaven's tavern; brisk, dry, hard-eyed; has put out bigger men than you; no singing in her house since Davin."
+  },
+  "vane": {
+   "name": "Captain Vane of the Drift-Kestrel",
+   "who": "Corsair captain of the airship Drift-Kestrel, retired from the sea on account of the sea; gallows humour and bravado over old grief (in 414 he held the axe ten heartbeats before he cut the hawser, forty-eight men); mid-age, big voice, often tired."
+  },
+  "rooke": {
+   "name": "Surgeon-Grafter Anselm Rooke",
+   "who": "Surgeon who has cut more limbs than any butcher in the Reach and done every one with care; clipped, precise, clinical, grim; knows the sap-mark and the Inquisitor's list."
+  },
+  "orla": {
+   "name": "Orla Hale",
+   "who": "A woman turning to wood, rooted to her floor; gentle, dry and wry; asks about Davin."
+  },
+  "pim": {
+   "name": "Pim Carder",
+   "who": "A small boy with something wrong with his hands; whispers; told by his Mam not to talk about it."
+  },
+  "vosk": {
+   "name": "Factor Adela Vosk, Consortium of Bores",
+   "who": "Consortium factor in lenses that show pitch as colour; cool, precise, mercantile; keeps Legionnaires, counts voices as replaceable."
+  },
+  "aldric": {
+   "name": "Governor Aldric Vance",
+   "who": "Governor of Oakhaven and Kaelen's father; harried, ironic, an older official pressed between the Factor and the Church; sold the Root to feed the town."
+  },
+  "tobiah": {
+   "name": "Tobiah Marsh, engineer",
+   "who": "Junior Engineer on the Oakhaven night shift, later second engineer of the Drift-Kestrel; anxious, fussy, dry despair about engines; younger man's voice."
+  },
+  "bettany": {
+   "name": "Bettany, midwife and tonic-maker",
+   "who": "Oakhaven midwife and tonic seller; warm, motherly, brisk, prices in coppers; has hummed half the town into the world."
+  },
+  "tam": {
+   "name": "Old Tam, the night-hummer",
+   "who": "Old night-hummer who listens at the water for a singer who comes at night; slow, quiet, murmuring."
+  },
+  "hob": {
+   "name": "Hob Wendle, tanner",
+   "who": "Tanner whose trade has died; gruff, heavy, grieving; has buried two apprentices this year."
+  },
+  "nell": {
+   "name": "Nell Carder",
+   "who": "Keeper of a shut mill, very likely Pim's Mam (shared surname); guarded, protective, sharp; has a sick man in the house with a cough."
+  },
+  "ignatius": {
+   "name": "Ignatius Crane, Flambeau of the Pure Note",
+   "who": "Flambeau of the Choir-Church; tired, severe, formal, a man of long calm who has burned men for less."
+  },
+  "townsman": {
+   "name": "Oakhaven orchardman",
+   "who": "Ordinary Oakhaven orchardman; short, wary, murmuring."
+  },
+  "townswoman": {
+   "name": "Oakhaven goodwife",
+   "who": "Ordinary Oakhaven goodwife; devout, hushing, protective of the children."
+  },
+  "sable": {
+   "name": "Sable, Archivist of the Veil",
+   "who": "Archivist of the Silent Veil who keeps the Bound Ledger; soft, rhythmic, haunted, exact; speaks in \"Entry:\" form."
+  },
+  "halder": {
+   "name": "Halder Wick",
+   "who": "A Hollow in drowned Whisper-Grove, repeating the loop of laying a table for a family; breathy fragments."
+  },
+  "quist": {
+   "name": "Registrar-General Quist",
+   "who": "Registrar-General of the Office in the drowned city; mild, courteous, bureaucratic menace (hot water, clean chair); Mallow is on loan from the Arbiterium, he says."
+  },
+  "aegis": {
+   "name": "The Aegis Sentinel",
+   "who": "Nine feet of Catalogue bronze and bell-bronze with DEFEND THE SINGERS stencilled on the chest; speaks in slow capitals over a chord; a boy of the Cloister choir, WG-41,005, is inside it."
+  },
+  "lamplighter": {
+   "name": "The lamplighter",
+   "who": "A Hollow with a one-line loop; breathy, trailing."
+  },
+  "bettis": {
+   "name": "A Hollow on the bench (Bettis Renn)",
+   "who": "A Hollow on a bench asking for a name; breathy, trailing."
+  },
+  "mags": {
+   "name": "Mags Tennant, first mate",
+   "who": "First mate of the Kestrel; lost her hearing, reads lips, signs hand-cant; blunt, dry; arm in a sling in the Deep Woods."
+  },
+  "sexton": {
+   "name": "Amos Fell, the Hollow sexton",
+   "who": "A Hollow gravedigger in the Spectral Woods, digging the same grave over and over; old, low, trailing."
+  },
+  "mourner": {
+   "name": "A Hollow mourner",
+   "who": "A Hollow woman with lilies, always late for a funeral; breathy, trailing."
+  },
+  "wren": {
+   "name": "Wren",
+   "who": "A girl of about eight, left singing in a ring of hush-lamps by the Quiet Faith; sings too loudly, whispers when she remembers."
+  },
+  "weaver": {
+   "name": "The Phantom Weaver",
+   "who": "A named horror of the Cacophony that weaves forgotten voices into a shroud; speaks in whoever it ate (see voiceOf)."
+  },
+  "wearer": {
+   "name": "The Wearer",
+   "who": "The Cacophony that wears Tobin Ashgrove and has practised the player's voice and everyone's; speaks in borrowed voices, warm and exact."
+  },
+  "requiem": {
+   "name": "The Requiem",
+   "who": "A Cacophony of three hundred years of funeral offices from the Mausoleum of Chords; a mourning veil, a broken bell for a head; sings in the dead's voices."
+  },
+  "core_voice": {
+   "name": "The voice in the core",
+   "who": "The small human voice inside a cracked Office or Carillon core when the bell goes still: a named victim, saying their own name three times."
+  },
+  "deacon": {
+   "name": "The Deacon of the Unrung Bell",
+   "who": "Leader of the Quiet Faith brothers, tall, carries a clapperless bell; his mouth is bound in linen and he signs; kind, sure, low and devout. (Proposed barks voice him murmuring through linen; the game shows him signing.)"
+  },
+  "captain": {
+   "name": "Outrider-Captain Hal Brennick",
+   "who": "Officer of the Arbiter's column sent to find out why OC-742 stopped reporting; carries a lit hush-lantern and a sabre; Office dialect, unhurried, courteous, a competent man."
+  },
+  "pressman": {
+   "name": "Pressman Mallow",
+   "who": "Office of the Catalogue, Second Pressings, on loan from the Arbiterium; a hand-press on his back, a round-book on a chain; big, slow, flat, a clerk of forgetting."
+  },
+  "proctor": {
+   "name": "Catalogue Proctor",
+   "who": "Grey-oilcloth officer of the Office with a hand-press tuned to 741; flat Office dialect; never uses a verb with a person as its object."
+  },
+  "legionnaire": {
+   "name": "Carillon Legionnaire",
+   "who": "Soldier in a bell-shaped helm with a person's name murmuring inside; bell-throated, few words, liturgical cadence."
+  },
+  "marine": {
+   "name": "Cutter-Man",
+   "who": "Office boarding crew in grey oilcloth with a grapnel line; reels people in; flat Office dialect, treats people as consignment."
+  },
+  "bosun": {
+   "name": "Bosun Teller",
+   "who": "Bosun of the Office cutter OC-742; keeps the hold key and the count of 432; very polite, exact (he counted crates on and off at Oakhaven for two years)."
+  },
+  "outrider": {
+   "name": "Office Outrider",
+   "who": "Crossbowman of the Arbiter's column in grey oilskin; prefers forty feet to four; calm, distant, reporting."
+  },
+  "tobin": {
+   "name": "Tobin Ashgrove",
+   "who": "Cantor of Oakhaven, Lyra's father (taken in 417); warm, fatherly baritone; called her \"lark\"."
+  },
+  "lyra_child": {
+   "name": "Lyra at twelve",
+   "who": "Lyra's voice as a girl of twelve, singing the calling-song."
+  },
+  "cantor_old": {
+   "name": "A Cantor three hundred years dead",
+   "who": "An old Cantor of Memory from the Mausoleum of Chords; solemn, ancient, sung."
+  },
+  "chorus_mourners": {
+   "name": "A chorus of mourners",
+   "who": "A hundred voices, all mourners, from the funeral offices of the Mausoleum."
+  },
+  "chorus_congregation": {
+   "name": "The Cloister congregation",
+   "who": "Two hundred voices singing Hymn 9 slightly out of time (the Cloister of the Lost Choir)."
+  },
+  "player_mother": {
+   "name": "The player's mother (as the Weaver wears her)",
+   "who": "The player's mother, a warm calling voice; generic woman's voice in recording since it cannot be tailored."
+  },
+  "player_kin": {
+   "name": "Someone the player knew (brother, first mate, or the buried)",
+   "who": "The hedge voice: the player's brother, a first mate they left in the water, or someone they buried, by player background. Record neutral and warm."
+  },
+  "player": {
+   "name": "The player",
+   "who": "The player's own voice as the Wearer plays it back; generic mid voice; cannot be cloned."
+  },
+  "wg41005": {
+   "name": "WG-41,005, a boy of the Cloister choir",
+   "who": "The boy inside the Aegis; small, plain, saying his intake number."
+  },
+  "sister": {
+   "name": "A Church sister",
+   "who": "One of the two kind women of the Church who keep Lyra in custody (ch. 9): grey with gold at the collar, gentle, believing."
+  },
+  "aldric_tube": {
+   "name": "Governor Aldric Vance, down the speaking-tube",
+   "who": "Aldric heard four hundred feet up a brass tube (ch. 10): small and tinny, tired, level, counting."
+  },
+  "pumpman": {
+   "name": "A man at the pumps",
+   "who": "A Hollow at the Root-vault pumps, given back his name for the length of a breath (Book One ch. 10; the eight left)."
+  },
+  "lyra_fortunate": {
+   "name": "Lyra Ashgrove, \"I. Am. Fortunate.\"",
+   "who": "Lyra with the wire in her throat, saying the rubric's words flattened onto 174 (ch. 10)."
+  },
+  "davin": {
+   "name": "Davin Hale",
+   "who": "Orla Hale's grandson, who sang the harvest home and could never hold the fourth line; heard only in the Hedge's mouth at the North Gate (ch. 11)."
+  },
+  "ada": {
+   "name": "Ada Pellow",
+   "who": "Mistress Pellow of Cooper's Row, fifty-one, who put new milk on Lyra's step every week; an ordinary, perfectly steady voice (ch. 11)."
+  },
+  "engineer": {
+   "name": "The Kestrel's engineer",
+   "who": "The Drift-Kestrel's first engineer, unnamed in Book One by the author's ruling; frightened, precise, doing ballast sums out loud (ch. 12)."
+  }
+ }
+}

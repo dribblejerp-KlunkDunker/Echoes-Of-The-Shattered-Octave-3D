@@ -1,0 +1,15 @@
+# Phase 21, team CORE: english<TAB>french. The true 3D renderer (R3D) rows in Graphics & access, and its notice.
+3D renderer	Rendu 3D
+True 3D (WebGL2): look up and down freely; Classic: the original raycaster	3D réelle (WebGL2) : regard libre vers le haut et le bas ; Classique : le lancer de rayons d’origine
+Auto: True 3D	Auto : 3D réelle
+Auto: Classic	Auto : Classique
+True 3D	3D réelle
+Classic	Classique
+Not available	Indisponible
+WebGL2 is not available on this device	WebGL2 n’est pas disponible sur cet appareil
+the Original preset always uses the classic raycaster	le préréglage Original utilise toujours le lancer de rayons classique
+Look range	Amplitude du regard
+how far up and down the free look turns (Comfort: 45 degrees)	jusqu’où le regard libre monte et descend (Confort : 45 degrés)
+Comfort (45°)	Confort (45°)
+Full (80°)	Complet (80°)
+Graphics eased to the classic renderer to keep the game smooth — Options to change	Graphismes allégés vers le rendu classique pour garder le jeu fluide — Options pour changer

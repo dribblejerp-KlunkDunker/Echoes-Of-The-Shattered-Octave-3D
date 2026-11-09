@@ -1,0 +1,58 @@
+Ghost replays	Fantômes de rejeu
+record boss fights and daily runs, keep your best, and replay it as a pale figure beside you. It never changes the fight.	enregistre les combats de boss et les parcours du jour, garde votre meilleur et le rejoue sous la forme d'une silhouette pâle à vos côtés. Cela ne change jamais le combat.
+Ghost echo	Écho du fantôme
+a very faint sound when your ghost strikes.	un son très léger quand votre fantôme frappe.
+Ghost codes	Codes de fantômes
+watch, copy, import or delete the ghosts kept on this device.	regarder, copier, importer ou supprimer les fantômes gardés sur cet appareil.
+On	Oui
+Off	Non
+Open	Ouvrir
+Your ghost runs the fight against {0} again beside you.	Votre fantôme rejoue à vos côtés le combat contre {0}.
+New best against {0}: {1}. Your ghost is kept.	Nouveau record contre {0} : {1}. Votre fantôme est gardé.
+Your attempt against {0} is kept as a ghost to learn from.	Votre tentative contre {0} est gardée comme fantôme, pour apprendre.
+You beat your ghost by {0}.	Vous battez votre fantôme de {0}.
+Your ghost was {0} quicker.	Votre fantôme a été plus rapide de {0}.
+You and your ghost finish together.	Vous et votre fantôme finissez ensemble.
+Ghosts	Fantômes
+Watch: {0}	Regarder : {0}
+No ghosts yet. Win a boss fight with Ghost replays on, and your best run is kept here.	Aucun fantôme pour l'instant. Gagnez un combat de boss avec les fantômes de rejeu activés, et votre meilleur parcours sera gardé ici.
+Yours	Le vôtre
+Imported	Importé
+Victory	Victoire
+Defeat	Défaite
+{0} · {1} · {2}	{0} · {1} · {2}
+{0} points	{0} points
+Watch	Regarder
+Copy code	Copier le code
+Delete	Supprimer
+Close	Fermer
+Back	Retour
+Import a ghost	Importer un fantôme
+Paste a ghost code here	Collez ici un code de fantôme
+Import	Importer
+Imported: {0}.	Importé : {0}.
+Code copied.	Code copié.
+Could not copy by itself: select the code and copy it by hand.	Copie automatique impossible : sélectionnez le code et copiez-le à la main.
+Ghost deleted.	Fantôme supprimé.
+{0} of {1} ghosts kept on this device.	{0} fantômes gardés sur {1} possibles sur cet appareil.
+Ghost code	Code du fantôme
+Paste a ghost code first.	Collez d'abord un code de fantôme.
+That is not a ghost code.	Ce n'est pas un code de fantôme.
+That code was changed or cut short.	Ce code a été modifié ou tronqué.
+That code is from a newer game.	Ce code vient d'une version plus récente du jeu.
+That code does not describe a run this game could record.	Ce code ne décrit pas un parcours que ce jeu pourrait enregistrer.
+That ghost is for a fight this game does not have.	Ce fantôme concerne un combat absent de ce jeu.
+That code is too long to keep.	Ce code est trop long pour être gardé.
+There is no room to keep another ghost.	Il n'y a plus de place pour un autre fantôme.
+You already have a better one of those; it was not replaced.	Vous en avez déjà un meilleur ; il n'a pas été remplacé.
+Play	Lecture
+Pause	Pause
+Restart	Recommencer
+Speed {0}x	Vitesse {0}x
+{0} of {1}	{0} sur {1}
+Boss health {0}%	Santé du boss {0} %
+A top-down view of the arena: the pale path the ghost walked, the ghost itself, and a pulse where it struck or sang.	Vue de dessus de l'arène : le chemin pâle suivi par le fantôme, le fantôme lui-même, et une onde là où il a frappé ou chanté.
+Space plays or pauses · Left / Right seek 5 s · Up / Down speed · R restarts · Esc closes · pad: A plays, B closes, D-pad seeks	Espace lance ou met en pause · Gauche / Droite avance de 5 s · Haut / Bas vitesse · R recommence · Échap ferme · manette : A lance, B ferme, croix directionnelle avance
+Position in the run	Position dans le parcours
+The place this ghost ran is not in this game, so only its path is drawn.	Le lieu de ce fantôme n'existe pas dans ce jeu : seul son chemin est tracé.
+Watch your best run.	Regarder votre meilleur parcours.

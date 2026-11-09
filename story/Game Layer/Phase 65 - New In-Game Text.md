@@ -1,0 +1,98 @@
+# Phase 65 — Release road R9 item 17: Orla Hale, the harvest home
+
+*Recorded 8 Nov 2026 from the game's translation file (`tools/i18n/p65-orla.tsv`). The follow-up after the boots is Book One ch. 6, spoken to you instead of to Lyra. The lessons are [PROPOSED].*
+
+## What is new, in short
+
+- **After the boots** (`js/orla65.js`): "He sang it. Didn't he." / "I heard him. Clear across the square." / "Was he any good?" You can tell her the truth, as Lyra does in the book ("He couldn't hold the fourth line"), or be kind. Either way: "Never could. His da couldn't either. Forty years I tried to teach the pair of them." Then the voice past the Hedge that "had his voice. It didn't have him." Lyra will sing her down, proper, before the fire: "Even the fourth."
+- **The lessons** [PROPOSED]. She teaches you The Last Sheaf, one line a day, from the chair, in the voice like a rusty gate. First come the first two lines (the only words the book gives), then the third, then the fourth, which has the narrowest band. Close the shutters and stuff the cracks first, or sing with them open and hear the Hedge sing the line back.
+- **The Song.** The Last Sheaf is a new Song: loud, and the hounds come for it [PROPOSED stats]. Knowing it gives you the second voice with Lyra at Orla's tree in the Greening, as cutting the Last Sheaf with Harrow already did.
+
+## The song (ruled 8 Nov 2026: "write the rest of the song")
+
+Lines 1 and 2 are from the book. Lines 3 to 12 are [PROPOSED]. Line 3 is the one that "goes over the hill"; line 4 is the held one, "you don't let it go till the sheaf's in"; and in the last verse the held line lets go, because it is the verse for singing someone down.
+
+> *Oh, the last sheaf's in and the barley's high,*
+> *and the swallows are low in the harvest sky;*
+> *then it's over the hill where the stubble runs gold,*
+> *and hold it, and hold it, till the sheaf's in the fold.*
+>
+> *Oh, the bread's on the hearth and the cider's poured,*
+> *and the old ones are sat at the head of the board;*
+> *then we plait her and hang her up high on the gate,*
+> *and leave her, and leave her, though the spring come late.*
+>
+> *Oh, the rest grows back by the break of day,*
+> *but the last sheaf's cut, and she's let to stay;*
+> *then it's over the hill, and it's down to the stone,*
+> *and let go, let go, for the sheaf's gone home.*
+
+French:
+
+> *Oh, la dernière gerbe est rentrée et l'orge est haute,*
+> *et les hirondelles volent bas dans le ciel de la moisson ;*
+> *puis c'est par-dessus la colline, où le chaume est d'or,*
+> *et tiens-la, et tiens-la, jusqu'à ce que la gerbe soit rentrée.*
+>
+> *Oh, le pain est dans l'âtre et le cidre est versé,*
+> *et les anciens sont assis au haut bout de la table ;*
+> *puis on la tresse et on la pend tout en haut du portail,*
+> *et laisse-la, et laisse-la, même si le printemps tarde.*
+>
+> *Oh, le reste repousse avant le point du jour,*
+> *mais la dernière gerbe est coupée, et on la laisse rester ;*
+> *puis c'est par-dessus la colline, et jusqu'à la pierre,*
+> *et lâche, lâche, car la gerbe est rentrée chez elle.*
+
+The verses follow the Festivals addendum: bread from the new flour and cider; the sheaf plaited and hung over the gate until spring; the rest of the grain growing back by morning, and the last sheaf the one that is allowed to stay cut.
+
+Where the words appear: line 3 in the third-line lesson, line 4 in the fourth-line lesson, verses 2 and 3 on the card when you hold the fourth line, and all of it in the logbook.
+
+## Rulings (8 Nov 2026)
+
+- **Write the rest of the song:** done, above.
+- **The Song's stats** (cost 12 voice, very loud, a hound may come in dangerous places): approved.
+- **Orla teaching you:** not in the book (see the answer in chat). In the book, Davin sang the harvest home, Orla taught him and his father for forty years, and Lyra promises to sing her down with all the lines. The lessons are [PROPOSED] and stay in until you say otherwise.
+
+## Every line
+
+Source: `tools/i18n/p65-orla.tsv` (36 lines).
+
+| # | English | French |
+|---|---|---|
+| 1 | Orla looks at the boots for a long time.<br><br>"He sang it," she says at last. "Didn't he."<br><br>"He sang it."<br><br>"I heard him." A rustling breath. "Clear across the square. I was sitting here with the window open, and I heard my boy sing the harvest home." Her eyes are wet and quite steady. "Was he any good?" | Orla regarde longtemps les bottes.<br><br>« Il l'a chantée », dit-elle enfin. « N'est-ce pas. »<br><br>« Il l'a chantée. »<br><br>« Je l'ai entendu. » Un souffle bruissant. « D'un bout à l'autre de la place. J'étais assise ici, la fenêtre ouverte, et j'ai entendu mon garçon chanter la fête de la moisson. » Ses yeux sont mouillés et tout à fait fermes. « Il était bon ? » |
+| 2 | "He couldn't hold the fourth line." | « Il ne tenait pas le quatrième vers. » |
+| 3 | "He was very good." | « Il était très bon. » |
+| 4 | Orla laughs. It is a terrible sound, a laugh with the dry whisper of roots moving beneath it, like wind in barley, and it goes on too long and turns into something else.<br><br>"Never could," she says. "His da couldn't either. Forty years I tried to teach the pair of them." A breath. "I heard it again, after. Out past the Hedge. Somebody singing it back. It had his voice. It didn't have <i>him</i>. You can tell, when you've known a voice all its life."<br><br>"Lyra will sing me down. Proper. Before they come with their fire. All the lines." A pause. "Even the fourth." | Orla rit. C'est un son terrible, un rire avec le murmure sec des racines qui bougent dessous, comme le vent dans l'orge, et il dure trop longtemps et devient autre chose.<br><br>« Jamais su », dit-elle. « Son père non plus. Quarante ans j'ai essayé de leur apprendre, à tous les deux. » Un souffle. « Je l'ai réentendue, après. Au-delà de la Haie. Quelqu'un qui la rechantait. Elle avait sa voix. Elle ne l'avait pas, <i>lui</i>. Ça s'entend, quand on a connu une voix toute sa vie. »<br><br>« Lyra me chantera pour descendre. Comme il faut. Avant qu'ils viennent avec leur feu. Tous les vers. » Un temps. « Même le quatrième. » |
+| 5 | "Liar," says Orla Hale, quite fondly. "He never could hold the fourth line. His da couldn't either. Forty years I tried to teach the pair of them." A breath. "I heard it again, after. Out past the Hedge. Somebody singing it back. It had his voice. It didn't have <i>him</i>."<br><br>"Lyra will sing me down. Proper. Before they come with their fire. All the lines." A pause. "Even the fourth." | « Tu mens », dit Orla Hale, tout à fait tendrement. « Il n'a jamais su tenir le quatrième vers. Son père non plus. Quarante ans j'ai essayé de leur apprendre, à tous les deux. » Un souffle. « Je l'ai réentendue, après. Au-delà de la Haie. Quelqu'un qui la rechantait. Elle avait sa voix. Elle ne l'avait pas, <i>lui</i>. »<br><br>« Lyra me chantera pour descendre. Comme il faut. Avant qu'ils viennent avec leur feu. Tous les vers. » Un temps. « Même le quatrième. » |
+| 6 | "Somebody ought to have all of it," Orla says. "Somebody who isn't going in the ground this week." She lifts her eyebrows at her hands, which cannot lift. "Come back tomorrow, if you want it. Shut the shutters when you come." | « Il faudrait que quelqu'un l'ait en entier », dit Orla. « Quelqu'un qui ne va pas en terre cette semaine. » Elle hausse les sourcils vers ses mains, qui ne peuvent pas se lever. « Reviens demain, si tu la veux. Ferme les volets en arrivant. » |
+| 7 | Learn the next line of the harvest home | Apprendre le vers suivant de la fête de la moisson |
+| 8 | "Tomorrow, lovey. One line a day. That's how I learned it, and that's how my mother did." | « Demain, mon cœur. Un vers par jour. C'est comme ça que je l'ai apprise, et ma mère aussi. » |
+| 9 | "Shutters first" | « Les volets d'abord » |
+| 10 | "Shutters, lovey," says Orla. "And a rag in the cracks. I'll not have the Hedge learn it off you before you've learned it off me." | « Les volets, mon cœur », dit Orla. « Et un chiffon dans les fentes. Je ne veux pas que la Haie l'apprenne de toi avant que tu l'aies apprise de moi. » |
+| 11 | Close the shutters and stuff the cracks | Fermer les volets et boucher les fentes |
+| 12 | Sing with the shutters open | Chanter les volets ouverts |
+| 13 | You pull the shutters to and stuff the cracks with the rags from the basket by the hearth. The room goes brown and close, and the lamp is the only light. Orla nods. | Vous tirez les volets et bourrez les fentes avec les chiffons du panier près de l'âtre. La pièce devient brune et close, et la lampe est la seule lumière. Orla hoche la tête. |
+| 14 | The harvest home: the first two lines | La fête de la moisson : les deux premiers vers |
+| 15 | She sings it first, from the chair, in a voice like a rusty gate: <i>Oh, the last sheaf's in and the barley's high, and the swallows are low in the harvest sky.</i> "Now you. Not loud. It's not for loud, not here, not now." | Elle la chante d'abord, depuis son fauteuil, d'une voix comme un portail rouillé : <i>Oh, la dernière gerbe est rentrée et l'orge est haute, et les hirondelles volent bas dans le ciel de la moisson.</i> « À toi. Pas fort. Ce n'est pas pour le fort, pas ici, pas maintenant. » |
+| 16 | Up a little, down a little, and home. Low, so it stays in the room. | Un peu en haut, un peu en bas, et on rentre. Bas, pour que ça reste dans la pièce. |
+| 17 | "There. That's the start of it. Davin had the start of it at four years old." She shuts her eyes. "Tomorrow, the third line." | « Voilà. C'est le début. Davin avait le début à quatre ans. » Elle ferme les yeux. « Demain, le troisième vers. » |
+| 18 | The harvest home: the third line | La fête de la moisson : le troisième vers |
+| 19 | "The third line goes up where you don't expect it, like a field going over a hill." She sings it under her breath, and the roots in the floor creak: <i>then it's over the hill where the stubble runs gold.</i> | « Le troisième vers monte là où on ne s'y attend pas, comme un champ qui passe une colline. » Elle le chante à mi-voix, et les racines du plancher craquent : <i>puis c'est par-dessus la colline, où le chaume est d'or.</i> |
+| 20 | It goes over the hill. Follow it up, and bring it back down. | Il passe la colline. Suis-le en haut, et ramène-le en bas. |
+| 21 | "You've a better ear than my boy had." She says it quite steadily. "Tomorrow, the fourth. Nobody gets the fourth the first time." | « Tu as meilleure oreille que n'en avait mon garçon. » Elle le dit très posément. « Demain, le quatrième. Personne n'a le quatrième du premier coup. » |
+| 22 | The harvest home: the fourth line | La fête de la moisson : le quatrième vers |
+| 23 | "The fourth line. Davin couldn't hold it. His da couldn't either." She breathes in, and the barley-rustle under it is louder than it was: <i>and hold it, and hold it, till the sheaf's in the fold.</i> "It goes up, and it stays up, and you don't let it go till the sheaf's in. Hold it." | « Le quatrième vers. Davin ne le tenait pas. Son père non plus. » Elle inspire, et le bruissement d'orge dessous est plus fort qu'avant : <i>et tiens-la, et tiens-la, jusqu'à ce que la gerbe soit rentrée.</i> « Il monte, et il reste en haut, et tu ne le lâches pas tant que la gerbe n'est pas rentrée. Tiens-le. » |
+| 24 | The line Davin could never hold. Up, and stay up. | Le vers que Davin n'a jamais su tenir. En haut, et reste en haut. |
+| 25 | You hold it. Not well, and not for long, but you hold it, and Orla Hale shuts her eyes and listens the way she listened on the risers of fifty harvest homes.<br><br>"There," she says. "Now somebody's got all of it. Even the fourth. The rest is the same tune, twice more, and you have the tune." She gives you the words with her eyes shut, a line at a time, under her breath:<br><br><i>Oh, the bread's on the hearth and the cider's poured,<br>and the old ones are sat at the head of the board;<br>then we plait her and hang her up high on the gate,<br>and leave her, and leave her, though the spring come late.</i><br><br><i>Oh, the rest grows back by the break of day,<br>but the last sheaf's cut, and she's let to stay;<br>then it's over the hill, and it's down to the stone,<br>and let go, let go, for the sheaf's gone home.</i><br><br>"That last one's for going down to," she says. A rustling breath. "Lyra will sing me down. But it's good to know there's two." | Vous le tenez. Pas bien, et pas longtemps, mais vous le tenez, et Orla Hale ferme les yeux et écoute comme elle écoutait sur les gradins de cinquante fêtes de la moisson.<br><br>« Voilà », dit-elle. « Maintenant quelqu'un l'a en entier. Même le quatrième. Le reste, c'est le même air, deux fois encore, et l'air, tu l'as. » Elle vous donne les paroles les yeux fermés, un vers à la fois, à mi-voix :<br><br><i>Oh, le pain est dans l'âtre et le cidre est versé,<br>et les anciens sont assis au haut bout de la table ;<br>puis on la tresse et on la pend tout en haut du portail,<br>et laisse-la, et laisse-la, même si le printemps tarde.</i><br><br><i>Oh, le reste repousse avant le point du jour,<br>mais la dernière gerbe est coupée, et on la laisse rester ;<br>puis c'est par-dessus la colline, et jusqu'à la pierre,<br>et lâche, lâche, car la gerbe est rentrée chez elle.</i><br><br>« Le dernier, c'est pour descendre », dit-elle. Un souffle bruissant. « Lyra me chantera pour descendre. Mais c'est bon de savoir qu'on est deux. » |
+| 26 | "No, no. Again," says Orla. "Breathe from under. Come back tomorrow and we'll have it." | « Non, non. Encore », dit Orla. « Respire d'en dessous. Reviens demain et on l'aura. » |
+| 27 | It slips off the top, the way it slipped off Davin's. Orla does not laugh this time. "Tomorrow," she says. "It took me a year." | Il glisse par le haut, comme il glissait chez Davin. Cette fois, Orla ne rit pas. « Demain », dit-elle. « Il m'a fallu un an. » |
+| 28 | Out past the Hedge, something stops, and listens, and begins to sing the line back to you, a half-beat behind. | Au-delà de la Haie, quelque chose s'arrête, écoute, et se met à vous rechanter le vers, un demi-temps en retard. |
+| 29 | Go on. | Continuer. |
+| 30 | The Last Sheaf | La Dernière Gerbe |
+| 31 | Orla Hale's harvest home, all the lines, even the fourth. Sung at full voice it carries across the square and past the Hedge, and every hound in hearing comes for it. In the Greening you can sing the second voice with Lyra. | La fête de la moisson d'Orla Hale, tous les vers, même le quatrième. Chantée à pleine voix, elle traverse la place et passe la Haie, et tous les chiens à portée d'oreille viennent la chercher. Pendant le Verdissement, vous pouvez chanter la seconde voix avec Lyra. |
+| 32 | You sing the harvest home at full voice, all the lines, even the fourth. It carries. Somewhere past the walls, something turns its head. | Vous chantez la fête de la moisson à pleine voix, tous les vers, même le quatrième. Ça porte. Quelque part au-delà des murs, quelque chose tourne la tête. |
+| 33 | Orla asked me whether Davin was any good. "Never could hold the fourth line. His da couldn't either." She wants somebody to have all of the harvest home. | Orla m'a demandé si Davin était bon. « Il n'a jamais su tenir le quatrième vers. Son père non plus. » Elle veut que quelqu'un ait la fête de la moisson en entier. |
+| 34 | Orla Hale taught me the first two lines of the harvest home, from her chair. <i>Oh, the last sheaf's in and the barley's high.</i> | Orla Hale m'a appris les deux premiers vers de la fête de la moisson, depuis son fauteuil. <i>Oh, la dernière gerbe est rentrée et l'orge est haute.</i> |
+| 35 | Orla taught me the third line of the harvest home, the one that goes over the hill. <i>Then it's over the hill where the stubble runs gold.</i> | Orla m'a appris le troisième vers de la fête de la moisson, celui qui passe la colline. <i>Puis c'est par-dessus la colline, où le chaume est d'or.</i> |
+| 36 | Orla taught me the fourth line, the one Davin could never hold, and the two verses after it. I have all of The Last Sheaf now. "Lyra will sing me down. But it's good to know there's two."<br><br><i>Oh, the bread's on the hearth and the cider's poured,<br>and the old ones are sat at the head of the board;<br>then we plait her and hang her up high on the gate,<br>and leave her, and leave her, though the spring come late.</i><br><br><i>Oh, the rest grows back by the break of day,<br>but the last sheaf's cut, and she's let to stay;<br>then it's over the hill, and it's down to the stone,<br>and let go, let go, for the sheaf's gone home.</i> | Orla m'a appris le quatrième vers, celui que Davin n'a jamais su tenir, et les deux couplets d'après. J'ai toute la Dernière Gerbe, maintenant. « Lyra me chantera pour descendre. Mais c'est bon de savoir qu'on est deux. »<br><br><i>Oh, le pain est dans l'âtre et le cidre est versé,<br>et les anciens sont assis au haut bout de la table ;<br>puis on la tresse et on la pend tout en haut du portail,<br>et laisse-la, et laisse-la, même si le printemps tarde.</i><br><br><i>Oh, le reste repousse avant le point du jour,<br>mais la dernière gerbe est coupée, et on la laisse rester ;<br>puis c'est par-dessus la colline, et jusqu'à la pierre,<br>et lâche, lâche, car la gerbe est rentrée chez elle.</i> |

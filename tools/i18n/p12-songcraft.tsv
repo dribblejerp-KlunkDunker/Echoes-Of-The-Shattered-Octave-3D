@@ -1,0 +1,51 @@
+# Phase 12, team SONGCRAFT: english<TAB>french. Instruments, the tuning fork, the dowsing rod, the Song-book rows and three Options rows.
+Lute	Luth
+Abner Fenning strings these with his own gut, and sells one now and then to people who ask nicely. Equipped, Songs cost a quarter less voice and their timed effects do not last as long.	Abner Fenning les cordes avec son propre boyau, et en vend un de temps en temps à ceux qui le demandent poliment. Équipé, les Chants coûtent un quart de voix en moins et leurs effets durables ne tiennent pas aussi longtemps.
+Alder Flute	Flûte d'aulne
+Bored alder, packed in hush-cloth by the Hedge-weavers. Equipped, Songs make far less noise, and the Falling Fifth carries a little further down a narrow line ahead.	De l'aulne foré, emballé dans de l'étoffe sourde par les tisserands de la Haie. Équipée, les Chants font bien moins de bruit, et la Quinte descendante porte un peu plus loin dans une ligne étroite devant vous.
+Hurdy-Gurdy, the wheel-fiddle	Vielle à roue, la vielle à manivelle
+A corsair's wheel-fiddle with a drone string that never stops. Equipped, timed effects hold much longer. Songs are louder, and the drone calls hounds for a while after.	La vielle à roue d'un corsaire, avec une corde bourdon qui ne s'arrête jamais. Équipée, les effets durables tiennent bien plus longtemps. Les Chants sont plus forts, et le bourdon attire les chiens un moment après.
+Iron Tuning Fork	Diapason de fer
+Bettany had it from a Cantor's widow. Held (J), it hums near what is kept hidden: resonant stone, strongboxes, Light-glass, loose pages. The nearer, the higher it sings.	Bettany le tenait de la veuve d'un Chantre. Tenu en main (J), il bourdonne près de ce qui est caché : pierre résonante, coffres, verre-de-lumière, feuillets perdus. Plus vous approchez, plus il chante haut.
+Resonance Rod	Baguette de résonance
+You take up the lute.	Vous prenez le luth.
+You take up the flute.	Vous prenez la flûte.
+You settle the wheel-fiddle across your knees.	Vous installez la vielle à roue sur vos genoux.
+You put the instrument away.	Vous rangez l'instrument.
+Lute: Songs cost a quarter less voice; timed effects last 30% shorter.	Luth : les Chants coûtent un quart de voix en moins ; les effets durables durent 30 % de moins.
+Flute: Songs make 40% less noise; the Falling Fifth reaches 3 cells further, in a narrow cone ahead.	Flûte : les Chants font 40 % de bruit en moins ; la Quinte descendante porte 3 cases plus loin, dans un cône étroit devant vous.
+Hurdy-gurdy: timed effects last 60% longer (not on bosses); Songs are 50% louder, and the drone draws hounds for 8 seconds after.	Vielle à roue : les effets durables durent 60 % de plus (pas sur les chefs) ; les Chants sont 50 % plus forts, et le bourdon attire les chiens pendant 8 secondes ensuite.
+Instrument	Instrument
+None	Aucun
+In hand: {0}	En main : {0}
+Held in the other hand	Tenu dans l'autre main
+Nothing	Rien
+Hand	Main
+You hold the fork by its stem. It is silent, for now.	Vous tenez le diapason par sa tige. Il est muet, pour l'instant.
+You put the fork away.	Vous rangez le diapason.
+You hold the rod loose between two fingers.	Vous tenez la baguette entre deux doigts, sans serrer.
+You put the rod away.	Vous rangez la baguette.
+You have nothing to hold.	Vous n'avez rien à tenir.
+The fork shivers against your palm. There is stone here that was cut to be listened to.	Le diapason frémit dans votre paume. Il y a ici une pierre taillée pour qu'on l'écoute.
+The fork hums low. Something has been kept near here.	Le diapason bourdonne, grave. Quelque chose a été gardé près d'ici.
+The fork sings thin and high. Light-glass, close.	Le diapason chante, mince et haut. Du verre-de-lumière, tout près.
+The fork hums, dry and quiet, like a page turned in the next room.	Le diapason bourdonne, sec et discret, comme une page tournée dans la pièce voisine.
+[A tuning fork hums faintly]	[Un diapason bourdonne faiblement]
+[The fork hums, closer]	[Le diapason bourdonne, plus proche]
+[The fork rings clear]	[Le diapason sonne clair]
+The rod went still over the quarry floor and would not be coaxed. Whatever the Consortium drills is under my feet, and it is keeping a note it has no breath for. I took my hands off the rod. It seemed the decent thing.	La baguette s'est immobilisée au-dessus du sol de la carrière et n'a pas voulu en bouger. Ce que le Consortium fore est sous mes pieds, et cela garde une note sans avoir le souffle pour la tenir. J'ai lâché la baguette. Cela m'a semblé la chose décente.
+At the Casing the rod stopped dead. The Root does not answer. It listens. I stood there until my hands stopped shaking.	Au Caisson, la baguette s'est arrêtée net. La Racine ne répond pas. Elle écoute. J'ai attendu là que mes mains cessent de trembler.
+In the Tuning Room the rod stilled over the floor. Nothing sang. Something a very long way down was keeping count.	Dans la Salle d'accord, la baguette s'est calmée au-dessus du sol. Rien ne chantait. Quelque chose, très loin en dessous, comptait.
+The rod steadied over a root-vein, a thread of green-gold glass under the floor. A small cousin of something much larger.	La baguette s'est stabilisée au-dessus d'une veine de racine, un fil de verre vert-or sous le sol. Un petit cousin de quelque chose de bien plus grand.
+The rod steadied over a reed bed. Wet ground, a little life, a note a day long. Not everything it finds is sacred.	La baguette s'est stabilisée au-dessus d'un lit de roseaux. Terre humide, un peu de vie, une note longue d'un jour. Tout ce qu'elle trouve n'est pas sacré.
+STEADY	STABLE
+Instruments	Instruments
+a lute, flute or hurdy-gurdy changes how Songs behave	un luth, une flûte ou une vielle à roue change la façon dont les Chants se comportent
+Tuning fork	Diapason
+hums nearer hidden stone, strongboxes, Light-glass and pages	bourdonne plus fort près de la pierre cachée, des coffres, du verre-de-lumière et des feuillets
+Dowsing rod	Baguette de sourcier
+a needle that dips toward the Anchor-roots	une aiguille qui plonge vers les racines des Ancres
+On	Activé
+Off	Désactivé
+Tool	Outil
+A rod of bronze from the chapel's cracked old treble, ground at the forge to 174. Held loose (J), it dips toward what is rooted below. Do not stand on what it finds.	Une baguette de bronze tirée de la vieille petite cloche fêlée de la chapelle, rectifiée à la forge sur 174. Tenue souple (J), elle plonge vers ce qui est enraciné en dessous. Ne vous tenez pas sur ce qu'elle trouve.
