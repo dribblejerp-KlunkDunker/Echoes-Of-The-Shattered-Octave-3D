@@ -36,9 +36,9 @@ const R11KIT = (function () {
   const T3 = (ctx) => (ctx && ctx.THREE) || (window.R11 && window.R11.THREE) || (window.R11THREE && window.R11THREE.THREE) || null;
   const addons = () => window.R11THREE || {};
   const TIERS = {
-    ultra: { leaves: 1800, ground: 2600, drift: 3000, ivy: 1, forest: 1600, props: 1, shadowSmall: true, puddle: 1, seg: 150, smoke: true },
-    high: { leaves: 1200, ground: 1600, drift: 2000, ivy: 1, forest: 1100, props: 1, shadowSmall: true, puddle: 1, seg: 120, smoke: true },
-    phone: { leaves: 420, ground: 600, drift: 800, ivy: 0.55, forest: 500, props: 0.5, shadowSmall: false, puddle: 0.6, seg: 80, smoke: false },
+    ultra: { leaves: 1800, ground: 9000, drift: 7000, ivy: 1, forest: 1600, props: 1, shadowSmall: true, puddle: 1, seg: 150, smoke: true },
+    high: { leaves: 1200, ground: 6000, drift: 5000, ivy: 1, forest: 1100, props: 1, shadowSmall: true, puddle: 1, seg: 120, smoke: true },
+    phone: { leaves: 420, ground: 2400, drift: 2000, ivy: 0.55, forest: 500, props: 0.5, shadowSmall: false, puddle: 0.6, seg: 80, smoke: false },
   };
   const tierOf = (n) => TIERS[n] ? n : 'high';
   const mulberry = (a) => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -227,12 +227,12 @@ gl_Position = projectionMatrix * mvPosition;`);
   }
   // the Boar & Dulcimer's board: the inn's name (canon) and its two namesakes (the painting is [PROPOSED])
   function signTex(THREE, r) {
-    return canvasTex(THREE, 512, 384, (g, w, h) => {
+    return canvasTex(THREE, 384, 448, (g, w, h) => {   // upright, as it hangs from its bracket
       const wood = g.createLinearGradient(0, 0, 0, h); wood.addColorStop(0, '#3b2615'); wood.addColorStop(1, '#22150b'); g.fillStyle = wood; g.fillRect(0, 0, w, h);
       for (let y = 0; y < h; y += 7) { g.strokeStyle = `rgba(0,0,0,${0.15 + r() * .2})`; g.beginPath(); g.moveTo(0, y + r() * 3); g.bezierCurveTo(w * .3, y + r() * 6, w * .6, y - r() * 6, w, y + r() * 3); g.stroke(); }
       g.strokeStyle = '#a8833a'; g.lineWidth = 8; g.strokeRect(10, 10, w - 20, h - 20);
       // the boar, in profile, facing left
-      g.fillStyle = '#cdb68c'; g.save(); g.translate(205, 168);
+      g.fillStyle = '#cdb68c'; g.save(); g.translate(205, 130); g.scale(0.92, 0.92);
       g.beginPath(); g.moveTo(-110, -6); g.quadraticCurveTo(-100, -48, -40, -58); g.quadraticCurveTo(30, -70, 88, -40); g.quadraticCurveTo(120, -12, 104, 30);
       g.quadraticCurveTo(60, 52, -20, 44); g.quadraticCurveTo(-70, 40, -96, 20); g.closePath(); g.fill();
       g.beginPath(); g.moveTo(-96, -20); g.lineTo(-150, -2); g.lineTo(-156, 18); g.lineTo(-104, 22); g.closePath(); g.fill();           // snout
@@ -243,15 +243,17 @@ gl_Position = projectionMatrix * mvPosition;`);
       g.fillStyle = '#f2e6cc'; g.beginPath(); g.moveTo(-138, 6); g.quadraticCurveTo(-148, -16, -132, -30); g.lineTo(-128, 0); g.fill();   // tusk
       g.fillStyle = '#22150b'; g.beginPath(); g.arc(-88, -18, 4, 0, PI * 2); g.fill(); g.restore();
       // the dulcimer: a hammered dulcimer, a trapezoid box strung across, with its two hammers
-      g.save(); g.translate(410, 160); g.rotate(-0.12); g.fillStyle = '#a8833a';
+      g.save(); g.translate(192, 268); g.rotate(-PI / 2 + 0.08); g.scale(0.7, 0.9); g.fillStyle = '#a8833a';
       g.beginPath(); g.moveTo(-58, -56); g.lineTo(58, -36); g.lineTo(58, 36); g.lineTo(-58, 56); g.closePath(); g.fill();
       g.strokeStyle = '#3b2615'; g.lineWidth = 2; for (let i = -5; i <= 5; i++) { g.beginPath(); g.moveTo(-54, i * 8.5); g.lineTo(54, i * 6); g.stroke(); }
       g.fillStyle = '#3b2615'; g.beginPath(); g.arc(-18, 0, 9, 0, PI * 2); g.fill(); g.beginPath(); g.arc(22, 0, 7, 0, PI * 2); g.fill();
       g.strokeStyle = '#cdb68c'; g.lineWidth = 4; for (const k of [-1, 1]) { g.beginPath(); g.moveTo(k * 10, 70); g.lineTo(k * 34 + 10, 102); g.stroke(); }
       g.restore();
-      g.fillStyle = '#e6cf98'; g.textAlign = 'center'; let fs = 40; const txt = tr('THE BOAR & DULCIMER');
-      do { g.font = `bold ${fs}px Cinzel, Georgia, serif`; fs -= 2; } while (g.measureText(txt).width > w - 50 && fs > 16);
-      g.fillText(txt, w / 2, h - 34);
+      // the name in two lines, broken at its ampersand (whatever the language)
+      g.fillStyle = '#e6cf98'; g.textAlign = 'center'; let fs = 44; const txt = tr('THE BOAR & DULCIMER'), k = txt.indexOf(' & ');
+      const lines = k > 0 ? [txt.slice(0, k), txt.slice(k + 1)] : [txt];
+      do { g.font = `bold ${fs}px Cinzel, Georgia, serif`; fs -= 2; } while (lines.some((l) => g.measureText(l).width > w - 44) && fs > 14);
+      lines.forEach((l, i) => g.fillText(l, w / 2, h - 30 - (lines.length - 1 - i) * (fs + 8)));
       grain(g, w, h, 4000, .15, r);
     });
   }
@@ -1063,7 +1065,7 @@ gl_Position = projectionMatrix * mvPosition;`);
     f.part('awning', inBand(roof), 0, 2.33, 0.0);
     f.part('awning', inBand(new THREE.PlaneGeometry(W + 0.3, 0.3)), 0, 1.98, D / 2 + 0.28);
     // the stallholder's stock behind the stall: three crates or three casks
-    if (B.stallStock) { const back = f.sub(0, -D / 2 - 0.15, PI); propGroup(B, back, (r() - .5) * 0.6, 0, r() < 0.6 ? 'crate' : 'cask', 3, r); }
+    if (B.stallStock) { const back = f.sub(0, -D / 2 - 0.05, PI); propGroup(B, back, (r() - .5) * 0.3, 0, r() < 0.6 ? 'crate' : 'cask', 3, r); }
     // goods: fleeces and bales (the Carders' Quarter), jars, apples
     for (let i = 0; i < 6; i++) { const x = -W / 2 + 0.35 + i * (W - 0.7) / 5, g = r(); if (g < 0.4) f.ibox('goods', 0.42, 0.22, 0.32, x, 1.05, 0.1 + r() * 0.2, r(), 0, 0, 0xd9cdb0); else if (g < 0.7) for (let j = 0; j < 3; j++) f.ibox('goods', 0.1, 0.13, 0.1, x - 0.12 + j * 0.12, 1.0, 0.25, 0, 0, 0, 0xb87a24); else f.ibox('goods', 0.36, 0.14, 0.26, x, 1.01, 0.2, r(), 0, 0, 0x7a2a1a); }
   }
@@ -1456,8 +1458,11 @@ gl_Position = projectionMatrix * mvPosition;`);
         const nk = Math.round(per * (k.hero ? HM : 1)), sp = k.tpl.spots;
         if (i >= nk) continue;
         {
-          const c = sp[(rL() * sp.length) | 0], j = k.hero ? 2.0 : 2.4;
-          v.set(c.x + (rL() - .5) * j, c.y + (rL() - .35) * 1.6, c.z + (rL() - .5) * j).applyMatrix4(k.m);
+          let c, j = 2.4;
+          // an old crown grows in clumps on its twigs, with sky between them: seven cards to a clump
+          if (k.hero) { if (!k.clump || i % 7 === 0) { const q = sp[(rL() * sp.length) | 0]; k.clump = new THREE.Vector3(q.x + (rL() - .5) * 1.4, q.y + (rL() - .3) * 1.0, q.z + (rL() - .5) * 1.4); } c = k.clump; j = 1.3; }
+          else c = sp[(rL() * sp.length) | 0];
+          v.set(c.x + (rL() - .5) * j, c.y + (rL() - .35) * (k.hero ? 1.0 : 1.6), c.z + (rL() - .5) * j).applyMatrix4(k.m);
           ob.position.copy(v); ob.rotation.set(rL() * PI, rL() * PI, rL() * PI); const s = (0.75 + rL() * 0.7) * (k.hero ? Math.min(1, k.sc) * 1.05 : k.sc); ob.scale.set(s, s, s); ob.updateMatrix();
           leaves.setMatrixAt(n, ob.matrix);
           // the variants keep their colours; the iron-oak's own autumn is "a kind of rust-pink, like a stain that has been
@@ -1487,13 +1492,15 @@ gl_Position = projectionMatrix * mvPosition;`);
         const kind = best ? (best.copper ? 1 : best.green ? 2 : 0) : (rF() < 0.5 ? 0 : 2);
         if (kind === 1) cF.setHSL(0.05 + rF() * 0.05, 0.55 + rF() * 0.2, 0.22 + rF() * 0.12);
         else if (kind === 2) cF.setHSL(0.07 + rF() * 0.05, 0.38 + rF() * 0.15, 0.2 + rF() * 0.1);
-        else cF.setHSL(0.015 + rF() * 0.035, 0.3 + rF() * 0.14, 0.24 + rF() * 0.11);
+        else cF.setHSL(0.015 + rF() * 0.035, 0.36 + rF() * 0.16, 0.27 + rF() * 0.12);
         if (wet) cF.multiplyScalar(0.62 + rF() * 0.25);
         return [cF.r, cF.g, cF.b];
       };
       for (let i = 0, nA = 0; i < T.ground * 3 && nA < T.ground; i++) {
         let x, z;
-        if (oaks.length && rF() < 0.7) { const k = oaks[(rF() * oaks.length) | 0], a = rF() * PI * 2, rr = Math.sqrt(rF()) * (k.hero ? 9.5 : 9 * (k.s / 1.8)); x = k.x + Math.cos(a) * rr; z = k.z + Math.sin(a) * rr; }
+        const heroes = oaks.filter((q) => q.hero), u = rF();
+        if (heroes.length && u < 0.45) { const k = heroes[(rF() * heroes.length) | 0], a = rF() * PI * 2, rr = Math.pow(rF(), 0.7) * 11; x = k.x + Math.cos(a) * rr; z = k.z + Math.sin(a) * rr; }   // the square's old oaks drop the most
+        else if (oaks.length && u < 0.75) { const k = oaks[(rF() * oaks.length) | 0], a = rF() * PI * 2, rr = Math.sqrt(rF()) * 9 * (k.s / 1.8); x = k.x + Math.cos(a) * rr; z = k.z + Math.sin(a) * rr; }
         else { x = (2 + rF() * (map.w - 4)) * C; z = (2 + rF() * (map.h - 4)) * C; }
         if (!open(x, z)) continue;
         pts.push([x, z, rF() * PI * 2, 0, 0.6 + rF() * 0.9, tint(x, z, rF() < 0.4), rF()]); nA++;
@@ -1524,7 +1531,7 @@ gl_Position = projectionMatrix * mvPosition;`);
         pts.push([x, z, rF() * PI * 2, dd < 0.2 ? (rF() - 0.5) * 0.7 : 0, 0.55 + rF() * 0.7, tint(x, z, rF() < 0.55), rF(), 0.004 * (1 - dd)]); nD++;
       }
       pts.sort((a, b) => a[6] - b[6]);
-      const NG = Math.max(1, pts.length), flat = new THREE.PlaneGeometry(0.42, 0.42).rotateX(-PI / 2), gl = new THREE.InstancedMesh(flat, M.fallen, NG), ob = new THREE.Object3D();
+      const NG = Math.max(1, pts.length), flat = new THREE.PlaneGeometry(0.55, 0.55).rotateX(-PI / 2), gl = new THREE.InstancedMesh(flat, M.fallen, NG), ob = new THREE.Object3D();
       let n = 0;
       for (const p of pts) {
         ob.position.set(p[0], gAt(p[0] / C, p[1] / C) + 0.012 + rF() * 0.008 + (p[7] || 0) * 10, p[1]); ob.rotation.set(p[3], p[2], 0, 'YXZ'); ob.scale.set(p[4], 1, p[4]); ob.updateMatrix();
@@ -1564,8 +1571,8 @@ gl_Position = projectionMatrix * mvPosition;`);
       iv.forEach((c, i) => {
         ob.position.set(c[0], c[1], c[2]); ob.rotation.set(c[6], c[3], c[5], 'YXZ'); ob.scale.setScalar(c[4]); ob.updateMatrix(); im.setMatrixAt(i, ob.matrix);
         if (c[8]) col.setHSL(c[8][0], c[8][1], c[8][2]);
-        else if (c[7] < 0.12) col.setHSL(0.03 + c[7] * 0.2, 0.42, 0.24);   // a few leaves already turned
-        else col.setHSL(0.24 + c[7] * 0.07, 0.34 + c[7] * 0.12, 0.17 + c[7] * 0.09);
+        else if (c[7] < 0.1) col.setHSL(0.02 + c[7] * 0.2, 0.4, 0.15);   // a few leaves already turned
+        else col.setHSL(0.22 + c[7] * 0.08, 0.26 + c[7] * 0.12, 0.085 + c[7] * 0.07);
         im.setColorAt(i, col);
       });
       im.instanceMatrix.needsUpdate = true; im.instanceColor.needsUpdate = true; im.computeBoundingSphere();
@@ -1627,7 +1634,7 @@ gl_Position = projectionMatrix * mvPosition;`);
   function propGroup(B, sf, x, out, what, n, r) {
     const W2 = (lx, lz) => sf.at(lx, out + lz), jy = () => (r() - .5) * 0.35;
     if (what === 'cask' || what === 'butt') {
-      const spots = n === 1 ? [[0, 0.42]] : n === 3 ? [[-0.36, 0.4], [0.36, 0.4], [0.05, 1.02]] : [[-0.72, 0.4], [0, 0.4], [0.72, 0.4], [-0.36, 1.02], [0.5, 1.1, 'side']];
+      const spots = n === 1 ? [[0, 0.42]] : n === 3 ? [[-0.36, 0.37], [0.36, 0.37], [0.05, 0.9]] : [[-0.72, 0.37], [0, 0.37], [0.72, 0.37], [-0.36, 0.9], [0.62, 0.86, 'side']];
       for (const [lx, lz, how] of spots) { const q = W2(x + lx, lz); cask(B, q[0], q[1], sf.ry + (how ? PI / 2 + jy() : r() * 6), 0, how || (what === 'butt' ? 'open' : 'up'), what === 'butt' ? 1.15 : 1); }
       return spots.length;
     }
@@ -1643,7 +1650,7 @@ gl_Position = projectionMatrix * mvPosition;`);
     return 0;
   }
   function innSign(B, sf, x, out) {
-    const THREE = B.THREE, y = 3.2, L = 1.25, bw = 0.95, bh = 0.84, bz = out + 0.27 + bw / 2, by = y - 0.1 - bh / 2;
+    const THREE = B.THREE, y = 3.42, L = 1.25, bw = 0.96, bh = 1.06, bz = out + 0.27 + bw / 2, by = y - 0.1 - bh / 2;
     sf.ibox('iron', 0.1, 0.9, 0.03, x, y - 0.3, out + 0.015);
     sf.ibox('iron', 0.05, 0.05, L, x, y, out + L / 2);
     sf.beam('iron', 0.035, x, y - 0.72, out + 0.03, x, y - 0.02, out + 0.78);
