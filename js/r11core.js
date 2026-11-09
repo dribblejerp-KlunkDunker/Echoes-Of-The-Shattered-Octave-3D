@@ -390,7 +390,10 @@ const R11 = (() => {
     const sideOf = (cx, cy) => { const n = m.sideTex && m.sideTex[cy * W + cx]; return has(n) ? n : texOfFloor(cx, cy); };
     const wTop0 = wallTop0(m);
     const blockTop = (c, cx, cy, fx, fy) => relief ? (c.top != null ? c.top : Math.max(cellGround(m, cx, cy, fx, fy) + 1, wTop0)) : (c.top != null ? c.top : 1);
-    const surfAt = (cx, cy, fx, fy) => { const c = grid[cy * W + cx]; if (isBlock(c)) return blockTop(c, cx, cy, fx, fy); return relief ? cellGround(m, cx, cy, fx, fy) : 0; };
+    // water floors are sunk 0.05 (below): the faces beside them reach down to the water, so no gap shows the clear colour
+    const sinkOf = (cx, cy) => (info(texOfFloor(cx, cy)).key === 'water' ? -0.05 : 0);
+    const surfAt = (cx, cy, fx, fy) => { const c = grid[cy * W + cx]; if (isBlock(c)) return blockTop(c, cx, cy, fx, fy); return (relief ? cellGround(m, cx, cy, fx, fy) : 0) + sinkOf(cx, cy); };
+    const besideWater = (cx, cy) => { for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const x = cx + dx, y = cy + dy; if (x >= 0 && y >= 0 && x < W && y < H && !isBlock(grid[y * W + x]) && sinkOf(x, y)) return true; } return false; };
     const decals = m.decals || null;
     const decOf = (ci) => { const n = decals && decals[ci]; return has(n) ? n : null; };
     const hid = (ci) => !!(hidden && hidden.has(ci));
@@ -470,7 +473,7 @@ const R11 = (() => {
     for (let cy = 0; cy < H; cy++) for (let cx = 0; cx < W; cx++) {
       const ci = cy * W + cx, c = grid[ci], blk = isBlock(c);
       if (hid(ci)) continue;
-      if (!blk && !relief) continue;
+      if (!blk && !relief && (sinkOf(cx, cy) || !besideWater(cx, cy))) continue;
       for (let k = 0; k < 4; k++) {
         const nxC = cx + DIRS[k][0], nyC = cy + DIRS[k][1];
         if (nxC < 0 || nyC < 0 || nxC >= W || nyC >= H) {
@@ -482,7 +485,7 @@ const R11 = (() => {
         const ef = edgeF(k), en = edgeFN(k);
         const sa = surfAt(cx, cy, ef[0], ef[1]), sb = surfAt(cx, cy, ef[2], ef[3]);
         let na, nb;
-        if (!relief) { na = nb = isBlock(nc) ? (nc.top != null ? nc.top : 1) : 0; }
+        if (!relief) { na = nb = isBlock(nc) ? (nc.top != null ? nc.top : 1) : sinkOf(nxC, nyC); }
         else { na = surfAt(nxC, nyC, en[0], en[1]); nb = surfAt(nxC, nyC, en[2], en[3]); }
         if (blk) {
           const name = has(c.tex) ? c.tex : 't_stone', dec = decOf(ci);
