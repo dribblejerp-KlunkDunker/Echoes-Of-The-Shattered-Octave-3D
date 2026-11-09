@@ -894,6 +894,9 @@ const R11KIT = (function () {
   }
 
   // ======================================================================== the far ring: the Reach around the town, and the game's own landmarks
+  // the far ranges' height share: 0.4 keeps the Grey Teeth low on the horizon from the square (far mountains,
+  // not a wall; 0.85 had them at about 35 degrees, filling the sky)
+  const FAR_PEAK = 0.4;
   function farRing(B, group, map, o) {
     const THREE = B.THREE, M = B.M, C = 1 / UPM(), r = mulberry(4190);
     const X1 = map.w * C, Z1 = map.h * C, cx = X1 / 2, cz = Z1 / 2;
@@ -907,7 +910,7 @@ const R11KIT = (function () {
     const ridged = (x, z) => 1 - Math.abs(Math.sin(x * 0.019 + Math.sin(z * 0.011) * 2) * Math.cos(z * 0.017 + x * 0.004));
     const wrap = (a) => { while (a > PI) a -= PI * 2; while (a < -PI) a += PI * 2; return a; };
     // what the LANDMARKS list says, in metres: the Grey Teeth far north with snow, the chalk shoulder, the downs, the quarry head
-    const ridges = lms.map((lm) => ({ a: lm.a, aw: lm.aw, peak: Rmax * lm.h * (lm.far > 0.7 ? 0.85 : 0.4), r0: Rmax * (lm.far > 0.7 ? 0.6 : 0.28 + lm.far * 0.4), r1: Rmax * (lm.far > 0.7 ? 0.93 : 0.5 + lm.far * 0.45), p: lm.p || 1.4, ridge: lm.ridge || 0, seed: lm.seed || 0, snow: !!lm.cap, col: lm.c || [40, 42, 50], chalk: lm.far < 0.2 && lm.h > 0.2 }));
+    const ridges = lms.map((lm) => ({ a: lm.a, aw: lm.aw, peak: Rmax * lm.h * (lm.far > 0.7 ? FAR_PEAK : 0.4), r0: Rmax * (lm.far > 0.7 ? 0.6 : 0.28 + lm.far * 0.4), r1: Rmax * (lm.far > 0.7 ? 0.93 : 0.5 + lm.far * 0.45), p: lm.p || 1.4, ridge: lm.ridge || 0, seed: lm.seed || 0, snow: !!lm.cap, col: lm.c || [40, 42, 50], chalk: lm.far < 0.2 && lm.h > 0.2 }));
     const H = new Float32Array(p.count), kindArr = new Uint8Array(p.count);
     for (let i = 0; i < p.count; i++) {
       const x = p.getX(i) + cx, z = p.getZ(i) + cz;
@@ -932,7 +935,7 @@ const R11KIT = (function () {
       const fx = Math.floor((x * 0.8 + z * 0.6) / 140), fz = Math.floor((-x * 0.6 + z * 0.8) / 110), fh = hash2(fx, fz);
       if (fh < 0.3) c.setRGB(0.20, 0.22, 0.10); else if (fh < 0.55) c.setRGB(0.27, 0.24, 0.13); else if (fh < 0.7) c.setRGB(0.19, 0.15, 0.10); else c.setRGB(0.15, 0.19, 0.09);
       if (h > 22) c.lerp(new THREE.Color(0.10, 0.12, 0.07), sstep(h, 22, 45));
-      const snowLine = Rmax * 0.3 * 0.85 * 0.5;
+      const snowLine = Rmax * 0.3 * FAR_PEAK * 0.62;   // snow on the upper part of the far peaks only
       if (k === 2) { c.setRGB(0.21, 0.22, 0.25); if (h > snowLine + snowLine * 0.15 * Math.sin(x * 0.02)) c.setRGB(0.70, 0.72, 0.76); }
       else if (k === 3) { c.lerp(new THREE.Color(0.62, 0.60, 0.54), sstep(h, 14, 40)); }
       else if (k === 4) { c.lerp(new THREE.Color(0.26, 0.25, 0.27), sstep(h, 20, 50) * 0.7); }
