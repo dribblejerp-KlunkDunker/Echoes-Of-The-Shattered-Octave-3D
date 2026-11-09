@@ -78,6 +78,7 @@ const HELPERS = () => {
     const env = R3D.frame.env, fd2 = env.fogDist * env.fogDist * 1.3; let n = 0;
     for (const e of G.ents) {
       if (!e || !e.sprite || e.hidden) continue;
+      if (R11.replaced().has(e)) continue;   // KIT draws it as a model
       const dx = e.x - Engine.cam.x, dy = e.y - Engine.cam.y; if (dx * dx + dy * dy > fd2) continue;
       let d; try { d = animDirectionalSprite(e); } catch (err) { d = null; } if (!d || !d.sprite) continue;
       if ((e.animAlpha == null ? 1 : e.animAlpha) <= 0.02) continue;

@@ -16,6 +16,8 @@
 //    F.env, F.map, F.tod, F.P (the hour's light)); 'tier' (name); 'style' (name); 'ready' (once Three.js, the sky and the
 //    scanned materials are in: R11.mat works from then on).
 //    R11.paused / R11.renderOnce() for screenshots. R11.stats (draws, world draws, billboards, ...).
+//    KIT's dressMap result may carry replaced: Set<entity> (entities KIT draws as 3D models): R11 draws no billboard for
+//    those (R11.replaced()); picking and gameplay still see them as always.
 //
 //  SPACE. Three.js y-up: three.x = map x (cells), three.z = map y (cells), three.y = game height x R3D.ZK (0.61875). The
 //  camera is Engine.cam mapped exactly as R3D maps it (look angle atan(pitch / FX), the head bob as a lens shift), with
@@ -823,6 +825,7 @@ void main() {
     for (let i = 0; i < ents.length; i++) {
       const e = ents[i];
       if (!e || !e.sprite || e.hidden) continue;
+      if (replacedNow.size && replacedNow.has(e)) continue;   // KIT draws this one as a 3D model
       const dx = e.x - camx, dy = e.y - camy, d2 = dx * dx + dy * dy;
       if (d2 > fd2) continue;
       let dirl;
@@ -1074,6 +1077,7 @@ void main() {
   }
 
   // ================================================================================================ the map's world
+  const replacedNow = new Set();
   let curMap = null, hiddenNow = null, kitGroup = null, worldSig = 0, arrSigV = 0, arrT = 0, worldDirty = false;
   const strHash = new Map();
   function hs(s) { if (!s) return 0; let h = strHash.get(s); if (h === undefined) { h = 0; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619) >>> 0; strHash.set(s, h); } return h; }
@@ -1096,7 +1100,7 @@ void main() {
     if (R.world) { R.scene.remove(R.world); disposeTree(R.world); R.world = null; }
     if (kitGroup) { R.scene.remove(kitGroup); disposeTree(kitGroup); kitGroup = null; }
     dyn.wood = dyn.gate = null; dyn.sig = '';
-    kitLights.length = 0;
+    kitLights.length = 0; replacedNow.clear();
   }
   function ensureWorld(m) {
     let rebuild = m !== curMap || !R.world || worldDirty;
@@ -1116,6 +1120,7 @@ void main() {
         try {
           const r = R11KIT.dressMap(m, ctx);
           if (r && r.hiddenCells) for (const c of r.hiddenCells) hiddenNow.add(c);
+          if (r && r.replaced) for (const e of r.replaced) replacedNow.add(e);
           if (r && r.group) { kitGroup = r.group; R.scene.add(kitGroup); }
         } catch (e) { warnOnce('kit dressMap', e); }
       }
@@ -1451,7 +1456,7 @@ void main() {
     worldDraws, textureInfo: (n) => (THREE ? info(n) : null), invalidate: () => { worldDirty = true; },
     canvas: () => canvas, failed: () => st.failed,
     memory: () => (renderer ? Object.assign({}, renderer.info.memory) : null),
-    pickFrameCam: () => vcam,
+    pickFrameCam: () => vcam, replaced: () => replacedNow,
   };
   function boot() {
     load();
