@@ -1198,6 +1198,7 @@ void main() {
     try {
       const p = G.player, id = String(p.weapons ? p.weapons[p.weapon] : 'hands').toLowerCase();
       if (id === 'hands' || id === 'fists') return 'hands';
+      if (typeof R11KIT !== 'undefined' && R11KIT && typeof R11KIT.kindFor === 'function') { const k = R11KIT.kindFor(id); if (k) return k; }
       const rules = [[/sword|blade|sabre|saber|falchion|brand/, 'sword'], [/dagger|knife|dirk|stiletto/, 'dagger'], [/axe/, 'axe'], [/mace|club|hammer|cudgel|flail|maul/, 'mace'], [/spear|pike|halberd|glaive|lance/, 'spear'], [/crossbow|bow/, 'bow'], [/staff|rod|wand|cane/, 'staff']];
       for (const [re, k] of rules) if (re.test(id)) return k;
       return id;
