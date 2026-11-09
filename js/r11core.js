@@ -974,8 +974,16 @@ float r11Noise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0
     if (p.grade) for (const k in p.grade) if (k in GRADE) GRADE[k] = p.grade[k];
     gradeUniforms();
     const b = R.passes && R.passes.bloom; if (b) { b.strength = LOOK.bloomStrength; b.radius = LOOK.bloomRadius; b.threshold = LOOK.bloomThreshold; }
-    if (THREE) { patchTone(); if (kitGroup) warmPractical(kitGroup); }   // Phone's baked grade takes the new numbers on its next program build
+    if (THREE) { patchTone(); if (kitGroup) warmPractical(kitGroup); if (p.grade && !R.composer) rebakeTone(); }
     return lookGet();
+  }
+  // Phone's grade is baked into every program's tone mapping: a new grade needs new programs (a define in their key)
+  let gradeVer = 0;
+  function rebakeTone() {
+    gradeVer++;
+    const touch = (o) => { for (const mm of (o.material ? [].concat(o.material) : [])) { if (!mm) continue; mm.defines = Object.assign({}, mm.defines || {}, { R11_GRADE_V: gradeVer }); mm.needsUpdate = true; } };
+    if (R.scene) R.scene.traverse(touch);
+    if (R.vmScene) R.vmScene.traverse(touch);
   }
   const lookGet = () => JSON.parse(JSON.stringify({ LOOK, GRADE, wet: WET.value, exposure: LP.exposure }));
   // practical light: KIT's lit panes go warm and bright (only warm emissive panes: never the glass seal or the arm)
