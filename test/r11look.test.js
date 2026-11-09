@@ -67,7 +67,7 @@ const HELPERS = () => {
     Engine.cam.pitch = B.pitch || 0; Engine.cam.bob = 0; try { Weather.hold(B.weather || 'overcast'); } catch (e) { /* none */ } G.state = 'play';
     try { document.getElementById('msgs').innerHTML = ''; } catch (e) { /* none */ }
   });
-  S.frame = () => { S.pin(() => render()); S.pin(() => render()); try { R11HUD.update(); } catch (e) { /* none */ } };
+  S.frame = () => { S.pin(() => render()); S.pin(() => render()); try { R11HUD.update(); } catch (e) { /* none */ } try { document.getElementById('msgs').innerHTML = ''; } catch (e) { /* none */ } };
   // the R11 canvas, read right after a frame: mean sRGB colour, mean luma, luma spread and mean saturation of a
   // region given in fractions of the 3D view (the top 150 of 200 logical rows)
   S.stats = (x0, y0, x1, y1) => {

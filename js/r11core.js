@@ -863,16 +863,17 @@ void main() {
   //   GRADE: after AgX, in display (gamma) space: saturation (kept on warm bright notes), contrast about a pivot, a gamma,
   //   a teal-grey tint into the shadows, a little warmth into the highlights, a lifted black
   const LOOK = {
-    expDay: 0.66, expNight: 1.3, expDusk: 0.12, expIn: 1.0,
-    ambDay: 0.7,                            // the sky's fill (hemisphere and HDR environment) by day: deeper shade
-    skyDay: 0.85, skyCap: 1.15,            // the overcast dome's strength by day, and its ceiling (bloom never takes the sky)
+    expDay: 0.56, expNight: 1.3, expDusk: 0.12, expIn: 1.0,
+    ambDay: 0.5,                            // the sky's fill (hemisphere and HDR environment) by day: deeper shade
+    skyDay: 0.85, skyCap: 1.15, skyCool: [0.95, 0.99, 1.05],   // the overcast a shade cooler by day (picture 1's sky is neutral grey)
+              // the overcast dome's strength by day, and its ceiling (bloom never takes the sky)
     fogDay: [0.20, 0.215, 0.235], fogMix: 0.55, fogDensity: 0.4,   // the overcast air (linear), how far the day leans to it
     lampWarm: [1.0, 0.62, 0.3],             // practical lights pulled toward candle/tallow (multiplied, then renormalised)
     windowGlow: [1.0, 0.46, 0.13], windowI: 3.4,   // lit window panes (emissive), warm, bright enough for a little bloom
     bloomStrength: 0.5, bloomRadius: 0.4, bloomThreshold: 1.35,
   };
-  const GRADE = { sat: 0.88, warmSat: 1.08, contrast: 1.1, pivot: 0.4, gamma: 1.1, lift: 0.012,
-    shadow: [-0.018, 0.004, 0.012], mid: [0.026, 0.008, -0.024], high: [0.02, 0.006, -0.02] };
+  const GRADE = { sat: 0.88, warmSat: 1.08, contrast: 1.2, pivot: 0.38, gamma: 1.08, lift: 0.008,
+    shadow: [-0.018, 0.004, 0.012], mid: [0.02, 0.006, -0.018], high: [0.006, 0.002, -0.008] };
   const WET = { value: 0.72 };             // 0 dry .. 1 soaked (weather 'wet' raises it; snow lowers it)
   const GRADE_SRC = `
 vec3 NAME(vec3 c) {
@@ -884,7 +885,7 @@ vec3 NAME(vec3 c) {
   g = max($PIV + (g - $PIV) * $CON, vec3(0.0));
   g = pow(g, vec3($GAM));
   float Y2 = dot(g, LW);
-  g += $SH * (1.0 - smoothstep(0.03, 0.22, Y2)) * smoothstep(0.0, 0.04, Y2) + $MID * smoothstep(0.12, 0.3, Y2) * (1.0 - smoothstep(0.45, 0.75, Y2)) + $HI * smoothstep(0.5, 0.95, Y2);
+  g += $SH * (1.0 - smoothstep(0.03, 0.22, Y2)) * smoothstep(0.0, 0.04, Y2) + $MID * smoothstep(0.1, 0.22, Y2) * (1.0 - smoothstep(0.35, 0.6, Y2)) + $HI * smoothstep(0.5, 0.95, Y2);
   g = $LIFT + clamp(g, 0.0, 1.0) * (1.0 - $LIFT);
   return pow(g, vec3(2.2));
 }`;
@@ -938,8 +939,8 @@ vec3 NAME(vec3 c) {
   float r11h = 1.0 - r11j;
   r11Water = smoothstep(r11h - 0.08, r11h + 0.08, r11pud * 1.3 - 0.1);
   float r11wet = clamp(uR11Wet * (0.4 + 0.6 * r11j) + r11pud, 0.0, 1.0);
-  diffuseColor.rgb *= mix(1.0, mix(0.68, 0.36, r11j), r11wet) * (1.0 - 0.22 * r11Water);
-  roughnessFactor = mix(roughnessFactor, mix(0.42, 0.1, r11j), r11wet);
+  diffuseColor.rgb *= mix(1.0, mix(0.6, 0.32, r11j), r11wet) * (1.0 - 0.22 * r11Water);
+  roughnessFactor = mix(roughnessFactor, mix(0.26, 0.08, r11j), r11wet);
   roughnessFactor = mix(roughnessFactor, 0.035, r11Water);
 }`;
   const WET_PARS = `
@@ -956,7 +957,8 @@ float r11Noise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0
         .replace('#include <roughnessmap_fragment>', WET_FRAG)
         .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\nnormal = normalize(mix(normal, nonPerturbedNormal, max(r11Water, 0.0)));');
     };
-    m.customProgramCacheKey = () => 'r11wet2';
+    m.customProgramCacheKey = () => 'r11wet3';
+    m.envMapIntensity = 2.2;   // the sky in the wet: the day's thinner fill (LOOK.ambDay) must not take the reflections with it
     m.userData.r11wet = true;
   }
   function wetFrame(env) {
@@ -1100,7 +1102,8 @@ void main() {
       const warm = 1 - smooth(0.15, 0.55, Math.abs(elev));
       const tk = (0.25 + 0.75 * day) * (1 - dark * 0.55) * mix(1, LOOK.skyDay, day);
       U.uCap.value = LOOK.skyCap;
-      U.uTint.value.setRGB(tk * (1 + warm * 0.25), tk * (1 - warm * 0.05), tk * (1 - warm * 0.28));
+      const cool = LOOK.skyCool;
+      U.uTint.value.setRGB(tk * (1 + warm * 0.25) * mix(1, cool[0], day), tk * (1 - warm * 0.05) * mix(1, cool[1], day), tk * (1 - warm * 0.28) * mix(1, cool[2], day));
       U.uZen.value.setRGB(srgbToLin(clamp(P.zen[0], 0, 1)), srgbToLin(clamp(P.zen[1], 0, 1)), srgbToLin(clamp(P.zen[2], 0, 1)));
       U.uHor.value.setRGB(srgbToLin(clamp(hor[0], 0, 1)), srgbToLin(clamp(hor[1], 0, 1)), srgbToLin(clamp(hor[2], 0, 1)));
       U.uGlow.value.setRGB(srgbToLin(clamp(P.glow[0], 0, 1)), srgbToLin(clamp(P.glow[1], 0, 1)), srgbToLin(clamp(P.glow[2], 0, 1)));

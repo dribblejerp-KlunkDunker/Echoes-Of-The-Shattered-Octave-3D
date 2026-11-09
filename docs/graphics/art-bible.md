@@ -80,10 +80,14 @@ stronger than the HUD frame already gives, no god rays.
   AgX + grade), so Phone pays for no extra full-screen pass.
 - **Exposure by hour (outdoors):** day `expDay`, night `expNight`, a small lift at dusk and dawn (`expDusk`) when the
   lamps take over; indoors `expIn`.
-- **Grade (display space):** 16% desaturation outside warm, bright notes (lamps and windows keep their colour), a gentle
-  contrast about a low pivot, a gamma that darkens the mid-tones, a teal-grey tint into the shadows, a little warmth into
-  the highlights, a lifted black (never pure black).
-- **Sky:** the overcast HDR at about two-thirds strength by day, with a ceiling under the bloom threshold.
+- **Grade (display space):** 12% desaturation outside warm, bright notes (lamps and windows keep their colour), contrast
+  1.2 about a low pivot, a gamma that darkens the mid-tones, a teal-grey tint into the deep shadows, an earthy warmth in
+  the lower mid-tones (wood, stone, leaf litter), the sky and highlights left near neutral, a lifted black (never pure
+  black).
+- **Fill by day:** the hemisphere and the HDR environment at half strength by day (`ambDay`), so shade under eaves and
+  in doorways goes deep; the wet cobbles keep their reflections (their own environment strength is raised).
+- **Sky:** the overcast HDR a little dimmed and cooled by day (`skyDay`, `skyCool`), with a ceiling (`skyCap`) under the
+  bloom threshold.
 - **Fog:** exponential aerial perspective; by day it leans to the overcast air (`fogDay`, linear ~0.2, a blue-grey),
   with a share of the hour's horizon colour so dusk still warms it.
 - **Practical light:** every warm light (the engine's hush-lamps, KIT's lanterns) is pulled toward tallow and candle
@@ -110,7 +114,8 @@ Texel density target: 400–850 px/m for anything within 10 m of the eye; props 
 under 256 px/m.
 
 **Wet cobbles.** The scan's joints (high roughness, low AO in its ARM map) hold water: albedo down to about 0.36,
-roughness down to 0.1, the normal bumps half-drowned. Stone tops are damp (albedo about 0.7, roughness about 0.4).
+roughness down to 0.08, the normal bumps half-drowned. Stone tops are damp (albedo about 0.6, roughness about 0.26),
+so each stone catches a glint of sky.
 Puddle cells (a world-space noise, about 15% of the floor) fill the joints first, then go over the stones as still
 water (roughness 0.035, flat). The sky (the HDR environment) and the lamps (the point lights' highlights) show in the
 wet. Wetness follows the weather: damp by default under the Hush's grey sky, soaked when the weather says rain, drier
