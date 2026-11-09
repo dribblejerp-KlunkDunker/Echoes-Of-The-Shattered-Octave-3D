@@ -240,6 +240,23 @@ const overflowScan = () => {
         return { target: el && el.id, on, touch: G.touchMode };
       });
       check(r.target === 'view' && r.on && r.touch, lang + ' phone: the thumb stick still starts on the view (' + JSON.stringify(r) + ')');
+      // with the touch cluster up, its Strike button hangs over the band: no bar button may sit under it, and every one of
+      // the game's buttons is still on the bar or in MORE
+      await ph.evaluate(() => { G.state = 'play'; G._touchUi = null; document.getElementById('touchui').classList.add('on'); R11HUD.st.resKey = ''; R11HUD.update(); });
+      r = await ph.evaluate(() => {
+        const a = document.getElementById('t-atk').getBoundingClientRect(), rr = a.width / 2, cx = a.left + rr, cy = a.top + a.height / 2;
+        const vis = (root) => [...root.querySelectorAll('button')].filter((b) => getComputedStyle(b).display !== 'none' && (root !== R11HUD.panel() || true));
+        const barBtns = vis(R11HUD.bar()).filter((b) => b.offsetParent !== null);
+        const hits = barBtns.filter((b) => { const q = b.getBoundingClientRect(), nx = Math.max(q.left, Math.min(cx, q.right)), ny = Math.max(q.top, Math.min(cy, q.bottom)); return Math.hypot(nx - cx, ny - cy) < rr; }).map((b) => b.textContent);
+        R11HUD.setMore(true);
+        const inMore = [...R11HUD.panel().querySelectorAll('.r11h-mgrid button')].filter((b) => b.offsetParent !== null).map((b) => b.dataset.t);
+        const onBar = barBtns.filter((b) => b.dataset.t).map((b) => b.dataset.t);
+        R11HUD.setMore(false);
+        const all = HUD_BTNS.map((b) => b.t), reach = all.filter((t) => onBar.includes(t) || inMore.includes(t));
+        return { hits, all: all.length, reach: reach.length, small: barBtns.filter((b) => { const q = b.getBoundingClientRect(); return q.width < 44 || q.height < 44; }).length, onBar: onBar.join(' ') };
+      });
+      check(!r.hits.length && r.reach === r.all && !r.small, lang + ' phone: the touch Strike button covers no bar button, every game button is on the bar or in MORE, all 44 px (' + r.onBar + (r.hits.length ? '; under Strike: ' + r.hits.join(' ') : '') + ')');
+      if (shots) { await ph.evaluate(() => R11HUD.setMore(false)); await ph.screenshot({ path: path.join(shots, 'phone-' + lang + '-touch.png') }); }
       if (shots) { await ph.evaluate(() => R11HUD.setMore(false)); await ph.screenshot({ path: path.join(shots, 'phone-' + lang + '.png') }); }
       await ph.close();
     }

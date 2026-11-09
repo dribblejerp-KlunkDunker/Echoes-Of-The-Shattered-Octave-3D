@@ -192,10 +192,12 @@ const R11HUD = (function () {
       els.btnList.push({ el: mkBtn(b, i, cls.trim(), els.btns), b });
       if (i >= 4) els.moreList.push({ el: mkBtn(b, i, 'r11h-mbtn', els.mgrid), b });
     });
+    // SONG, for the upright phone whose Strike button leaves room for only three (see touchReserve)
+    if (list[2]) { const el = mkBtn(list[2], 2, 'r11h-mbtn r11h-demote', els.mgrid); els.mgrid.insertBefore(el, els.mgrid.firstChild); els.moreList.push({ el, b: list[2] }); }
     const mb = mk('button', 'r11h-more', els.btns); mb.type = 'button'; mb.setAttribute('aria-expanded', 'false'); mb.setAttribute('aria-controls', 'r11hud-more');
     mb.addEventListener('click', (ev) => { ev.preventDefault(); setMore(!st.more); try { mb.blur(); } catch (e) { /* fine */ } });
     els.moreBtn = mb;
-    st.last = {};
+    st.last = {}; st.resKey = '';
   }
   function setMore(on) {
     on = !!on && st.shown && st.compact;
@@ -247,6 +249,20 @@ const R11HUD = (function () {
     try { if (window.CINEMATIC24 && window.CINEMATIC24.running()) return false; } catch (e) { /* none */ }
     return true;
   }
+  // the on-screen Strike button (touch controls, z-index 3) can hang over the band on a phone held upright: keep the bar's
+  // buttons clear of it. The compass may sit under it, as the old band's compass and place name did. If the five buttons
+  // cannot fit left of it at 44 px, SONG (which the touch cluster already has as Songs) moves into the MORE panel.
+  function touchReserve() {
+    const tu = document.getElementById('touchui'), atk = document.getElementById('t-atk');
+    if (!tu || !atk || !tu.classList.contains('on') || atk.offsetParent === null) return 0;
+    const a = atk.getBoundingClientRect(), b = bar.getBoundingClientRect();
+    if (a.bottom <= b.top + 2 || a.left >= b.right) return 0;
+    // a circle: how far left it reaches inside the band's rows
+    const r = a.width / 2, cx = a.left + r, cy = a.top + a.height / 2, y = Math.max(b.top, Math.min(cy, b.bottom));
+    const dy = Math.abs(cy - y); if (dy >= r) return 0;
+    const left = cx - Math.sqrt(r * r - dy * dy);
+    return Math.max(0, Math.ceil(b.right - left + 4));
+  }
   function layout() {
     const game = document.getElementById('game');
     const w = bar.clientWidth || (game ? game.clientWidth : 0);
@@ -256,6 +272,24 @@ const R11HUD = (function () {
     if (st.compact !== compact) { st.compact = compact; bar.classList.toggle('r11h-compact', compact); if (!compact) setMore(false); }
     bar.classList.toggle('r11h-noweapon', noweapon); bar.classList.toggle('r11h-noplace', noplace);
     if (els.mhead) els.mhead.hidden = !noplace;
+    // only the upright-phone layout (vials, buttons, compass) can run into the Strike button
+    const tu = document.getElementById('touchui');
+    const key = [w, touch, noplace, tu && tu.classList.contains('on'), (document.getElementById('t-atk') || {}).offsetWidth, document.getElementById('game') && document.getElementById('game').clientHeight].join('|');
+    if (st.resKey !== key) {
+      st.resKey = key;
+      const res = noplace ? touchReserve() : 0;
+      bar.style.setProperty('--r11-reserve', res + 'px');
+      bar.classList.toggle('r11h-reserve', res > 0);
+      let tight = false;
+      if (res > 0) {
+        const cs = getComputedStyle(els.btns), vs = els.vials.getBoundingClientRect(), bs = getComputedStyle(bar);
+        const gap = parseFloat(cs.columnGap) || 2, pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0) + 4;
+        const avail = w - res - vs.width - (parseFloat(bs.paddingLeft) || 0) - 2 * (parseFloat(bs.columnGap) || 0);
+        tight = avail < 5 * 44 + 4 * gap + pad;
+      }
+      st.tight = tight;
+      bar.classList.toggle('r11h-tight', tight); if (morePanel) morePanel.classList.toggle('r11h-tight', tight);
+    }
   }
   function update() {
     st.frames++;

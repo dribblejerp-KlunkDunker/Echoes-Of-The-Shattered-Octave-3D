@@ -26,6 +26,9 @@
 /* the compact bar's columns: no weapon panel (narrow), and no place panel either (phone upright) */
 #r11hud.r11h-compact.r11h-noweapon { grid-template-columns: auto auto auto minmax(0, 1fr); }
 #r11hud.r11h-compact.r11h-noweapon.r11h-noplace { grid-template-columns: auto minmax(0, 1fr) auto; }
+/* upright phone with the touch cluster's Strike button over the band: the compass takes the strip under it */
+#r11hud.r11h-compact.r11h-noweapon.r11h-noplace.r11h-reserve { grid-template-columns: auto minmax(0, 1fr) var(--r11-reserve, 0px); }
+#r11hud.r11h-reserve .r11h-compass { justify-self: center; }
 
 /* the MORE panel: over the view, right above the bar, only while it is open */
 #r11hud-more { position: absolute; bottom: calc(25% + 4px); left: 1cqw; z-index: 1; box-sizing: border-box; width: min(400px, calc(100% - 2cqw)); max-height: calc(75% - 8px); overflow: auto;
@@ -105,6 +108,8 @@
   #r11hud.r11h-compact .r11h-btns button { grid-column: auto; height: clamp(44px, 62cqh, 52px); min-width: 44px; font-family: var(--r11-sc); font-size: clamp(10px, 20cqh, 15px); letter-spacing: .03em; }
   #r11hud.r11h-compact .r11h-btns button.r11h-extra { display: none; }
   #r11hud.r11h-compact .r11h-btns button.r11h-more { display: block; }
+  #r11hud.r11h-compact.r11h-tight .r11h-btns { grid-template-columns: repeat(4, minmax(44px, 1fr)); }
+  #r11hud.r11h-compact.r11h-tight .r11h-btns button[data-i="2"] { display: none; }
   #r11hud.r11h-compact .r11h-plate { height: 88cqh; }
   #r11hud.r11h-compact .r11h-vial, #r11hud.r11h-compact .r11h-narrow { height: 72cqh; }
   #r11hud.r11h-compact .r11h-compass { width: clamp(40px, 84cqh, 120px); height: clamp(40px, 84cqh, 120px); }
@@ -118,6 +123,7 @@
   .r11h-mhead b { font-family: var(--r11-display); font-weight: 500; font-size: 15px; letter-spacing: .05em; white-space: nowrap; overflow: hidden; min-width: 0; }
   .r11h-mhead small { font-style: italic; font-size: 12px; color: var(--r11-ash); white-space: nowrap; overflow: hidden; min-width: 0; }
   .r11h-mhead[hidden] { display: none; }
+  #r11hud-more:not(.r11h-tight) .r11h-mgrid button.r11h-demote { display: none; }
   .r11h-mgrid { display: grid; grid-template-columns: repeat(4, minmax(64px, 1fr)); gap: 5px; }
   .r11h-mgrid button { box-sizing: border-box; min-width: 0; min-height: 46px; margin: 0; padding: 0 4px; white-space: nowrap; overflow: hidden;
     font-family: var(--r11-sc); font-weight: 700; font-size: 14px; letter-spacing: .04em; color: var(--r11-gilt); cursor: pointer;
