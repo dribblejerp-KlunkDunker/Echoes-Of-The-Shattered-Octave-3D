@@ -1,5 +1,39 @@
 <p align="center"><img src="screenshots/readme/title.jpg" alt="The title screen: a cracked bell, the Dawning Spire, and Echoes of the Shattered Octave, Book One, The Silenced Province" width="880"></p>
 
+> **This is the 3D repo** (from 8 November 2026). It started as a copy of [echoes-of-the-shattered-octave](https://github.com/dribblejerp-KlunkDunker/echoes-of-the-shattered-octave) at commit `7f0bbf3`, so the realistic-graphics work (ROADMAP R11) can go ahead without risking the main game. The first step is the Oakhaven square proof scene in [`proof/oakhaven-square/`](proof/oakhaven-square/README.md); the research behind it is in [`docs/graphics/`](docs/graphics/benchmark-report.md).
+
+## The realistic look (R11, phase 1, in progress)
+
+The game now has a second renderer: Three.js 0.186.1 (vendored, MIT) drawing the same tile maps with scanned CC0 materials, real buildings, sky, sun and lamplight, and 3D first-person hands. It is the default; the pixel look is one switch away.
+
+- **Options → Graphics & access → Art style:** Realistic or Pixel. Pixel is the game exactly as before.
+- **Graphics quality:** Auto, Ultra, High or Phone (for a phone in co-op). Auto picks one on first run; frame times then steer the render resolution.
+- **Run benchmark:** a 20-second fixed walk through Oakhaven's square at 10:00 that shows a report you can copy. Please run it on your PC and on the phone and paste the reports into an issue: the build machine has no graphics card, so real frame times can only come from real devices.
+
+<table>
+<tr>
+<td width="50%"><img src="screenshots/r11/p1-square-day.jpg" alt="Oakhaven's square by day in the realistic look: the Greenhall's timbered front and dome, the well-house, the Grey Teeth low on the horizon, the glass arm and the short sword"></td>
+<td width="50%"><img src="screenshots/r11/p1-market.jpg" alt="The Massday market in the east square: stalls under awnings the colour of old wine and old moss, townsfolk, half-timbered houses"></td>
+</tr>
+<tr>
+<td><img src="screenshots/r11/p1-square-night.jpg" alt="The square at night: stars, lit windows, a hush-lamp's light on the wet cobbles, the hands in the dark"></td>
+<td><img src="screenshots/r11/p1-mooring-mast.jpg" alt="The mooring mast: a hundred and twenty feet of riveted iron on four splayed legs, as Book One describes it"></td>
+</tr>
+</table>
+
+**Phase 2, the hero square:** the light and colour of picture 1 (darker and earthier, wet cobble joints, warm lamps and windows), the iron-oaks in the square big and old with their rust-pink autumn leaves (Book One), ivy, the inn board on its iron bracket, lanterns, clutter, the Chapel's eleven steps, and new hands: a steel sword in a leather glove and the glass hand with its green vein.
+
+<p align="center"><img src="screenshots/r11/p2-vs-picture1.jpg" alt="Side by side: the game's square at the bench camera (left) and the owner's picture 1 (right)" width="880"></p>
+
+<table>
+<tr>
+<td width="50%"><img src="screenshots/r11/p2-square-ultra.jpg" alt="The square at Ultra quality: the big iron-oaks, the well-house, wet cobbles, the glass hand and the sword"></td>
+<td width="50%"><img src="screenshots/r11/p2-square-phone.jpg" alt="The same view at Phone quality"></td>
+</tr>
+</table>
+
+Built so far: Oakhaven's 32 buildings (the Greenhall, the Boar & Dulcimer, the Chapel with its empty belfry, the mooring mast), the well-house, iron-bark oaks, hush-lamps, stalls, casks and carts, the far ring (the Grey Teeth, the downs, Greenroot's spire), 13 first-person weapon kinds and the glass arm, and the bronze HUD with a phone layout. Still to come (ROADMAP R11): the Hedge gate and Port Cantabile's mole, 3D townsfolk (they and the bunting are still pixel sprites), every other map, and frame-time checks on real devices. Other maps draw in the realistic renderer with the base materials (scanned stone, timber, turf) until their own kits exist.
+
 # Echoes of the Shattered Octave · Book One
 
 A first-person dark-fantasy RPG for the browser, made in the style of *The Elder Scrolls II: Daggerfall* and built on the *Echoes of the Shattered Octave* series bible.

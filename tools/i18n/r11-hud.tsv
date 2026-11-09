@@ -1,0 +1,400 @@
+# R11 phase 1, team HUD: english<TAB>french. The bronze bar's labels and tooltips (js/r11hud.js), and the Reach calendar's HUD date (js/calendar11.js dateShort), which had no French: the canvas bar shows it too.
+Game bar	Barre de jeu
+Health, Fatigue and Voice	Santé, Fatigue et Voix
+Health	Santé
+Fatigue	Fatigue
+Voice	Voix
+Health {0} / {1}	Santé {0} / {1}
+Fatigue {0} / {1}	Fatigue {0} / {1}
+Voice {0} / {1}	Voix {0} / {1}
+Glassing {0}%	Vitrification {0} %
+The Narrow: how loud you are	L’Étroit : à quel point vous êtes bruyant
+MORE	PLUS
+More buttons	Autres boutons
+Equipped weapon	Arme en main
+Compass	Boussole
+Where you are	Où vous êtes
+Character	Personnage
+Inventory	Inventaire
+Song-book	Livre de chants
+Logbook	Journal de bord
+Map	Carte
+Rest	Se reposer
+The Ledger	Le Registre
+How to play	Comment jouer
+Murmur	Murmure
+Options	Options
+Next weapon	Arme suivante
+# the calendar's HUD date, "The sixth of Harvestmonth", every day of the year as an exact line (a {0} pattern would catch other "The X of Y" names). [PROPOSED] French month names except the four the author approved (Moisson, Chute des cendres, Mois du givre, Mois d'accalmie)
+Stillmonth	Mois d'accalmie
+Thawmonth	Mois du dégel
+Seedmonth	Mois des semailles
+Lambmonth	Mois des agneaux
+Reedmonth	Mois des roseaux
+Longsun	Longsoleil
+Dustmonth	Mois de la poussière
+Firstfruit	Premiers-fruits
+Sheafmonth	Mois des gerbes
+Harvestmonth	Moisson
+Ashfall	Chute des cendres
+Frostmonth	Mois du givre
+The first of Stillmonth	Mois d'accalmie, le premier
+The second of Stillmonth	Mois d'accalmie, le deux
+The third of Stillmonth	Mois d'accalmie, le trois
+The fourth of Stillmonth	Mois d'accalmie, le quatre
+The fifth of Stillmonth	Mois d'accalmie, le cinq
+The sixth of Stillmonth	Mois d'accalmie, le six
+The seventh of Stillmonth	Mois d'accalmie, le sept
+The eighth of Stillmonth	Mois d'accalmie, le huit
+The ninth of Stillmonth	Mois d'accalmie, le neuf
+The tenth of Stillmonth	Mois d'accalmie, le dix
+The eleventh of Stillmonth	Mois d'accalmie, le onze
+The twelfth of Stillmonth	Mois d'accalmie, le douze
+The thirteenth of Stillmonth	Mois d'accalmie, le treize
+The fourteenth of Stillmonth	Mois d'accalmie, le quatorze
+The fifteenth of Stillmonth	Mois d'accalmie, le quinze
+The sixteenth of Stillmonth	Mois d'accalmie, le seize
+The seventeenth of Stillmonth	Mois d'accalmie, le dix-sept
+The eighteenth of Stillmonth	Mois d'accalmie, le dix-huit
+The nineteenth of Stillmonth	Mois d'accalmie, le dix-neuf
+The twentieth of Stillmonth	Mois d'accalmie, le vingt
+The twenty-first of Stillmonth	Mois d'accalmie, le vingt et un
+The twenty-second of Stillmonth	Mois d'accalmie, le vingt-deux
+The twenty-third of Stillmonth	Mois d'accalmie, le vingt-trois
+The twenty-fourth of Stillmonth	Mois d'accalmie, le vingt-quatre
+The twenty-fifth of Stillmonth	Mois d'accalmie, le vingt-cinq
+The twenty-sixth of Stillmonth	Mois d'accalmie, le vingt-six
+The twenty-seventh of Stillmonth	Mois d'accalmie, le vingt-sept
+The twenty-eighth of Stillmonth	Mois d'accalmie, le vingt-huit
+The twenty-ninth of Stillmonth	Mois d'accalmie, le vingt-neuf
+The thirtieth of Stillmonth	Mois d'accalmie, le trente
+The first of Thawmonth	Mois du dégel, le premier
+The second of Thawmonth	Mois du dégel, le deux
+The third of Thawmonth	Mois du dégel, le trois
+The fourth of Thawmonth	Mois du dégel, le quatre
+The fifth of Thawmonth	Mois du dégel, le cinq
+The sixth of Thawmonth	Mois du dégel, le six
+The seventh of Thawmonth	Mois du dégel, le sept
+The eighth of Thawmonth	Mois du dégel, le huit
+The ninth of Thawmonth	Mois du dégel, le neuf
+The tenth of Thawmonth	Mois du dégel, le dix
+The eleventh of Thawmonth	Mois du dégel, le onze
+The twelfth of Thawmonth	Mois du dégel, le douze
+The thirteenth of Thawmonth	Mois du dégel, le treize
+The fourteenth of Thawmonth	Mois du dégel, le quatorze
+The fifteenth of Thawmonth	Mois du dégel, le quinze
+The sixteenth of Thawmonth	Mois du dégel, le seize
+The seventeenth of Thawmonth	Mois du dégel, le dix-sept
+The eighteenth of Thawmonth	Mois du dégel, le dix-huit
+The nineteenth of Thawmonth	Mois du dégel, le dix-neuf
+The twentieth of Thawmonth	Mois du dégel, le vingt
+The twenty-first of Thawmonth	Mois du dégel, le vingt et un
+The twenty-second of Thawmonth	Mois du dégel, le vingt-deux
+The twenty-third of Thawmonth	Mois du dégel, le vingt-trois
+The twenty-fourth of Thawmonth	Mois du dégel, le vingt-quatre
+The twenty-fifth of Thawmonth	Mois du dégel, le vingt-cinq
+The twenty-sixth of Thawmonth	Mois du dégel, le vingt-six
+The twenty-seventh of Thawmonth	Mois du dégel, le vingt-sept
+The twenty-eighth of Thawmonth	Mois du dégel, le vingt-huit
+The twenty-ninth of Thawmonth	Mois du dégel, le vingt-neuf
+The thirtieth of Thawmonth	Mois du dégel, le trente
+The first of Seedmonth	Mois des semailles, le premier
+The second of Seedmonth	Mois des semailles, le deux
+The third of Seedmonth	Mois des semailles, le trois
+The fourth of Seedmonth	Mois des semailles, le quatre
+The fifth of Seedmonth	Mois des semailles, le cinq
+The sixth of Seedmonth	Mois des semailles, le six
+The seventh of Seedmonth	Mois des semailles, le sept
+The eighth of Seedmonth	Mois des semailles, le huit
+The ninth of Seedmonth	Mois des semailles, le neuf
+The tenth of Seedmonth	Mois des semailles, le dix
+The eleventh of Seedmonth	Mois des semailles, le onze
+The twelfth of Seedmonth	Mois des semailles, le douze
+The thirteenth of Seedmonth	Mois des semailles, le treize
+The fourteenth of Seedmonth	Mois des semailles, le quatorze
+The fifteenth of Seedmonth	Mois des semailles, le quinze
+The sixteenth of Seedmonth	Mois des semailles, le seize
+The seventeenth of Seedmonth	Mois des semailles, le dix-sept
+The eighteenth of Seedmonth	Mois des semailles, le dix-huit
+The nineteenth of Seedmonth	Mois des semailles, le dix-neuf
+The twentieth of Seedmonth	Mois des semailles, le vingt
+The twenty-first of Seedmonth	Mois des semailles, le vingt et un
+The twenty-second of Seedmonth	Mois des semailles, le vingt-deux
+The twenty-third of Seedmonth	Mois des semailles, le vingt-trois
+The twenty-fourth of Seedmonth	Mois des semailles, le vingt-quatre
+The twenty-fifth of Seedmonth	Mois des semailles, le vingt-cinq
+The twenty-sixth of Seedmonth	Mois des semailles, le vingt-six
+The twenty-seventh of Seedmonth	Mois des semailles, le vingt-sept
+The twenty-eighth of Seedmonth	Mois des semailles, le vingt-huit
+The twenty-ninth of Seedmonth	Mois des semailles, le vingt-neuf
+The thirtieth of Seedmonth	Mois des semailles, le trente
+The first of Lambmonth	Mois des agneaux, le premier
+The second of Lambmonth	Mois des agneaux, le deux
+The third of Lambmonth	Mois des agneaux, le trois
+The fourth of Lambmonth	Mois des agneaux, le quatre
+The fifth of Lambmonth	Mois des agneaux, le cinq
+The sixth of Lambmonth	Mois des agneaux, le six
+The seventh of Lambmonth	Mois des agneaux, le sept
+The eighth of Lambmonth	Mois des agneaux, le huit
+The ninth of Lambmonth	Mois des agneaux, le neuf
+The tenth of Lambmonth	Mois des agneaux, le dix
+The eleventh of Lambmonth	Mois des agneaux, le onze
+The twelfth of Lambmonth	Mois des agneaux, le douze
+The thirteenth of Lambmonth	Mois des agneaux, le treize
+The fourteenth of Lambmonth	Mois des agneaux, le quatorze
+The fifteenth of Lambmonth	Mois des agneaux, le quinze
+The sixteenth of Lambmonth	Mois des agneaux, le seize
+The seventeenth of Lambmonth	Mois des agneaux, le dix-sept
+The eighteenth of Lambmonth	Mois des agneaux, le dix-huit
+The nineteenth of Lambmonth	Mois des agneaux, le dix-neuf
+The twentieth of Lambmonth	Mois des agneaux, le vingt
+The twenty-first of Lambmonth	Mois des agneaux, le vingt et un
+The twenty-second of Lambmonth	Mois des agneaux, le vingt-deux
+The twenty-third of Lambmonth	Mois des agneaux, le vingt-trois
+The twenty-fourth of Lambmonth	Mois des agneaux, le vingt-quatre
+The twenty-fifth of Lambmonth	Mois des agneaux, le vingt-cinq
+The twenty-sixth of Lambmonth	Mois des agneaux, le vingt-six
+The twenty-seventh of Lambmonth	Mois des agneaux, le vingt-sept
+The twenty-eighth of Lambmonth	Mois des agneaux, le vingt-huit
+The twenty-ninth of Lambmonth	Mois des agneaux, le vingt-neuf
+The thirtieth of Lambmonth	Mois des agneaux, le trente
+The first of Reedmonth	Mois des roseaux, le premier
+The second of Reedmonth	Mois des roseaux, le deux
+The third of Reedmonth	Mois des roseaux, le trois
+The fourth of Reedmonth	Mois des roseaux, le quatre
+The fifth of Reedmonth	Mois des roseaux, le cinq
+The sixth of Reedmonth	Mois des roseaux, le six
+The seventh of Reedmonth	Mois des roseaux, le sept
+The eighth of Reedmonth	Mois des roseaux, le huit
+The ninth of Reedmonth	Mois des roseaux, le neuf
+The tenth of Reedmonth	Mois des roseaux, le dix
+The eleventh of Reedmonth	Mois des roseaux, le onze
+The twelfth of Reedmonth	Mois des roseaux, le douze
+The thirteenth of Reedmonth	Mois des roseaux, le treize
+The fourteenth of Reedmonth	Mois des roseaux, le quatorze
+The fifteenth of Reedmonth	Mois des roseaux, le quinze
+The sixteenth of Reedmonth	Mois des roseaux, le seize
+The seventeenth of Reedmonth	Mois des roseaux, le dix-sept
+The eighteenth of Reedmonth	Mois des roseaux, le dix-huit
+The nineteenth of Reedmonth	Mois des roseaux, le dix-neuf
+The twentieth of Reedmonth	Mois des roseaux, le vingt
+The twenty-first of Reedmonth	Mois des roseaux, le vingt et un
+The twenty-second of Reedmonth	Mois des roseaux, le vingt-deux
+The twenty-third of Reedmonth	Mois des roseaux, le vingt-trois
+The twenty-fourth of Reedmonth	Mois des roseaux, le vingt-quatre
+The twenty-fifth of Reedmonth	Mois des roseaux, le vingt-cinq
+The twenty-sixth of Reedmonth	Mois des roseaux, le vingt-six
+The twenty-seventh of Reedmonth	Mois des roseaux, le vingt-sept
+The twenty-eighth of Reedmonth	Mois des roseaux, le vingt-huit
+The twenty-ninth of Reedmonth	Mois des roseaux, le vingt-neuf
+The thirtieth of Reedmonth	Mois des roseaux, le trente
+The first of Longsun	Longsoleil, le premier
+The second of Longsun	Longsoleil, le deux
+The third of Longsun	Longsoleil, le trois
+The fourth of Longsun	Longsoleil, le quatre
+The fifth of Longsun	Longsoleil, le cinq
+The sixth of Longsun	Longsoleil, le six
+The seventh of Longsun	Longsoleil, le sept
+The eighth of Longsun	Longsoleil, le huit
+The ninth of Longsun	Longsoleil, le neuf
+The tenth of Longsun	Longsoleil, le dix
+The eleventh of Longsun	Longsoleil, le onze
+The twelfth of Longsun	Longsoleil, le douze
+The thirteenth of Longsun	Longsoleil, le treize
+The fourteenth of Longsun	Longsoleil, le quatorze
+The fifteenth of Longsun	Longsoleil, le quinze
+The sixteenth of Longsun	Longsoleil, le seize
+The seventeenth of Longsun	Longsoleil, le dix-sept
+The eighteenth of Longsun	Longsoleil, le dix-huit
+The nineteenth of Longsun	Longsoleil, le dix-neuf
+The twentieth of Longsun	Longsoleil, le vingt
+The twenty-first of Longsun	Longsoleil, le vingt et un
+The twenty-second of Longsun	Longsoleil, le vingt-deux
+The twenty-third of Longsun	Longsoleil, le vingt-trois
+The twenty-fourth of Longsun	Longsoleil, le vingt-quatre
+The twenty-fifth of Longsun	Longsoleil, le vingt-cinq
+The twenty-sixth of Longsun	Longsoleil, le vingt-six
+The twenty-seventh of Longsun	Longsoleil, le vingt-sept
+The twenty-eighth of Longsun	Longsoleil, le vingt-huit
+The twenty-ninth of Longsun	Longsoleil, le vingt-neuf
+The thirtieth of Longsun	Longsoleil, le trente
+The first of Dustmonth	Mois de la poussière, le premier
+The second of Dustmonth	Mois de la poussière, le deux
+The third of Dustmonth	Mois de la poussière, le trois
+The fourth of Dustmonth	Mois de la poussière, le quatre
+The fifth of Dustmonth	Mois de la poussière, le cinq
+The sixth of Dustmonth	Mois de la poussière, le six
+The seventh of Dustmonth	Mois de la poussière, le sept
+The eighth of Dustmonth	Mois de la poussière, le huit
+The ninth of Dustmonth	Mois de la poussière, le neuf
+The tenth of Dustmonth	Mois de la poussière, le dix
+The eleventh of Dustmonth	Mois de la poussière, le onze
+The twelfth of Dustmonth	Mois de la poussière, le douze
+The thirteenth of Dustmonth	Mois de la poussière, le treize
+The fourteenth of Dustmonth	Mois de la poussière, le quatorze
+The fifteenth of Dustmonth	Mois de la poussière, le quinze
+The sixteenth of Dustmonth	Mois de la poussière, le seize
+The seventeenth of Dustmonth	Mois de la poussière, le dix-sept
+The eighteenth of Dustmonth	Mois de la poussière, le dix-huit
+The nineteenth of Dustmonth	Mois de la poussière, le dix-neuf
+The twentieth of Dustmonth	Mois de la poussière, le vingt
+The twenty-first of Dustmonth	Mois de la poussière, le vingt et un
+The twenty-second of Dustmonth	Mois de la poussière, le vingt-deux
+The twenty-third of Dustmonth	Mois de la poussière, le vingt-trois
+The twenty-fourth of Dustmonth	Mois de la poussière, le vingt-quatre
+The twenty-fifth of Dustmonth	Mois de la poussière, le vingt-cinq
+The twenty-sixth of Dustmonth	Mois de la poussière, le vingt-six
+The twenty-seventh of Dustmonth	Mois de la poussière, le vingt-sept
+The twenty-eighth of Dustmonth	Mois de la poussière, le vingt-huit
+The twenty-ninth of Dustmonth	Mois de la poussière, le vingt-neuf
+The thirtieth of Dustmonth	Mois de la poussière, le trente
+The first of Firstfruit	Premiers-fruits, le premier
+The second of Firstfruit	Premiers-fruits, le deux
+The third of Firstfruit	Premiers-fruits, le trois
+The fourth of Firstfruit	Premiers-fruits, le quatre
+The fifth of Firstfruit	Premiers-fruits, le cinq
+The sixth of Firstfruit	Premiers-fruits, le six
+The seventh of Firstfruit	Premiers-fruits, le sept
+The eighth of Firstfruit	Premiers-fruits, le huit
+The ninth of Firstfruit	Premiers-fruits, le neuf
+The tenth of Firstfruit	Premiers-fruits, le dix
+The eleventh of Firstfruit	Premiers-fruits, le onze
+The twelfth of Firstfruit	Premiers-fruits, le douze
+The thirteenth of Firstfruit	Premiers-fruits, le treize
+The fourteenth of Firstfruit	Premiers-fruits, le quatorze
+The fifteenth of Firstfruit	Premiers-fruits, le quinze
+The sixteenth of Firstfruit	Premiers-fruits, le seize
+The seventeenth of Firstfruit	Premiers-fruits, le dix-sept
+The eighteenth of Firstfruit	Premiers-fruits, le dix-huit
+The nineteenth of Firstfruit	Premiers-fruits, le dix-neuf
+The twentieth of Firstfruit	Premiers-fruits, le vingt
+The twenty-first of Firstfruit	Premiers-fruits, le vingt et un
+The twenty-second of Firstfruit	Premiers-fruits, le vingt-deux
+The twenty-third of Firstfruit	Premiers-fruits, le vingt-trois
+The twenty-fourth of Firstfruit	Premiers-fruits, le vingt-quatre
+The twenty-fifth of Firstfruit	Premiers-fruits, le vingt-cinq
+The twenty-sixth of Firstfruit	Premiers-fruits, le vingt-six
+The twenty-seventh of Firstfruit	Premiers-fruits, le vingt-sept
+The twenty-eighth of Firstfruit	Premiers-fruits, le vingt-huit
+The twenty-ninth of Firstfruit	Premiers-fruits, le vingt-neuf
+The thirtieth of Firstfruit	Premiers-fruits, le trente
+The first of Sheafmonth	Mois des gerbes, le premier
+The second of Sheafmonth	Mois des gerbes, le deux
+The third of Sheafmonth	Mois des gerbes, le trois
+The fourth of Sheafmonth	Mois des gerbes, le quatre
+The fifth of Sheafmonth	Mois des gerbes, le cinq
+The sixth of Sheafmonth	Mois des gerbes, le six
+The seventh of Sheafmonth	Mois des gerbes, le sept
+The eighth of Sheafmonth	Mois des gerbes, le huit
+The ninth of Sheafmonth	Mois des gerbes, le neuf
+The tenth of Sheafmonth	Mois des gerbes, le dix
+The eleventh of Sheafmonth	Mois des gerbes, le onze
+The twelfth of Sheafmonth	Mois des gerbes, le douze
+The thirteenth of Sheafmonth	Mois des gerbes, le treize
+The fourteenth of Sheafmonth	Mois des gerbes, le quatorze
+The fifteenth of Sheafmonth	Mois des gerbes, le quinze
+The sixteenth of Sheafmonth	Mois des gerbes, le seize
+The seventeenth of Sheafmonth	Mois des gerbes, le dix-sept
+The eighteenth of Sheafmonth	Mois des gerbes, le dix-huit
+The nineteenth of Sheafmonth	Mois des gerbes, le dix-neuf
+The twentieth of Sheafmonth	Mois des gerbes, le vingt
+The twenty-first of Sheafmonth	Mois des gerbes, le vingt et un
+The twenty-second of Sheafmonth	Mois des gerbes, le vingt-deux
+The twenty-third of Sheafmonth	Mois des gerbes, le vingt-trois
+The twenty-fourth of Sheafmonth	Mois des gerbes, le vingt-quatre
+The twenty-fifth of Sheafmonth	Mois des gerbes, le vingt-cinq
+The twenty-sixth of Sheafmonth	Mois des gerbes, le vingt-six
+The twenty-seventh of Sheafmonth	Mois des gerbes, le vingt-sept
+The twenty-eighth of Sheafmonth	Mois des gerbes, le vingt-huit
+The twenty-ninth of Sheafmonth	Mois des gerbes, le vingt-neuf
+The thirtieth of Sheafmonth	Mois des gerbes, le trente
+The first of Harvestmonth	Moisson, le premier
+The second of Harvestmonth	Moisson, le deux
+The third of Harvestmonth	Moisson, le trois
+The fourth of Harvestmonth	Moisson, le quatre
+The fifth of Harvestmonth	Moisson, le cinq
+The sixth of Harvestmonth	Moisson, le six
+The seventh of Harvestmonth	Moisson, le sept
+The eighth of Harvestmonth	Moisson, le huit
+The ninth of Harvestmonth	Moisson, le neuf
+The tenth of Harvestmonth	Moisson, le dix
+The eleventh of Harvestmonth	Moisson, le onze
+The twelfth of Harvestmonth	Moisson, le douze
+The thirteenth of Harvestmonth	Moisson, le treize
+The fourteenth of Harvestmonth	Moisson, le quatorze
+The fifteenth of Harvestmonth	Moisson, le quinze
+The sixteenth of Harvestmonth	Moisson, le seize
+The seventeenth of Harvestmonth	Moisson, le dix-sept
+The eighteenth of Harvestmonth	Moisson, le dix-huit
+The nineteenth of Harvestmonth	Moisson, le dix-neuf
+The twentieth of Harvestmonth	Moisson, le vingt
+The twenty-first of Harvestmonth	Moisson, le vingt et un
+The twenty-second of Harvestmonth	Moisson, le vingt-deux
+The twenty-third of Harvestmonth	Moisson, le vingt-trois
+The twenty-fourth of Harvestmonth	Moisson, le vingt-quatre
+The twenty-fifth of Harvestmonth	Moisson, le vingt-cinq
+The twenty-sixth of Harvestmonth	Moisson, le vingt-six
+The twenty-seventh of Harvestmonth	Moisson, le vingt-sept
+The twenty-eighth of Harvestmonth	Moisson, le vingt-huit
+The twenty-ninth of Harvestmonth	Moisson, le vingt-neuf
+The thirtieth of Harvestmonth	Moisson, le trente
+The first of Ashfall	Chute des cendres, le premier
+The second of Ashfall	Chute des cendres, le deux
+The third of Ashfall	Chute des cendres, le trois
+The fourth of Ashfall	Chute des cendres, le quatre
+The fifth of Ashfall	Chute des cendres, le cinq
+The sixth of Ashfall	Chute des cendres, le six
+The seventh of Ashfall	Chute des cendres, le sept
+The eighth of Ashfall	Chute des cendres, le huit
+The ninth of Ashfall	Chute des cendres, le neuf
+The tenth of Ashfall	Chute des cendres, le dix
+The eleventh of Ashfall	Chute des cendres, le onze
+The twelfth of Ashfall	Chute des cendres, le douze
+The thirteenth of Ashfall	Chute des cendres, le treize
+The fourteenth of Ashfall	Chute des cendres, le quatorze
+The fifteenth of Ashfall	Chute des cendres, le quinze
+The sixteenth of Ashfall	Chute des cendres, le seize
+The seventeenth of Ashfall	Chute des cendres, le dix-sept
+The eighteenth of Ashfall	Chute des cendres, le dix-huit
+The nineteenth of Ashfall	Chute des cendres, le dix-neuf
+The twentieth of Ashfall	Chute des cendres, le vingt
+The twenty-first of Ashfall	Chute des cendres, le vingt et un
+The twenty-second of Ashfall	Chute des cendres, le vingt-deux
+The twenty-third of Ashfall	Chute des cendres, le vingt-trois
+The twenty-fourth of Ashfall	Chute des cendres, le vingt-quatre
+The twenty-fifth of Ashfall	Chute des cendres, le vingt-cinq
+The twenty-sixth of Ashfall	Chute des cendres, le vingt-six
+The twenty-seventh of Ashfall	Chute des cendres, le vingt-sept
+The twenty-eighth of Ashfall	Chute des cendres, le vingt-huit
+The twenty-ninth of Ashfall	Chute des cendres, le vingt-neuf
+The thirtieth of Ashfall	Chute des cendres, le trente
+The first of Frostmonth	Mois du givre, le premier
+The second of Frostmonth	Mois du givre, le deux
+The third of Frostmonth	Mois du givre, le trois
+The fourth of Frostmonth	Mois du givre, le quatre
+The fifth of Frostmonth	Mois du givre, le cinq
+The sixth of Frostmonth	Mois du givre, le six
+The seventh of Frostmonth	Mois du givre, le sept
+The eighth of Frostmonth	Mois du givre, le huit
+The ninth of Frostmonth	Mois du givre, le neuf
+The tenth of Frostmonth	Mois du givre, le dix
+The eleventh of Frostmonth	Mois du givre, le onze
+The twelfth of Frostmonth	Mois du givre, le douze
+The thirteenth of Frostmonth	Mois du givre, le treize
+The fourteenth of Frostmonth	Mois du givre, le quatorze
+The fifteenth of Frostmonth	Mois du givre, le quinze
+The sixteenth of Frostmonth	Mois du givre, le seize
+The seventeenth of Frostmonth	Mois du givre, le dix-sept
+The eighteenth of Frostmonth	Mois du givre, le dix-huit
+The nineteenth of Frostmonth	Mois du givre, le dix-neuf
+The twentieth of Frostmonth	Mois du givre, le vingt
+The twenty-first of Frostmonth	Mois du givre, le vingt et un
+The twenty-second of Frostmonth	Mois du givre, le vingt-deux
+The twenty-third of Frostmonth	Mois du givre, le vingt-trois
+The twenty-fourth of Frostmonth	Mois du givre, le vingt-quatre
+The twenty-fifth of Frostmonth	Mois du givre, le vingt-cinq
+The twenty-sixth of Frostmonth	Mois du givre, le vingt-six
+The twenty-seventh of Frostmonth	Mois du givre, le vingt-sept
+The twenty-eighth of Frostmonth	Mois du givre, le vingt-huit
+The twenty-ninth of Frostmonth	Mois du givre, le vingt-neuf
+The thirtieth of Frostmonth	Mois du givre, le trente

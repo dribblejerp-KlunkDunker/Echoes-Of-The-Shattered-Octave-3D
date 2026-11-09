@@ -1,0 +1,139 @@
+/* r11hud — ROADMAP R11 phase 1, team HUD: the bronze bar of the benchmark pictures (js/r11hud.js).
+   It lies exactly over the canvas HUD band (the bottom quarter of #game, VIEW_H..VH) while the art style is Realistic,
+   so the 3D view keeps every pixel it had. z-index 1: above the canvases, below the touch buttons (3), the title cards
+   (screens.js, 2), the screens (dialogue, menus, events: 5) and everything else that was already over the band.
+   Sizes: the bar is a size container (r11bar), so its parts are sized in cqh of the bar's own height. Every rule for its
+   parts sits inside @container, which the Text size setting (js/access.js) does not rescale: like the canvas HUD it
+   replaces, the bar keeps its size and never overflows. */
+
+#r11hud { position: absolute; left: 0; right: 0; top: 75%; bottom: 0; z-index: 1; box-sizing: border-box;
+  container: r11bar / size;
+  --r11-leather: #18110c; --r11-bronze: #8c6b3c; --r11-bronze-hi: #d9b77a; --r11-gilt: #ecd6a0; --r11-ash: #b9b2a5;
+  --r11-resonance: #5fe8ff;
+  --r11-display: 'Cinzel', 'Alegreya SC', serif; --r11-sc: 'Alegreya SC', 'Alegreya', serif; --r11-body: 'Alegreya', Georgia, serif;
+  display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto minmax(0, 1.15fr); column-gap: 1cqw; align-items: center;
+  padding: 0 1cqw;
+  background:
+    linear-gradient(180deg, rgba(255,226,170,.20), rgba(0,0,0,0) 8%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.015) 0 2px, rgba(0,0,0,.035) 2px 5px),
+    linear-gradient(180deg, #3a2a1a, #21170f 40%, #140d08);
+  border-top: 2px solid var(--r11-bronze);
+  box-shadow: inset 0 1px 0 rgba(255,220,160,.35), inset 0 -1px 0 #000;
+  color: var(--r11-gilt); font-family: var(--r11-body); user-select: none; -webkit-user-select: none;
+  touch-action: manipulation; pointer-events: auto; cursor: default; overflow: hidden; }
+#r11hud[hidden], #r11hud-more[hidden] { display: none !important; }
+#game.p7-photo #r11hud, #game.p7-photo #r11hud-more { visibility: hidden !important; }
+/* the compact bar's columns: no weapon panel (narrow), and no place panel either (phone upright) */
+#r11hud.r11h-compact.r11h-noweapon { grid-template-columns: auto auto auto minmax(0, 1fr); }
+#r11hud.r11h-compact.r11h-noweapon.r11h-noplace { grid-template-columns: auto minmax(0, 1fr) auto; }
+/* upright phone with the touch cluster's Strike button over the band: the compass takes the strip under it */
+#r11hud.r11h-compact.r11h-noweapon.r11h-noplace.r11h-reserve { grid-template-columns: auto minmax(0, 1fr) var(--r11-reserve, 0px); }
+#r11hud.r11h-reserve .r11h-compass { justify-self: center; }
+
+/* the MORE panel: over the view, right above the bar, only while it is open */
+#r11hud-more { position: absolute; bottom: calc(25% + 4px); left: 1cqw; z-index: 1; box-sizing: border-box; width: min(400px, calc(100% - 2cqw)); max-height: calc(75% - 8px); overflow: auto;
+  container: r11more / inline-size;
+  --r11-bronze: #8c6b3c; --r11-bronze-hi: #d9b77a; --r11-gilt: #ecd6a0; --r11-ash: #b9b2a5; --r11-resonance: #5fe8ff;
+  --r11-display: 'Cinzel', 'Alegreya SC', serif; --r11-sc: 'Alegreya SC', 'Alegreya', serif; --r11-body: 'Alegreya', Georgia, serif;
+  padding: 6px 8px 8px; border: 2px solid var(--r11-bronze); border-radius: 3px; color: var(--r11-gilt); font-family: var(--r11-body);
+  background: radial-gradient(ellipse at 50% 0%, rgba(255,210,140,.12), transparent 70%), linear-gradient(180deg, #2a1d12, #120c07);
+  box-shadow: inset 0 0 0 1px #000, 0 6px 18px rgba(0,0,0,.7), 0 0 0 1px #000; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+
+@container r11bar (min-width: 1px) {
+  .r11h-plate { position: relative; box-sizing: border-box; height: 82cqh; border: 2px solid var(--r11-bronze); border-radius: 3px; min-width: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(255,210,140,.10), transparent 70%), linear-gradient(180deg, #24180f, #120c07);
+    box-shadow: inset 0 0 0 1px #000, inset 0 2px 6px rgba(0,0,0,.8), 0 1px 0 rgba(255,220,160,.25); }
+  .r11h-plate::before, .r11h-plate::after { content: ""; position: absolute; width: clamp(3px, 3cqh, 6px); height: clamp(3px, 3cqh, 6px); border-radius: 50%; top: 3px;
+    background: radial-gradient(circle at 35% 35%, var(--r11-bronze-hi), #5a4223 70%); box-shadow: 0 0 0 1px #000; pointer-events: none; }
+  .r11h-plate::before { left: 3px; } .r11h-plate::after { right: 3px; }
+
+  /* vials: health, fatigue, voice; the glass (only when glassed) and the Narrow beside them, as on the old bar */
+  .r11h-vials { display: flex; gap: clamp(3px, 4cqh, 9px); align-items: center; justify-content: center; padding: 0 clamp(5px, 6cqh, 14px); }
+  .r11h-vial { box-sizing: border-box; width: clamp(7px, 9cqh, 18px); height: 66cqh; border-radius: 999px 999px 6px 6px; position: relative; overflow: hidden; flex: none;
+    background: linear-gradient(90deg, rgba(255,255,255,.08), rgba(255,255,255,.02) 40%, rgba(0,0,0,.45)); border: 1px solid #c9b48a;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), 0 0 0 2px #3b2b18; }
+  .r11h-vial i { position: absolute; left: 0; right: 0; bottom: 0; height: 0; border-radius: 0 0 5px 5px; transition: height .25s ease-out; }
+  .r11h-vial::after { content: ""; position: absolute; left: 22%; top: 6%; width: 18%; height: 68%; border-radius: 2px; background: rgba(255,255,255,.32); pointer-events: none; }
+  .r11h-vial.hp i { background: linear-gradient(90deg, #ff6a5a, #b3170f 60%, #6d0a06); }
+  .r11h-vial.fat i { background: linear-gradient(90deg, #8cf08a, #23912c 60%, #0e4d14); }
+  .r11h-vial.voice i { background: linear-gradient(90deg, #7fb2ff, #2350c9 60%, #10276a); }
+  .r11h-vial.glass { width: clamp(5px, 5cqh, 10px); }
+  .r11h-vial.glass i { background: linear-gradient(90deg, #c9fbff, var(--r11-resonance) 55%, #1b7f95); }
+  .r11h-vial.glass[hidden] { display: none; }
+  .r11h-narrow { position: relative; box-sizing: border-box; width: clamp(5px, 6cqh, 12px); height: 66cqh; flex: none; background: #0a0705; border: 1px solid #6b5230; border-radius: 2px; overflow: hidden; }
+  .r11h-narrow i { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: #d98b2a; }
+  .r11h-narrow.loud i { background: #e0442a; } .r11h-narrow.still i { background: #9aa0b0; }
+  .r11h-narrow b { position: absolute; left: 0; right: 0; height: 1px; pointer-events: none; }
+  .r11h-narrow b.hound { bottom: 70%; background: #ff6a40; } .r11h-narrow b.hush { bottom: 15%; background: #c0c8e0; }
+
+  /* the buttons: all of the game's, in its own order (4 + 4 + 3); a compact bar keeps the first four and MORE */
+  .r11h-btns { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: clamp(2px, 2.5cqh, 6px); align-content: center; padding: 0 clamp(5px, 5cqh, 12px);
+    width: clamp(220px, 205cqh, 440px); }
+  .r11h-btns button { grid-column: span 3; box-sizing: border-box; min-width: 0; height: 21cqh; margin: 0; padding: 0 2px; overflow: hidden; white-space: nowrap;
+    font-family: var(--r11-display); font-weight: 700; font-size: clamp(9px, 8cqh, 16px); letter-spacing: .06em; line-height: 1; color: var(--r11-gilt);
+    border: 1px solid var(--r11-bronze); border-radius: 2px; cursor: pointer;
+    background: linear-gradient(180deg, #3b2a19, #1b120b); box-shadow: inset 0 1px 0 rgba(255,220,160,.28), inset 0 -2px 4px rgba(0,0,0,.6), 0 0 0 1px #000; }
+  .r11h-btns button.r11h-wide { grid-column: span 4; }
+  .r11h-btns button.r11h-sub { font-size: clamp(8px, 6.6cqh, 13px); height: 17cqh; color: #d8c08c; }
+  .r11h-btns button:hover { color: #fff3d0; border-color: var(--r11-bronze-hi); }
+  .r11h-btns button:active, .r11h-btns button.r11h-down { filter: brightness(1.35); }
+  .r11h-btns button:focus-visible { outline: 2px solid var(--r11-resonance); outline-offset: 1px; }
+  .r11h-btns button.r11h-more { display: none; background: linear-gradient(180deg, #6e5127, #3a2913); color: #fff3d0; border-color: var(--r11-bronze-hi); }
+  .r11h-btns button.r11h-more[aria-expanded="true"] { background: linear-gradient(180deg, #8a6631, #4e3618); }
+
+  /* the equipped weapon: its picture and name, the Narrow word under it (what the old centre panel said) */
+  .r11h-weapon { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4cqh; padding: 0 clamp(6px, 5cqh, 14px); }
+  .r11h-wico { width: min(100%, clamp(44px, 84cqh, 170px)); height: clamp(12px, 22cqh, 40px); display: block; flex: none; }
+  .r11h-wico svg, .r11h-wico img { width: 100%; height: 100%; display: block; object-fit: contain; }
+  .r11h-wtext { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2cqh; min-width: 0; max-width: 100%; text-align: center; }
+  .r11h-wname { max-width: 100%; font-family: var(--r11-display); font-weight: 500; font-size: clamp(10px, 9.5cqh, 19px); letter-spacing: .04em; white-space: nowrap; overflow: hidden; line-height: 1.15; }
+  .r11h-nword { max-width: 100%; font-family: var(--r11-sc); font-size: clamp(8px, 6.5cqh, 13px); letter-spacing: .1em; color: #d9a441; white-space: nowrap; overflow: hidden; line-height: 1.15; }
+
+  /* the compass: the rose turns with the view (north up when you face north) */
+  .r11h-compass { box-sizing: border-box; width: 76cqh; height: 76cqh; border-radius: 50%; position: relative; flex: none; border: 2px solid var(--r11-bronze);
+    background: radial-gradient(circle, #2a1d12 0 55%, #120b06 70%); box-shadow: 0 0 0 2px #000, inset 0 0 10px #000, 0 0 0 4px #3b2b18; }
+  .r11h-compass svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+  /* the place, and the day and time under it; the status line (the date, or a timer) under that */
+  .r11h-place { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2.5cqh; padding: 0 clamp(6px, 6cqh, 16px); text-align: center; }
+  .r11h-pname { max-width: 100%; font-family: var(--r11-display); font-weight: 500; font-size: clamp(11px, 12cqh, 26px); letter-spacing: .06em; white-space: nowrap; overflow: hidden; line-height: 1.15; }
+  .r11h-when { max-width: 100%; font-size: clamp(9px, 7cqh, 14px); color: var(--r11-ash); font-style: italic; white-space: nowrap; overflow: hidden; line-height: 1.15; }
+  .r11h-status { max-width: 100%; font-family: var(--r11-sc); font-size: clamp(8px, 6.5cqh, 13px); letter-spacing: .08em; color: #d9a441; white-space: nowrap; overflow: hidden; line-height: 1.15; }
+  .r11h-status:empty { display: none; }
+}
+
+/* compact bar (phones, narrow screens, touch controls): the first four buttons and MORE in one row, 44 px targets */
+@container r11bar (min-width: 1px) {
+  #r11hud.r11h-compact .r11h-btns { grid-template-columns: repeat(5, minmax(44px, 1fr)); width: auto; min-width: 0; }
+  #r11hud.r11h-compact .r11h-btns button { grid-column: auto; height: clamp(44px, 62cqh, 52px); min-width: 44px; font-family: var(--r11-sc); font-size: clamp(10px, 20cqh, 15px); letter-spacing: .03em; }
+  #r11hud.r11h-compact .r11h-btns button.r11h-extra { display: none; }
+  #r11hud.r11h-compact .r11h-btns button.r11h-more { display: block; }
+  #r11hud.r11h-compact.r11h-tight .r11h-btns { grid-template-columns: repeat(4, minmax(44px, 1fr)); }
+  #r11hud.r11h-compact.r11h-tight .r11h-btns button[data-i="2"] { display: none; }
+  #r11hud.r11h-compact .r11h-plate { height: 88cqh; }
+  #r11hud.r11h-compact .r11h-vial, #r11hud.r11h-compact .r11h-narrow { height: 72cqh; }
+  #r11hud.r11h-compact .r11h-compass { width: clamp(40px, 84cqh, 120px); height: clamp(40px, 84cqh, 120px); }
+  #r11hud.r11h-compact .r11h-wico { width: clamp(44px, 60cqh, 90px); }
+  #r11hud.r11h-noweapon .r11h-weapon { display: none; }
+  #r11hud.r11h-noplace .r11h-place { display: none; }
+}
+
+@container r11more (min-width: 1px) {
+  .r11h-mhead { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 0 2px 5px; margin-bottom: 6px; border-bottom: 1px solid rgba(217,183,122,.35); min-width: 0; }
+  .r11h-mhead b { font-family: var(--r11-display); font-weight: 500; font-size: 15px; letter-spacing: .05em; white-space: nowrap; overflow: hidden; min-width: 0; }
+  .r11h-mhead small { font-style: italic; font-size: 12px; color: var(--r11-ash); white-space: nowrap; overflow: hidden; min-width: 0; }
+  .r11h-mhead[hidden] { display: none; }
+  #r11hud-more:not(.r11h-tight) .r11h-mgrid button.r11h-demote { display: none; }
+  .r11h-mgrid { display: grid; grid-template-columns: repeat(4, minmax(64px, 1fr)); gap: 5px; }
+  .r11h-mgrid button { box-sizing: border-box; min-width: 0; min-height: 46px; margin: 0; padding: 0 4px; white-space: nowrap; overflow: hidden;
+    font-family: var(--r11-sc); font-weight: 700; font-size: 14px; letter-spacing: .04em; color: var(--r11-gilt); cursor: pointer;
+    border: 1px solid var(--r11-bronze); border-radius: 2px; background: linear-gradient(180deg, #3b2a19, #1b120b);
+    box-shadow: inset 0 1px 0 rgba(255,220,160,.28), inset 0 -2px 4px rgba(0,0,0,.6), 0 0 0 1px #000; }
+  .r11h-mgrid button:hover { color: #fff3d0; border-color: var(--r11-bronze-hi); }
+  .r11h-mgrid button:focus-visible { outline: 2px solid var(--r11-resonance); outline-offset: 1px; }
+}
+
+html.ac-hc #r11hud, html.ac-hc #r11hud-more { background: #000; border-color: #fff; }
+html.ac-hc #r11hud button, html.ac-hc #r11hud-more button { background: #000; color: #ffe566; border: 2px solid #fff; }
+@media (prefers-reduced-motion: reduce) { #r11hud .r11h-vial i { transition: none; } }
+html.ac-rm #r11hud .r11h-vial i { transition: none; }

@@ -2025,12 +2025,14 @@ void main() {
     if (automation && !opts0.automation) return false;
     return st.available === true && !st.software;
   }
+  // R11 (js/r11core.js, the realistic renderer) owns the frame: R3D steps aside (no HUD claim, no net) while it does
+  const r11Owns = () => { try { return typeof R11 !== 'undefined' && !!R11 && typeof R11.owns === 'function' && R11.owns(); } catch (e) { return false; } };
   function wantedNow() {
-    return !!(st.on && gl && resourcesOK && !st.lost && !st.failed && !originalish() && typeof GPU18 !== 'undefined' && GPU18.claimHud && typeof G !== 'undefined' && G.map);
+    return !!(!r11Owns() && st.on && gl && resourcesOK && !st.lost && !st.failed && !originalish() && typeof GPU18 !== 'undefined' && GPU18.claimHud && typeof G !== 'undefined' && G.map);
   }
   function sync() {
     st.on = resolveOn();
-    const want = !!(st.on && gl && resourcesOK && !st.lost && !st.failed && !originalish() && typeof GPU18 !== 'undefined' && GPU18.claimHud);
+    const want = !!(!r11Owns() && st.on && gl && resourcesOK && !st.lost && !st.failed && !originalish() && typeof GPU18 !== 'undefined' && GPU18.claimHud);
     const game = typeof document !== 'undefined' ? document.getElementById('game') : null;
     if (want && !st.shown) {
       st.shown = true; sizeDirty = true;
@@ -2062,10 +2064,11 @@ void main() {
   // ---------------------------------------------------------------------------------------------------- integration
   function wire() {
     if (typeof Engine === 'undefined' || !Engine.setRenderOverride) return;
-    Engine.setRenderOverride((ents, tod, opts, env) => {
+    api.renderOverride = (ents, tod, opts, env) => {
       if (!st.inFrame || !st.shown) return false;
       try { return renderFrame(ents, tod, opts, env); } catch (e) { fail(e); return false; }
-    });
+    };
+    Engine.setRenderOverride(api.renderOverride);
     // the outermost render(): the game's frame with R3D allowed to draw the 3D view
     if (typeof render === 'function') {
       const _render = render;
@@ -2086,7 +2089,7 @@ void main() {
     wireMenu();
     if (typeof GFX !== 'undefined' && GFX.onChange) GFX.onChange(() => { try { sync(); } catch (e) { warnOnce('sync', e); } });
   }
-  function wantedNowNoMap() { return !!(gl && resourcesOK && !st.lost && !st.failed && !originalish() && typeof GPU18 !== 'undefined' && GPU18.claimHud); }
+  function wantedNowNoMap() { return !!(!r11Owns() && gl && resourcesOK && !st.lost && !st.failed && !originalish() && typeof GPU18 !== 'undefined' && GPU18.claimHud); }
 
   // ---- the camera: free look in angle space, clamped per renderer
   const camera = {
@@ -2094,7 +2097,7 @@ void main() {
     setAngle(a) { a = clamp(+a || 0, -camera.limit(), camera.limit()); Engine.cam.pitch = FX * Math.tan(a); return a; },
     // the widest look the active renderer can show: R3D 80 degrees (comfort 45); the CPU's y-shear up to CPU_ROWS rows;
     // the Original preset keeps the old 40 rows
-    limit() { if (originalish()) return Math.atan(OLD_PITCH / FX); return st.shown ? (st.cap * Math.PI / 180) : Math.atan(CPU_ROWS / FX); },
+    limit() { if (originalish()) return Math.atan(OLD_PITCH / FX); return (st.shown || r11Owns()) ? (st.cap * Math.PI / 180) : Math.atan(CPU_ROWS / FX); },
     FX, ZK,
   };
   const CPU_ROWS = 110;  // the CPU raycaster's widest look (24 degrees): checked to +-150 rows with no breakage (floor casting,
@@ -2306,6 +2309,8 @@ void main() {
     // hooks
     on, off,
     // tools and tests
+    // R11: the virtual CPU frame for picking when another renderer drew (R3D.pick / vdepth then answer for that camera)
+    pickFrame(cam, env, ents) { F.map = env.map; F.env = env; vframe(cam, env, ents); return VCAM; },
     netStep, netFeed, net: NET, cpuHooks, measure, dynamicTris: () => mesh.dcount / 3, mesh: () => mesh.info, vframe: () => VCAM, reliefDepth, vdepth, buildMesh: () => { mesh.dirty = true; },
     readPixels() {
       if (!gl || !canvas) return null;
