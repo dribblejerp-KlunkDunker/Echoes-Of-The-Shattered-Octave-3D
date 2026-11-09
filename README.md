@@ -1,5 +1,7 @@
 <p align="center"><img src="screenshots/readme/title.jpg" alt="The title screen: a cracked bell, the Dawning Spire, and Echoes of the Shattered Octave, Book One, The Silenced Province" width="880"></p>
 
+> **This is the 3D repo** (from 8 November 2026). It started as a copy of [echoes-of-the-shattered-octave](https://github.com/dribblejerp-KlunkDunker/echoes-of-the-shattered-octave) at commit `7f0bbf3`, so the realistic-graphics work (ROADMAP R11) can go ahead without risking the main game. The first step is the Oakhaven square proof scene in [`proof/oakhaven-square/`](proof/oakhaven-square/README.md); the research behind it is in [`docs/graphics/`](docs/graphics/benchmark-report.md).
+
 # Echoes of the Shattered Octave · Book One
 
 A first-person dark-fantasy RPG for the browser, made in the style of *The Elder Scrolls II: Daggerfall* and built on the *Echoes of the Shattered Octave* series bible.
