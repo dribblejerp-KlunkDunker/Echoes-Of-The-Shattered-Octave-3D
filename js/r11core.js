@@ -1218,6 +1218,13 @@ void main() {
       if (kind !== 'hands') { try { VM.weapon = K.viewmodel(kind); if (VM.weapon && VM.weapon.group) R.vmScene.add(VM.weapon.group); } catch (e) { warnOnce('kit viewmodel', e); } }
     }
     for (const v of [VM.arm, VM.weapon]) if (v && typeof v.update === 'function') { try { v.update(t, walk); } catch (e) { warnOnce('kit vm update', e); } }
+    // the hands take the world's light (the same sky and ground colours, the same environment strength), so at night and
+    // indoors they are as dim as the street they are held in, not lit like noon
+    if (R.vmHemi && R.hemi) {
+      R.vmHemi.color.copy(R.hemi.color); R.vmHemi.groundColor.copy(R.hemi.groundColor); R.vmHemi.intensity = R.hemi.intensity;
+      R.vmScene.environmentIntensity = R.scene.environmentIntensity;
+      if (R.vmKey) R.vmKey.intensity = 0.15 + 0.75 * Math.min(1, R.scene.environmentIntensity / 0.83);
+    }
     // the swing and the draw/holster drop the pixel hands had (the same game state: G.attack, FPHANDS.st.lower)
     const W = VM.weapon && VM.weapon.group;
     if (W) {
@@ -1379,8 +1386,8 @@ void main() {
       R.camera = new THREE.PerspectiveCamera(60, 320 / 200, 0.02, 400); R.camera.matrixAutoUpdate = false; R.camera.matrixWorldAutoUpdate = false;
       R.vmScene = new THREE.Scene(); R.vmScene.name = 'r11-vm';
       R.vmCam = new THREE.PerspectiveCamera(52, 1.6, 0.01, 10);
-      R.vmScene.add(new THREE.HemisphereLight(0xd9e2e6, 0x4a4036, 0.7));
-      const key = new THREE.DirectionalLight(0xfff0dc, 0.9); key.position.set(-1, 2, 1); R.vmScene.add(key);
+      R.vmHemi = new THREE.HemisphereLight(0xd9e2e6, 0x4a4036, 0.7); R.vmScene.add(R.vmHemi);
+      const key = new THREE.DirectionalLight(0xfff0dc, 0.9); key.position.set(-1, 2, 1); R.vmScene.add(key); R.vmKey = key;
       R.hemi = new THREE.HemisphereLight(0xcdd6db, 0x51463b, 0.55); R.scene.add(R.hemi);
       R.sun = new THREE.DirectionalLight(0xffeeda, 1.35); R.sun.castShadow = true; R.scene.add(R.sun); R.scene.add(R.sun.target);
       Object.assign(api, { THREE, renderer, scene: R.scene, camera: R.camera, vm: { scene: R.vmScene, camera: R.vmCam } });
