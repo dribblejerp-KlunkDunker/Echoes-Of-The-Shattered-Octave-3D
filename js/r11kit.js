@@ -13,8 +13,8 @@
 //       masonry and is never seen. Every other map: an empty group (CORE's plain realistic boxes).
 //   viewmodel(kind, opts) -> { group, kind, update(t, walk) }   kinds: 'glass-arm' (Kaelen's left arm), 'sword',
 //       'longsword', 'knife', 'axe', 'mace', 'maul', 'spear', 'staff', 'pistol', 'crossbow', 'fists', 'blade' (fallback).
-//       Built in the first-person scene's own units (metres, camera at the origin looking down -z). opts.lights === false
-//       leaves out the small light rig each group carries.
+//       Built in the first-person scene's own units (metres, camera at the origin looking down -z). Each group carries a
+//       small light rig only when R11.vm.scene is absent (CORE's scene has its own); opts.lights forces it on or off.
 //   kindFor(weaponId) -> the viewmodel kind for an entry of WEAPONS.
 //   setTier(name)    -> thins leaves, props and shadows of the last dressed map live ('ultra'|'high'|'phone').
 //   ready()          -> Promise: the glTF props (Poly Haven, CC0) are in.
@@ -1376,7 +1376,7 @@ const R11KIT = (function () {
     tube([V(0.006, 0.012, 0.16), V(0.026, 0.01, 0.08), V(0.034, 0.006, 0.0)], 0.0022);
     const hand = new THREE.Group(); hand.add(vein, inner, arm);
     group.add(hand);
-    if (!opts || opts.lights !== false) { const cy = new THREE.PointLight(0x5fe8ff, 0.9, 1.6, 2); cy.position.set(0.02, 0.05, -0.08); hand.add(cy); }
+    if (vmLights(opts)) { const cy = new THREE.PointLight(0x5fe8ff, 0.9, 1.6, 2); cy.position.set(0.02, 0.05, -0.08); hand.add(cy); }
     // framed like bench1: lower left, reaching in and up toward the middle of the view
     const base = { p: V(-0.2, -0.16, -0.34), r: V(0.9, -0.3, 0.7) };
     hand.position.copy(base.p); hand.rotation.set(base.r.x, base.r.y, base.r.z);
@@ -1470,6 +1470,8 @@ const R11KIT = (function () {
     }
     return g;
   }
+  // the light rig a viewmodel group carries: by default only when CORE's first-person scene is not there (it has its own)
+  const vmLights = (opts) => (opts && opts.lights != null) ? !!opts.lights : !(typeof window !== 'undefined' && window.R11 && window.R11.vm && window.R11.vm.scene);
   const VM_KINDS = new Set(['glass-arm', 'sword', 'longsword', 'knife', 'axe', 'mace', 'maul', 'spear', 'staff', 'pistol', 'crossbow', 'fists', 'blade']);
   function viewmodel(kind, opts) {
     const THREE = T3(null); if (!THREE) return null;
@@ -1494,7 +1496,7 @@ const R11KIT = (function () {
       if (gun) { hand.rotation.order = 'YXZ'; }
       hand.scale.setScalar(kind === 'fists' ? 1.1 : 0.82);
       hand.position.copy(base.p); hand.rotation.set(base.r.x, base.r.y, base.r.z);
-      if (!opts || opts.lights !== false) {
+      if (vmLights(opts)) {
         const hemi = new THREE.HemisphereLight(0xd9e2e6, 0x4a4036, 0.8); group.add(hemi);
         const key = new THREE.DirectionalLight(0xfff0dc, 1.1); key.position.set(-1, 2, 1); group.add(key);
       }
