@@ -200,9 +200,11 @@ gl_Position = projectionMatrix * mvPosition;`);
       const s = g.createRadialGradient(w * .7, h * .8, 4, w * .7, h * .8, 120); s.addColorStop(0, 'rgba(60,40,20,.25)'); s.addColorStop(1, 'rgba(60,40,20,0)'); g.fillStyle = s; g.fillRect(0, 0, w, h);
     });
     // awnings "the colour of old wine and old moss" (calendar11's Massday market line)
-    M.canvasCream = new THREE.MeshStandardMaterial({ map: cloth('#6b3a3c', null), roughness: 0.95, side: THREE.DoubleSide });
-    M.canvasStripe = new THREE.MeshStandardMaterial({ map: cloth('#646a42', '#5c2f33'), roughness: 0.95, side: THREE.DoubleSide });
-    M.canvasGreen = new THREE.MeshStandardMaterial({ map: cloth('#5f6840', null), roughness: 0.95, side: THREE.DoubleSide });
+    // the three cloths in one texture (three bands, top to bottom: wine, moss striped with wine, moss): one draw for every awning
+    const cl = [cloth('#6b3a3c', null), cloth('#646a42', '#5c2f33'), cloth('#5f6840', null)];
+    const atlas = canvasTex(THREE, 256, 768, (g) => { cl.forEach((t, i) => g.drawImage(t.image, 0, i * 256)); });
+    cl.forEach((t) => t.dispose());
+    M.awning = new THREE.MeshStandardMaterial({ map: atlas, roughness: 0.95, side: THREE.DoubleSide });
     M.sign = new THREE.MeshStandardMaterial({ map: signTex(THREE, r), roughness: 0.75, metalness: 0.05 });
     M.notices = new THREE.MeshStandardMaterial({ map: noticeTex(THREE, r), roughness: 0.92, alphaTest: 0.5, side: THREE.DoubleSide });
     M.seal = new THREE.MeshStandardMaterial({ map: sealTex(THREE), color: 0xffffff, roughness: 0.15, metalness: 0.1, emissive: 0x0d2a14, emissiveIntensity: 0.6 });
@@ -216,9 +218,8 @@ gl_Position = projectionMatrix * mvPosition;`);
     M.grime = new THREE.MeshStandardMaterial({ map: grimeTex(THREE, r), transparent: true, depthWrite: false, roughness: 1, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
     M.hills = farFog(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));
     M.forest = farFog(new THREE.MeshStandardMaterial({ roughness: 1, flatShading: true }));
-    M.farChapel = farFog(scanned(THREE, ctx, 'castle_wall_slates', { color: 0xd2d2ce }).clone());
-    M.farSlate = farFog(scanned(THREE, ctx, 'roof_slates_02', { color: 0x8c9298, ns: 1.2 }).clone());
-    M.farPlaster = farFog(scanned(THREE, ctx, 'grey_plaster_02', { color: 0xf4ead4 }).clone());
+    // Greenroot on the downs, a kilometre off in the haze: plain colours in one draw (no texture reads at that distance)
+    M.farBld = farFog(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));
     M.goods = new THREE.MeshStandardMaterial({ roughness: 0.8 });
     M.rope = new THREE.MeshStandardMaterial({ color: 0x6b5a40, roughness: 0.95 });
     MATS = M; MATS_T = THREE;
@@ -421,7 +422,7 @@ gl_Position = projectionMatrix * mvPosition;`);
   }
 
   // ======================================================================== the builder: merged pieces by material, instanced boxes
-  const TINTED = new Set(['plaster', 'stone', 'boards']);   // merged with a per-lot tint in their vertex colours
+  const TINTED = new Set(['plaster', 'stone', 'boards', 'farBld']);   // merged with a per-lot tint in their vertex colours
   function Builder(THREE, M) {
     const merged = new Map(), inst = new Map(), boxes = [];
     const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _e = new THREE.Euler(), _v = new THREE.Vector3(), _s = new THREE.Vector3();
@@ -468,31 +469,53 @@ gl_Position = projectionMatrix * mvPosition;`);
         };
         return f;
       },
-      // into meshes: one per material for merged pieces, one InstancedMesh per instanced key
+      // into meshes: ONE mesh per material. The instanced boxes (timbers, shutters, panes, iron) are baked into the same
+      // merged geometry as the pieces of their material (a box keeps its own 0..1 UVs, as it had instanced), so the
+      // timber frames and the timber parts, the iron straps and the iron rings, are one draw each (and one shadow draw).
       finish(group, opts) {
         const mg = addons().mergeGeometries; const out = { meshes: 0 };
-        for (const [key, list] of merged) {
-          if (!list.length) continue;
+        const byMat = new Map();   // material -> { keys: Set, geos: [] }
+        const slot = (key) => { const m = M[key] || (inst.has(key) && !merged.has(key) ? M.timber : M.stone); if (!byMat.has(m)) byMat.set(m, { keys: new Set(), geos: [] }); const e = byMat.get(m); e.keys.add(key); return e; };
+        for (const [key, list] of merged) if (list.length) slot(key).geos.push(...list);
+        const unit = new THREE.BoxGeometry(1, 1, 1).toNonIndexed(), UP = unit.attributes.position.array, UN = unit.attributes.normal.array, UU = unit.attributes.uv.array, nv = UP.length / 3;
+        const nm = new THREE.Matrix3(), col = new THREE.Color();
+        for (const [key, I] of inst) {
+          const n = I.mats.length; if (!n) continue;
+          const e = slot(key), mat = M[key] || M.timber, vc = !!mat.vertexColors || I.cols.some((c) => c != null);
+          if (vc && !mat.vertexColors) mat.vertexColors = true;   // KIT's own plain materials only (goods): CORE's cached ones are never instanced here
+          const P = new Float32Array(n * nv * 3), N = new Float32Array(n * nv * 3), U = new Float32Array(n * nv * 2), Cc = vc ? new Float32Array(n * nv * 3) : null;
+          for (let i = 0; i < n; i++) {
+            const m = I.mats[i], el = m.elements; nm.getNormalMatrix(m); const ne = nm.elements;
+            if (Cc) col.set(I.cols[i] == null ? 0xffffff : I.cols[i]);
+            for (let v = 0; v < nv; v++) {
+              const x = UP[v * 3], y = UP[v * 3 + 1], z = UP[v * 3 + 2], o = (i * nv + v) * 3;
+              P[o] = el[0] * x + el[4] * y + el[8] * z + el[12]; P[o + 1] = el[1] * x + el[5] * y + el[9] * z + el[13]; P[o + 2] = el[2] * x + el[6] * y + el[10] * z + el[14];
+              const a = UN[v * 3], b = UN[v * 3 + 1], c = UN[v * 3 + 2];
+              let nx = ne[0] * a + ne[3] * b + ne[6] * c, ny = ne[1] * a + ne[4] * b + ne[7] * c, nz = ne[2] * a + ne[5] * b + ne[8] * c; const l = Math.hypot(nx, ny, nz) || 1;
+              N[o] = nx / l; N[o + 1] = ny / l; N[o + 2] = nz / l;
+              U[(i * nv + v) * 2] = UU[v * 2]; U[(i * nv + v) * 2 + 1] = UU[v * 2 + 1];
+              if (Cc) { Cc[o] = col.r; Cc[o + 1] = col.g; Cc[o + 2] = col.b; }
+            }
+          }
+          const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(P, 3)); g.setAttribute('normal', new THREE.BufferAttribute(N, 3)); g.setAttribute('uv', new THREE.BufferAttribute(U, 2));
+          if (Cc) g.setAttribute('color', new THREE.BufferAttribute(Cc, 3));
+          e.geos.push(g);
+        }
+        for (const [mat, e] of byMat) {
+          if (!e.geos.length) continue;
+          // the same attribute set on every piece: vertex colours (white where a piece has none) when the material uses them
+          if (mat.vertexColors) for (const g of e.geos) if (!g.attributes.color) { const c = new Float32Array(g.attributes.position.count * 3).fill(1); g.setAttribute('color', new THREE.BufferAttribute(c, 3)); }
+          for (const g of e.geos) for (const k of Object.keys(g.attributes)) if (k !== 'position' && k !== 'normal' && k !== 'uv' && !(k === 'color' && mat.vertexColors)) g.deleteAttribute(k);
           let geo = null;
-          try { geo = mg ? mg(list, false) : null; } catch (e) { warnOnce('merge ' + key, e); }
-          const geos = geo ? [geo] : list;
-          for (const g of geos) {
-            const mesh = new THREE.Mesh(g, M[key] || M.stone);
-            mesh.castShadow = !opts.noShadow.has(key); mesh.receiveShadow = true; mesh.name = 'kit:' + key;
-            if (key === 'puddle' || key === 'grime' || key === 'fallenFlat') mesh.renderOrder = 1;
+          try { geo = mg ? mg(e.geos, false) : null; } catch (er) { warnOnce('merge ' + [...e.keys].join('+'), er); }
+          const keys = [...e.keys], names = keys.join('+');
+          for (const g of (geo ? [geo] : e.geos)) {
+            const mesh = new THREE.Mesh(g, mat);
+            mesh.castShadow = keys.some((k) => !opts.noShadow.has(k)); mesh.receiveShadow = true; mesh.name = 'kit:' + names;
+            if (keys.some((k) => k === 'puddle' || k === 'grime' || k === 'fallenFlat')) mesh.renderOrder = 1;
+            mesh.userData.small = keys.every((k) => opts.small.has(k));
             group.add(mesh); out.meshes++;
           }
-        }
-        const unit = new THREE.BoxGeometry(1, 1, 1), col = new THREE.Color();
-        for (const [key, I] of inst) {
-          if (!I.mats.length) continue;
-          const mesh = new THREE.InstancedMesh(unit, M[key] || M.timber, I.mats.length);
-          I.mats.forEach((m, i) => mesh.setMatrixAt(i, m));
-          if (I.cols.some((c) => c != null)) { I.cols.forEach((c, i) => mesh.setColorAt(i, col.set(c == null ? 0xffffff : c))); mesh.instanceColor.needsUpdate = true; }
-          mesh.instanceMatrix.needsUpdate = true; mesh.computeBoundingSphere(); mesh.computeBoundingBox && mesh.computeBoundingBox();
-          mesh.castShadow = !opts.noShadow.has(key); mesh.receiveShadow = true; mesh.name = 'kit:i:' + key;
-          mesh.userData.small = opts.small.has(key);
-          group.add(mesh); out.meshes++;
         }
         return out;
       },
@@ -879,7 +902,7 @@ gl_Position = projectionMatrix * mvPosition;`);
     f.part('slate', worldUV(THREE, cap, 2.2), t.x, TS + BH + 0.5 + 3.5, t.z);
     f.ibox('iron', 0.08, 1.6, 0.08, t.x, TS + BH + 0.5 + 7.6, t.z);
     if (o.landmarks) o.landmarks.push(['chapel tower', f.at(t.x, t.z), TS + BH + 9]);
-    return { porch: f.at(px, zf), door: f.at(px, pz) };
+    return { porch: f.at(px, zf), door: f.at(px, pz), steps: OUT + IN, hare: true };
   }
   function noticeBoard(B, f, x, z, h) {   // a timber board on the wall, with notices layered on it
     const THREE = B.THREE;
@@ -1035,8 +1058,10 @@ gl_Position = projectionMatrix * mvPosition;`);
     const roof = new THREE.PlaneGeometry(W + 0.3, D + 0.4, 8, 4), p = roof.attributes.position;
     for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin((p.getX(i) / (W + 0.3) + 0.5) * PI * 4) * 0.04);
     roof.computeVertexNormals(); roof.rotateX(-PI / 2 + 0.25);
-    f.part(kind, roof, 0, 2.33, 0.0);
-    f.part(kind, new THREE.PlaneGeometry(W + 0.3, 0.3), 0, 1.98, D / 2 + 0.28);
+    const band = { canvasCream: 2, canvasStripe: 1, canvasGreen: 0 }[kind] || 0;   // CanvasTexture flipY: band 0 is the bottom third
+    const inBand = (g) => { const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setY(i, (band + uv.getY(i) * 0.98 + 0.01) / 3); return g; };
+    f.part('awning', inBand(roof), 0, 2.33, 0.0);
+    f.part('awning', inBand(new THREE.PlaneGeometry(W + 0.3, 0.3)), 0, 1.98, D / 2 + 0.28);
     // the stallholder's stock behind the stall: three crates or three casks
     if (B.stallStock) { const back = f.sub(0, -D / 2 - 0.15, PI); propGroup(B, back, (r() - .5) * 0.6, 0, r() < 0.6 ? 'crate' : 'cask', 3, r); }
     // goods: fleeces and bales (the Carders' Quarter), jars, apples
@@ -1213,11 +1238,13 @@ gl_Position = projectionMatrix * mvPosition;`);
     if (map.id === 'oakhaven') {
       const a = -0.75, R0 = Rmax * 0.78, x = cx + Math.cos(a) * R0, z = cz + Math.sin(a) * R0, q = hAt(x, z), y = q ? q.h : 30;
       const ff = B.frame(x, z, a + PI / 2, y - 1);
-      ff.part('farChapel', worldUV(THREE, new THREE.BoxGeometry(9, 9, 18), 4), 0, 4.5, 0);
-      ff.part('farSlate', worldUV(THREE, gableRoof(THREE, 18.5, 9.2, 5, 0.3), 4), 0, 9, 0);
-      ff.part('farChapel', worldUV(THREE, new THREE.BoxGeometry(4.5, 16, 4.5), 4), 0, 8, 9);
-      ff.part('farSlate', worldUV(THREE, new THREE.ConeGeometry(3.4, 16, 4).rotateY(PI / 4), 4), 0, 24, 9);
-      for (let i = 0; i < 3; i++) { const bx = (r() - .5) * 70, bz = (r() - .5) * 50; ff.part('farPlaster', worldUV(THREE, new THREE.BoxGeometry(8, 5, 6), 4), bx, 2.5, bz + 30); ff.part('farSlate', worldUV(THREE, gableRoof(THREE, 8.2, 6.2, 3, 0.3), 4), bx, 5, bz + 30); }
+      const K = (t) => { B.tint = t; return 'farBld'; }, CH = [0.5, 0.5, 0.49], SL = [0.27, 0.29, 0.31], PLs = [0.66, 0.62, 0.55];
+      ff.part(K(CH), worldUV(THREE, new THREE.BoxGeometry(9, 9, 18), 4), 0, 4.5, 0);
+      ff.part(K(SL), worldUV(THREE, gableRoof(THREE, 18.5, 9.2, 5, 0.3), 4), 0, 9, 0);
+      ff.part(K(CH), worldUV(THREE, new THREE.BoxGeometry(4.5, 16, 4.5), 4), 0, 8, 9);
+      ff.part(K(SL), worldUV(THREE, new THREE.ConeGeometry(3.4, 16, 4).rotateY(PI / 4), 4), 0, 24, 9);
+      for (let i = 0; i < 3; i++) { const bx = (r() - .5) * 70, bz = (r() - .5) * 50; ff.part(K(PLs), worldUV(THREE, new THREE.BoxGeometry(8, 5, 6), 4), bx, 2.5, bz + 30); ff.part(K(SL), worldUV(THREE, gableRoof(THREE, 8.2, 6.2, 3, 0.3), 4), bx, 5, bz + 30); }
+      B.tint = null;
     }
   }
 
@@ -1550,7 +1577,7 @@ gl_Position = projectionMatrix * mvPosition;`);
     const noShadow = new Set(['glassLit', 'glassDark', 'puddle', 'grime', 'notices', 'seal', 'flame']);
     for (const k of Object.keys(M)) if (k.startsWith('decal:')) noShadow.add(k);
     const small = new Set(['iron', 'goods', 'shutter', 'flame', 'reed', 'rope']);
-    if (!T.shadowSmall) for (const k of ['iron', 'goods', 'shutter', 'reed', 'rope', 'canvasCream', 'canvasStripe', 'canvasGreen']) noShadow.add(k);
+    if (!T.shadowSmall) for (const k of ['iron', 'goods', 'shutter', 'reed', 'rope', 'awning']) noShadow.add(k);
     B.finish(metres, { noShadow, small });
     // glTF props: hush-lamp lanterns and the crates (Poly Haven, CC0), instanced when they come in
     const lampLights = [];
@@ -1931,7 +1958,7 @@ gl_Position = projectionMatrix * mvPosition;`);
     ready: () => { const THREE = T3(null); return THREE ? loadProps(THREE) : Promise.resolve(null); },
     get debug() { return S.debug; }, set debug(v) { S.debug = !!v; },
     get last() { return S.last; },
-    _internal: { findBuildings, kindOf, doorSide },
+    _internal: { findBuildings, kindOf, doorSide, heroTemplate },
   };
 })();
 if (typeof window !== 'undefined') window.R11KIT = R11KIT;

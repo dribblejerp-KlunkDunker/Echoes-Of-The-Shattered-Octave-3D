@@ -44,7 +44,7 @@ async function harness() {
     const scene = new THREE.Scene(); scene.background = H.hdr; scene.environment = H.env; scene.backgroundIntensity = 0.95; scene.environmentIntensity = 1.05;
     scene.fog = new THREE.FogExp2(0x8c9599, 0.4 / Math.max(2, map.fogDist || 22));   // CORE's outdoor rule
     const lights = [];
-    const ctx = { scene, THREE, tier, addLight(l, p) { lights.push([l, p]); scene.add(l); } };
+    const ctx = { scene, THREE, tier, addLight(l, p) { lights.push([l, p]); if (lights.length <= 4) scene.add(l); } };   // CORE keeps a small pool of real lights
     const t0 = performance.now();
     const res = R11KIT.dressMap(map, ctx);
     const ms = performance.now() - t0;
@@ -126,7 +126,26 @@ async function harness() {
     check(r.s.hidden > 300 && !r.bad.length, 'hiddenCells are wall cells only, never doors or open ground (' + r.s.hidden + ' hidden, ' + r.bad.length + ' bad)');
     check(r.decHidden === 0 || r.decals >= r.decHidden, 'the game\'s decals (Synod posters) on hidden cells are redrawn on the kit walls (' + r.decHidden + ' cells, ' + r.decals + ' faces)');
         check(['chapel', 'greenhall', 'inn'].every((k) => r.kinds.includes(k)), 'the Chapel, the Greenhall and the Boar & Dulcimer are found by their doors (' + r.kinds.filter((k) => k !== 'house' && k !== 'shed').join(', ') + ')');
-    check(r.lights >= 2 && r.lights < 10 && r.replaced >= 100, 'the inn door\'s lanterns light through ctx.addLight (the street hush-lamps keep the engine\'s own lights, not doubled); the map\'s oaks, lamps, tables, crates, casks and carts are replaced (' + r.lights + ' lights, ' + r.replaced + ' decos)');
+    check(r.lights >= 8 && r.lights < 60 && r.replaced >= 100, 'the inn door\'s lanterns and the wall-arm lanterns at house doors light through ctx.addLight (the street hush-lamps keep the engine\'s own lights, not doubled); the map\'s oaks, lamps, tables, crates, casks and carts are replaced (' + r.lights + ' lights, ' + r.replaced + ' decos)');
+
+    // ---- phase 2 (SQUARE): the square's iron-oaks are old and spreading, the walk under them is clear; dressing with a purpose
+    r = await page.evaluate(() => {
+      const res = window.__ks.res, out = { heroes: (res.oaks || []).filter((o) => o.hero), oaks: (res.oaks || []).length };
+      out.low = 0; out.reach = 0;
+      for (const seed of [1, 2]) { const t = R11KIT._internal.heroTemplate(window.R11THREE.THREE, seed), p = t.geo.attributes.position; for (let i = 0; i < p.count; i++) { const rr = Math.hypot(p.getX(i), p.getZ(i)); out.reach = Math.max(out.reach, rr); if (rr > 1.7 && p.getY(i) < 3.2) out.low++; } }
+      out.ivy = res.stats.ivy || 0; out.doorLamps = (res.lampsAt || []).filter((L) => L[7] === 'door').length;
+      out.steps = res.chapel && res.chapel.steps; out.hare = !!res.chapel && res.chapel.hare;
+      out.fallen = res.fallen ? res.fallen.count : 0; out.smoke = res.smoke ? res.smoke.count : 0;
+      const wind = []; res.group.traverse((o) => { if (o.material && o.material.customProgramCacheKey && /wind/.test(o.material.customProgramCacheKey())) wind.push(o.name); });
+      out.wind = wind;
+      return out;
+    });
+    check(r.heroes.length === 2 && r.heroes.every((o) => o.h >= 14 && Math.abs(o.x - 31.5) < 0.1), 'the two iron-oaks in the square (31.5, 20.5 and 31.5, 26.5) grow old and spreading, 14 m and more (' + r.heroes.map((o) => o.x + ',' + o.y + ' ' + o.h.toFixed(1) + ' m, x' + o.sc.toFixed(2)).join('; ') + '; ' + r.oaks + ' oaks in all, only at the map\'s oak decos)');
+    check(r.low === 0, 'nothing of an old oak hangs below 3.2 m beyond its root plate (1.7 m): the square stays walkable under it (' + r.low + ' low vertices, reach ' + r.reach.toFixed(1) + ' m before scaling)');
+    check(r.wind.some((n) => /leaves/.test(n)) && r.wind.some((n) => /oak/.test(n)), 'the oaks\' bark and leaves sway in the vertex shader (' + r.wind.join(', ') + ')');
+    check(r.ivy > 300 && r.doorLamps >= 8 && r.fallen > 1000, 'ivy on the stone (' + r.ivy + ' cards), wall-arm lanterns at doors (' + r.doorLamps + '), leaves fallen and drifted at walls, kerbs and steps (' + r.fallen + ')');
+    check(r.steps === 11 && r.hare, 'the Chapel has its eleven steps, the hare-flawed one third from the top (' + r.steps + ', hare ' + r.hare + ')');
+    check(r.smoke > 0, 'chimney smoke: one ribbon per chimney the game smokes (' + r.smoke + ')');
 
     // ---- what you see is what blocks you: sample every kit part's box against walkable ground
     r = await page.evaluate(() => {
@@ -140,6 +159,7 @@ async function harness() {
       for (const b of res.boxes) {
         const [cat, x0, y0, z0, x1, y1, z1] = b;
         if (cat === 'far' || cat === 'flat') continue;
+        if (cat === 'steps') { if (y1 > 0.5) { out.bldg++; out.worst.length < 4 && out.worst.push('steps ' + y1.toFixed(2) + ' m high'); } else { let worst = 0; const st = 0.25; for (let i = 0; i <= Math.ceil((x1 - x0) / st); i++) for (let j = 0; j <= Math.ceil((z1 - z0) / st); j++) { const px = Math.min(x1, x0 + i * st), pz = Math.min(z1, z0 + j * st); if (walk(Math.floor(px / C), Math.floor(pz / C))) worst = Math.max(worst, toBlocked(px, pz)); } if (worst > 1.3) { out.bldg++; out.worst.length < 4 && out.worst.push('steps reach ' + worst.toFixed(2) + ' m'); } } continue; }
         const allow = y0 < 2.2 ? 0.6 : y0 < 6 ? 1.25 : 1e9;
         if (allow > 1e8) continue;
         const st = 0.25, nx = Math.max(1, Math.ceil((x1 - x0) / st)), nz = Math.max(1, Math.ceil((z1 - z0) / st));
@@ -185,7 +205,7 @@ async function harness() {
     check(lm('greenhall dome') && Math.abs(lm('greenhall dome')[1] - 30.5) < 0.6 && Math.abs(lm('greenhall dome')[2] - 6.5) < 0.6, 'the Greenhall dome stands on the map\'s dome cell (30, 6)');
     check(lm('mooring mast') && Math.abs(lm('mooring mast')[1] - 37) < 0.6 && Math.abs(lm('mooring mast')[2] - 20) < 0.6, 'the mooring mast stands on its block (36-37, 19-20)');
     const src = fs.readFileSync(path.join(ROOT, 'js/r11kit.js'), 'utf8');
-    check(!/castle\(/i.test(src) && !/bell\s*=|hangBell|bellMesh/i.test(src), 'no castle builder and nothing hung in the belfry (source check)');
+    check(/FAR_PEAK = 0\.4/.test(src) && /old wine and old moss/.test(src) && /riveted iron/.test(src) && !/castle\(/i.test(src) && !/bell\s*=|hangBell|bellMesh/i.test(src), 'phase 1\'s lore fixes kept: FAR_PEAK, the awnings\' wine and moss, the riveted iron mast; no castle builder and nothing hung in the belfry (source check)');
 
     // ---- screenshots (LOOK at them): the square by day (bench1's kind of view), the inn front, the chapel, the north road, the Teeth
     if (SHOTS) {
@@ -231,12 +251,12 @@ async function harness() {
         const res = R11KIT.dressMap(window.__maps.oakhaven, { THREE: window.R11THREE.THREE, tier: t });
         await (res.gltfDone || Promise.resolve());
         let leaves = 0, shadowSmall = 0; res.group.traverse((o) => { if (o.name === 'kit:leaves') leaves = o.count; if (o.userData && o.userData.small && o.castShadow) shadowSmall++; });
-        out[t] = { draws: R11KIT.countDraws(res.group), leaves, shadowSmall };
+        out[t] = { draws: R11KIT.countDraws(res.group), leaves, shadowSmall, smoke: !!(res.smoke && res.smoke.visible) };
       }
       return out;
     });
     console.log('INFO draw calls by tier: ' + JSON.stringify(r));
-    check(r.phone.draws <= 80 && r.phone.leaves < r.high.leaves && r.high.leaves < r.ultra.leaves && r.phone.shadowSmall === 0, 'phone: fewer leaves, no shadows from small props, within budget (draws ' + r.ultra.draws + '/' + r.high.draws + '/' + r.phone.draws + ')');
+    check(r.phone.draws <= 50 && r.phone.leaves < r.high.leaves && r.high.leaves < r.ultra.leaves && r.phone.shadowSmall === 0 && !r.phone.smoke && r.ultra.smoke, 'phone: fewer leaves, no shadows from small props, no smoke; the kit merged by material, one mesh each (draws ' + r.ultra.draws + '/' + r.high.draws + '/' + r.phone.draws + ')');
 
     // ---- other maps get nothing; the Greening build dresses too
     r = await page.evaluate(() => {
