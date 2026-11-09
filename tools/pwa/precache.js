@@ -27,7 +27,9 @@ const BEGIN = '// <precache:begin>', END = '// <precache:end>';
 // What counts as a runtime file in each folder. Anything else (READMEs, licence texts, build scripts, scripts' json,
 // .keep) is development material and is not served from the offline cache.
 const CORE_DIRS = { img: /\.(jpg|jpeg|png|webp|svg)$/i, fonts: /\.(woff2?|ttf|otf)$/i, locales: /\.json$/i, css: /\.css$/i, js: /\.js$/i, 'assets/icons': /\.(png|svg)$/i };
-const MEDIA_DIRS = { music: /\.(mp3|ogg|m4a|wav)$/i, voices: /\.(mp3|ogg|m4a|wav)$/i };
+// R11: Three.js and the realistic look's CC0 textures, models and sky are cached the first time the realistic renderer
+// loads them (and by the download-all button), not at install, so a phone in Pixel style never fetches them
+const MEDIA_DIRS = { music: /\.(mp3|ogg|m4a|wav)$/i, voices: /\.(mp3|ogg|m4a|wav)$/i, 'vendor/three': /\.js$/i, 'assets/r11': /\.(jpg|png|json|wasm)$/i };
 const ROOT_FILES = ['manifest.webmanifest'];
 const STAGE_EXTRA = [/^fonts\/OFL-.*\.txt$/, /^\.nojekyll$/];
 
