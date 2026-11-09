@@ -179,8 +179,8 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
     await step('wet cobbles: the cobble material is wet; wet, the cobbles are darker and more contrasted than dry', async () => {
       const r = await page.evaluate(() => {
         let wetMat = false; R11.scene.traverse((o) => { if (o.name === 'r11-cobble' && o.material && o.material.userData.r11wet) wetMat = true; });
-        R11.look.set({ wetForce: 0 }); S.bench(); S.frame(); const d = S.stats(0.25, 0.62, 0.75, 0.95);
-        R11.look.set({ wetForce: null }); S.bench(); S.frame(); const w = S.stats(0.25, 0.62, 0.75, 0.95);
+        R11.look.set({ wetForce: 0 }); S.bench(); S.frame(); const d = S.stats(0.46, 0.62, 0.6, 0.98);   // open floor between the hands
+        R11.look.set({ wetForce: null }); S.bench(); S.frame(); const w = S.stats(0.46, 0.62, 0.6, 0.98);
         return { wetMat, d, w };
       });
       dry = r.d;
