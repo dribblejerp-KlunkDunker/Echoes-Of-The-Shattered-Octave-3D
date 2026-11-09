@@ -291,7 +291,10 @@ const R11 = (() => {
     if (baseMats[key]) return baseMats[key];
     const b = BASE[key]; let m;
     if (key === 'water') {
-      m = new THREE.MeshStandardMaterial({ color: 0x0e1418, roughness: 0.06, metalness: 0, normalMap: waterNormals(), normalScale: new THREE.Vector2(0.35, 0.35), envMapIntensity: 1.6, vertexColors: true });
+      // phase 4: WATER's js/r11water.js may supply the water material (R11WATER.material({ THREE, tier, normals })); the
+      // geometry stays core's (water cells, vertex colours: shallows lighter, sunk 0.05)
+      try { if (typeof R11WATER !== 'undefined' && R11WATER && typeof R11WATER.material === 'function') m = R11WATER.material({ THREE, tier: st.tier, normals: waterNormals(), renderer, scene: R.scene, env: R.env }) || null; } catch (e) { warnOnce('R11WATER.material', e); m = null; }
+      if (!m) m = new THREE.MeshStandardMaterial({ color: 0x0e1418, roughness: 0.06, metalness: 0, normalMap: waterNormals(), normalScale: new THREE.Vector2(0.35, 0.35), envMapIntensity: 1.6, vertexColors: true });
     } else if (b.scan) {
       m = mat(b.scan, { rough: b.rough, ns: b.ns, vc: true });
       if (key === 'cobble') wetHook(m);
@@ -1292,6 +1295,23 @@ void main() {
           if (r && r.replaced) for (const e of r.replaced) replacedNow.add(e);
           if (r && r.group) { kitGroup = r.group; R.scene.add(kitGroup); try { warmPractical(kitGroup); } catch (e) { warnOnce('warm', e); } }
         } catch (e) { warnOnce('kit dressMap', e); }
+      }
+      // phase 4: more dressers, one file per place (js/r11gate.js, js/r11harbour.js, js/r11water.js ...). Each pushes
+      // { id, maps(map) -> bool, dress(map, ctx) -> { group, hiddenCells, replaced } } onto window.R11DRESSERS; their groups
+      // ride inside the kit group, so they are torn down with it
+      if (typeof window !== 'undefined' && Array.isArray(window.R11DRESSERS)) {
+        for (const d of window.R11DRESSERS) {
+          try {
+            if (!d || typeof d.dress !== 'function' || (typeof d.maps === 'function' && !d.maps(m))) continue;
+            const r = d.dress(m, ctx);
+            if (r && r.hiddenCells) for (const c of r.hiddenCells) hiddenNow.add(c);
+            if (r && r.replaced) for (const e of r.replaced) replacedNow.add(e);
+            if (r && r.group) {
+              if (!kitGroup) { kitGroup = new THREE.Group(); kitGroup.name = 'r11-dress'; R.scene.add(kitGroup); }
+              kitGroup.add(r.group); try { warmPractical(r.group); } catch (e) { warnOnce('warm', e); }
+            }
+          } catch (e) { warnOnce('dresser ' + (d && d.id), e); }
+        }
       }
       curMap = m;
       R.world = buildWorld(m, hiddenNow); R.scene.add(R.world);
