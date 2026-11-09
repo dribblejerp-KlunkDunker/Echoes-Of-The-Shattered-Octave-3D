@@ -202,6 +202,7 @@ const R11HUD = (function () {
     if (st.more === on) return; st.more = on;
     if (morePanel) morePanel.hidden = !on;
     if (els.moreBtn) els.moreBtn.setAttribute('aria-expanded', on ? 'true' : 'false');
+    if (on) { st.last = {}; update(); }
   }
 
   // ---------------------------------------------------------------- reading the old bar's two text slots
@@ -334,7 +335,7 @@ const R11HUD = (function () {
       try { if (G.map.outdoor && typeof Weather !== 'undefined' && typeof weatherLine === 'function') tip += ' · ' + weatherLine(); } catch (e) { /* none */ }
       tip += '\n' + p.name + ' · Lv ' + p.level + ' · ' + p.gold + ' sov.' + (p.fragments ? '\nfragments ' + p.fragments : '');
       put(els.place, tip, 'title');
-      if (st.more) { put(els.mname, name); put(els.mwhen, when); }
+      put(els.mname, name); put(els.mwhen, when);
     } catch (e) { warnOnce('update', e); }
   }
   function loop() { st.raf = requestAnimationFrame(loop); update(); }
