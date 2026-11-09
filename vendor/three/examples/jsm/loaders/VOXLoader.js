@@ -13,7 +13,7 @@ import {
 	NearestFilter,
 	RedFormat,
 	SRGBColorSpace
-} from 'three';
+} from '../../../build/three.module.js';
 
 // Helper function to read a STRING from the data view
 function readString( data, offset ) {

@@ -42,7 +42,7 @@ import {
 	Vector3,
 	Vector4,
 	VectorKeyframeTrack
-} from 'three';
+} from '../../../build/three.module.js';
 
 import { unzlibSync } from '../libs/fflate.module.js';
 import { NURBSCurve } from '../curves/NURBSCurve.js';

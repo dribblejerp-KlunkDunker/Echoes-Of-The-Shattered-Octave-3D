@@ -5,7 +5,7 @@ import {
 	Float32BufferAttribute,
 	Loader,
 	SRGBColorSpace
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * A loader for the XYZ format.

@@ -6,7 +6,7 @@ import {
 	MeshStandardMaterial,
 	PointLight,
 	Scene,
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * This class represents a scene with a very basic room setup that can be used as

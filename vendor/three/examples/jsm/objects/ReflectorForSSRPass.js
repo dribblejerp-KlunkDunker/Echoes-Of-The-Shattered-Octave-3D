@@ -13,7 +13,7 @@ import {
 	NearestFilter,
 	Plane,
 	HalfFloatType
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * A special version of {@link Reflector} for usage with {@link SSRPass}.

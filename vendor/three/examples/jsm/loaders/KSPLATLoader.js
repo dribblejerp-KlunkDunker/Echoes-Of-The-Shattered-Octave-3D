@@ -2,7 +2,7 @@ import {
 	DataUtils,
 	FileLoader,
 	Loader
-} from 'three';
+} from '../../../build/three.module.js';
 
 import { SH_BAND_COMPONENTS, SH_BAND_WORDS, createGaussianSplatGeometry, createPackedSphericalHarmonicsBand, writeColorBytes, writeCovariance } from '../utils/GaussianSplatUtils.js';
 

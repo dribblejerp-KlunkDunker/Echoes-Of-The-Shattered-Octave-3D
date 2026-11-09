@@ -1,4 +1,4 @@
-import { Light, Object3D } from 'three';
+import { Light, Object3D } from '../../../build/three.module.js';
 import { SunLightShadow } from './SunLightShadow.js';
 
 /**

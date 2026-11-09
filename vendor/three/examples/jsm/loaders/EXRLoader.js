@@ -8,7 +8,7 @@ import {
 	RedFormat,
 	RGFormat,
 	RGBAFormat
-} from 'three';
+} from '../../../build/three.module.js';
 import { unzlibSync } from '../libs/fflate.module.js';
 
 // Referred to the original Industrial Light & Magic OpenEXR implementation and the TinyEXR / Syoyo Fujita

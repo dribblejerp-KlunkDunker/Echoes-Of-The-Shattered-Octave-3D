@@ -11,7 +11,7 @@ import {
 	Vector4,
 	WebGLRenderTarget,
 	HalfFloatType
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * Can be used to create a flat, refractive surface like for special

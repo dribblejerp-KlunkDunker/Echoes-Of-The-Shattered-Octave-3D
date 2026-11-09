@@ -1,6 +1,6 @@
 import {
 	CompressedTextureLoader
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * A loader for the KTX texture compression format.

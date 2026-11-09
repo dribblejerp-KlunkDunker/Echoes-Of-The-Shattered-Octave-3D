@@ -1,7 +1,7 @@
 import {
 	FileLoader,
 	Loader
-} from 'three';
+} from '../../../build/three.module.js';
 
 import { PLYLoader } from './PLYLoader.js';
 import {

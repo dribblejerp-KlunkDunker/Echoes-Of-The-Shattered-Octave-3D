@@ -12,7 +12,7 @@ import {
 	Vector3,
 	Vector4,
 	WebGLRenderTarget
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * A basic flat, reflective water effect.

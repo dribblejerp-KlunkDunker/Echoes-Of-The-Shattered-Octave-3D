@@ -12,7 +12,7 @@ import {
 	Uint32BufferAttribute,
 	Color,
 	SRGBColorSpace
-} from 'three';
+} from '../../../build/three.module.js';
 
 const _color = new Color();
 

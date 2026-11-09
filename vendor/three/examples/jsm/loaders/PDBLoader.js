@@ -5,7 +5,7 @@ import {
 	Loader,
 	Color,
 	SRGBColorSpace
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * A loader for the PDB format.

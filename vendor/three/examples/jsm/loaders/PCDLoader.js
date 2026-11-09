@@ -8,7 +8,7 @@ import {
 	Points,
 	PointsMaterial,
 	SRGBColorSpace
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * A loader for the Point Cloud Data (PCD) format.

@@ -5,7 +5,7 @@ import {
 	Matrix4,
 	Vector3,
 	SRGBColorSpace
-} from 'three';
+} from '../../../../build/three.module.js';
 
 /**
  * Utility functions for parsing

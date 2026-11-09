@@ -4,7 +4,7 @@ import {
 	MeshBasicMaterial,
 	SphereGeometry,
 	Scene
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * This class represents a scene with a uniform color that can be used as

@@ -4,7 +4,7 @@ import {
 	FileLoader,
 	Loader,
 	NumberKeyframeTrack
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * A loader for the MDD format.

@@ -1,7 +1,7 @@
 import {
 	FileLoader,
 	Loader
-} from 'three';
+} from '../../../build/three.module.js';
 
 import { createGaussianSplatGeometry, writeCovariance } from '../utils/GaussianSplatUtils.js';
 

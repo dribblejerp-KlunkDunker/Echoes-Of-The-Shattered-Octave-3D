@@ -2,7 +2,7 @@ import {
 	Color,
 	LinearSRGBColorSpace,
 	MathUtils
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * Represents a lookup table for colormaps. It is used to determine the color

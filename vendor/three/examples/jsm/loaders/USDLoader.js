@@ -2,7 +2,7 @@ import {
 	FileLoader,
 	Loader,
 	LoaderUtils
-} from 'three';
+} from '../../../build/three.module.js';
 
 import { unzipSync } from '../libs/fflate.module.js';
 import { USDAParser } from './usd/USDAParser.js';

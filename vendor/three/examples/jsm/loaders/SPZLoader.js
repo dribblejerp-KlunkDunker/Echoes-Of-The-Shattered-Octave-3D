@@ -2,7 +2,7 @@ import {
 	DataUtils,
 	FileLoader,
 	Loader
-} from 'three';
+} from '../../../build/three.module.js';
 
 import { gunzipSync } from '../libs/fflate.module.js';
 import { ZSTDDecoder } from '../libs/zstddec.module.js';

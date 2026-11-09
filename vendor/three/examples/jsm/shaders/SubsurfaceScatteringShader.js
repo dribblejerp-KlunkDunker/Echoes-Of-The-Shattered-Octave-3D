@@ -3,7 +3,7 @@ import {
 	ShaderChunk,
 	ShaderLib,
 	UniformsUtils
-} from 'three';
+} from '../../../build/three.module.js';
 
 function replaceAll( string, find, replace ) {
 

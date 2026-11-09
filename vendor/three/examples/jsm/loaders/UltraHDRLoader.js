@@ -10,7 +10,7 @@ import {
 	Loader,
 	RGBAFormat,
 	UVMapping,
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * UltraHDR Image Format - https://developer.android.com/media/platform/hdr-image-format

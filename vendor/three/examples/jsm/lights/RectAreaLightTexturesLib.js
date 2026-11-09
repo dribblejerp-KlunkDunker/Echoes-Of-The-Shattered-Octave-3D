@@ -8,7 +8,7 @@ import {
 	NearestFilter,
 	RGBAFormat,
 	UVMapping
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * Texture library for {@link RectAreaLight}. This class holds the LTC BRDF data

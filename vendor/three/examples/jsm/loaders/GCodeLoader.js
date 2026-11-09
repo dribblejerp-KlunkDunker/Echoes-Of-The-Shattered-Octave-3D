@@ -6,7 +6,7 @@ import {
 	LineBasicMaterial,
 	LineSegments,
 	Loader
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * A loader for the GCode format.

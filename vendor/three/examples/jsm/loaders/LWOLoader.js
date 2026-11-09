@@ -25,7 +25,7 @@ import {
 	TextureLoader,
 	Vector2,
 	Vector3
-} from 'three';
+} from '../../../build/three.module.js';
 
 import { IFFParser } from './lwo/IFFParser.js';
 

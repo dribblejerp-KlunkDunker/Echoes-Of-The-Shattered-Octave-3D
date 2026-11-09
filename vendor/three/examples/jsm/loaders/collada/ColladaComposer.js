@@ -38,7 +38,7 @@ import {
 	VectorKeyframeTrack,
 	SRGBColorSpace,
 	ShapeUtils
-} from 'three';
+} from '../../../../build/three.module.js';
 
 import { getElementsByTagName, parseFloats } from './ColladaParser.js';
 

@@ -1,6 +1,6 @@
 import {
 	Group
-} from 'three';
+} from '../../../build/three.module.js';
 
 import { GaussianSplat } from '../objects/GaussianSplat.js';
 import { SH_BAND_WORDS, createGaussianSplatGeometry, createPackedSphericalHarmonicsBand, writeColorBytesFromSH0, writeCovariance } from '../utils/GaussianSplatUtils.js';

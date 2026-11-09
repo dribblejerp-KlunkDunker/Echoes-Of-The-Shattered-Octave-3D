@@ -6,7 +6,7 @@ import {
 	Loader,
 	UnsignedByteType,
 	Vector3,
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * A loader for the Cube LUT format.

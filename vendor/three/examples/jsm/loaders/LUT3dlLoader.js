@@ -6,7 +6,7 @@ import {
 	Loader,
 	RGBAFormat,
 	UnsignedByteType,
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * A loader for the 3DL LUT format.

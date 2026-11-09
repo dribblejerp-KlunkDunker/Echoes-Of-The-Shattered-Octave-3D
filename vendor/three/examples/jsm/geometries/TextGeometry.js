@@ -1,6 +1,6 @@
 import {
 	ExtrudeGeometry
-} from 'three';
+} from '../../../build/three.module.js';
 
 import { Font } from '../loaders/FontLoader.js';
 

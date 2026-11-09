@@ -6,7 +6,7 @@ import {
 	Float32BufferAttribute,
 	Loader,
 	SRGBColorSpace
-} from 'three';
+} from '../../../build/three.module.js';
 import { unzlibSync } from '../libs/fflate.module.js';
 
 /**

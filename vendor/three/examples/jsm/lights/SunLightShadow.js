@@ -6,7 +6,7 @@ import {
 	Vector3,
 	Vector4,
 	WebGPUCoordinateSystem
-} from 'three';
+} from '../../../build/three.module.js';
 
 const _lightOrientationMatrix = /*@__PURE__*/ new Matrix4();
 const _viewToLightMatrix = /*@__PURE__*/ new Matrix4();

@@ -2,7 +2,7 @@ import {
 	BufferGeometry,
 	Float32BufferAttribute,
 	Vector3
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * This class can be used to generate a geometry based on a parametric surface.

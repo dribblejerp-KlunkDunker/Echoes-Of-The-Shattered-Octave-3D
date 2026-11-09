@@ -4,7 +4,7 @@ import {
 	ShapeUtils,
 	Vector2,
 	Vector3
-} from 'three';
+} from '../../../build/three.module.js';
 
 const _vector = /*@__PURE__*/ new Vector3();
 

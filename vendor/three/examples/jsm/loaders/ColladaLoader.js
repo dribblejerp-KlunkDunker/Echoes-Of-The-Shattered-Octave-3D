@@ -4,7 +4,7 @@ import {
 	LoaderUtils,
 	Scene,
 	TextureLoader
-} from 'three';
+} from '../../../build/three.module.js';
 
 import { TGALoader } from '../loaders/TGALoader.js';
 import { ColladaParser } from './collada/ColladaParser.js';

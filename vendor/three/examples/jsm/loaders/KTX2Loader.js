@@ -44,7 +44,7 @@ import {
 	UnsignedInt5999Type,
 	UnsignedInt101111Type,
 	UnsignedShortType
-} from 'three';
+} from '../../../build/three.module.js';
 import { WorkerPool } from '../utils/WorkerPool.js';
 import {
 	read,

@@ -7,7 +7,7 @@ import {
 	PlaneGeometry,
 	Scene,
 	ShaderMaterial
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * This is a helper for visualising a given light's shadow map.

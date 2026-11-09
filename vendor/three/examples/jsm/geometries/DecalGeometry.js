@@ -6,7 +6,7 @@ import {
 	Matrix4,
 	Mesh,
 	Vector3
-} from 'three';
+} from '../../../build/three.module.js';
 
 /**
  * This class can be used to create a decal mesh that serves different kinds of purposes e.g.
