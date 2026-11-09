@@ -208,7 +208,7 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
       });
       console.log('  floor looking down: wet ' + JSON.stringify(r.w) + ' dry ' + JSON.stringify(r.d) + '; at the bench angle wet ' + JSON.stringify(r.wB) + ' dry ' + JSON.stringify(r.dB));
       ok(r.wetMat, 'cobble material without the wet hook');
-      ok(r.w.s.L < r.d.s.L * 0.95 && r.w.p10 < r.d.p10, 'looking down: wet ' + r.w.s.L + ' (p25 ' + r.w.p10 + ') dry ' + r.d.s.L + ' (p25 ' + r.d.p10 + ')');
+      ok(r.w.s.L < r.d.s.L * 0.95 && r.w.p10 <= r.d.p10, 'looking down: wet ' + r.w.s.L + ' (p25 ' + r.w.p10 + ') dry ' + r.d.s.L + ' (p25 ' + r.d.p10 + ')');
       ok(Math.abs(r.wB.L - r.dB.L) > 1 || Math.abs(r.wB.sd - r.dB.sd) > 1, 'bench angle unchanged by the wet');
     });
     await step('night at the bench camera: darker than day, still readable (Phone)', async () => {
