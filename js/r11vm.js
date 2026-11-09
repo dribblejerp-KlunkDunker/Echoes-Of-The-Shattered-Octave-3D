@@ -632,8 +632,8 @@ const R11VM = (function () {
       float edge = smoothstep(0.5, 0.92, fr);
       // the facets' edges: fine bright seams in the glass, brighter where the light runs through
       float e = min(vB.x, min(vB.y, vB.z)), seam = 1.0 - smoothstep(0.0, 0.018, e);
-      vec3 c = uDeep * (0.1 + 0.32 * inner + 0.6 * sky) + uRim * (fr * 1.0 + edge * 0.45) + uGlint * (sp * 0.4 + seam * (0.05 + 0.14 * inner));
-      float a = clamp(0.5 + 0.35 * fr + 0.08 * inner + 0.2 * sp + 0.1 * seam, 0.0, 0.9);
+      vec3 c = uDeep * (0.05 + 0.2 * inner + 0.3 * sky) + uRim * (fr * 0.85 + edge * 0.4) + uGlint * (sp * 0.35 + seam * (0.03 + 0.1 * inner));
+      float a = clamp(0.56 + 0.3 * fr + 0.06 * inner + 0.2 * sp + 0.08 * seam, 0.0, 0.92);
       gl_FragColor = vec4(c * uBack * uK, a * uBack);
       #include <tonemapping_fragment>
       #include <colorspace_fragment>
@@ -657,7 +657,7 @@ const R11VM = (function () {
       float flow = 0.55 + 0.45 * sin(x * 46.0 - uTime * 3.1) * (0.6 + 0.4 * sin(x * 11.0 - uTime * 1.3));
       vec3 c;
       if (uGlow > 0.5) c = uCol * 0.16 * pow(ndv, 2.0) * (0.7 + 0.5 * flow);
-      else c = uCol * (0.6 + 0.5 * flow) * (0.7 + 0.3 * ndv);
+      else c = uCol * (0.85 + 0.65 * flow) * (0.7 + 0.3 * ndv);
       gl_FragColor = vec4(c * uK, 1.0);
       #include <tonemapping_fragment>
       #include <colorspace_fragment>
@@ -715,12 +715,12 @@ const R11VM = (function () {
     const mg = mergeFn();
     const shellGeo = facet(mg(plain(glassHandParts(1)), false), 0.0045, r);
     const coreGeo = facet(mg(plain(glassHandParts(0.42)), false), 0.003, r);
-    const U = { uTime: { value: 0 }, uK: { value: 1 }, uBack: { value: 1 }, uDeep: { value: new THREE.Color(0x12c2d2) }, uRim: { value: new THREE.Color(0x5ff2ec) }, uGlint: { value: new THREE.Color(0xa6f2ff) } };
+    const U = { uTime: { value: 0 }, uK: { value: 1 }, uBack: { value: 1 }, uDeep: { value: new THREE.Color(0x05b4d0) }, uRim: { value: new THREE.Color(0x2ee6f0) }, uGlint: { value: new THREE.Color(0xa6f2ff) } };
     const mk = (side, back) => new THREE.ShaderMaterial({ name: 'r11vm:glass', uniforms: Object.assign({}, U, { uBack: { value: back } }), vertexShader: glassVert, fragmentShader: glassFrag,
       transparent: true, depthWrite: false, side, blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor, blendEquation: THREE.AddEquation });
     const backM = mk(THREE.BackSide, 0.5), frontM = mk(THREE.FrontSide, 1);
     backM.uniforms.uTime = frontM.uniforms.uTime = U.uTime; backM.uniforms.uK = frontM.uniforms.uK = U.uK;
-    const coreM = new THREE.ShaderMaterial({ name: 'r11vm:glass-core', uniforms: { uTime: U.uTime, uK: U.uK, uDeep: { value: new THREE.Color(0x6ff0f0) } }, vertexShader: glassVert, fragmentShader: coreFrag,
+    const coreM = new THREE.ShaderMaterial({ name: 'r11vm:glass-core', uniforms: { uTime: U.uTime, uK: U.uK, uDeep: { value: new THREE.Color(0x35d8ee) } }, vertexShader: glassVert, fragmentShader: coreFrag,
       transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
     // the one vein: up the forearm under the back of it, through the wrist, into the palm toward the middle finger
     const vp = [V(0.012, 0.016, 0.42), V(0.006, 0.019, 0.3), V(0.013, 0.017, 0.2), V(0.003, 0.016, 0.11), V(-0.004, 0.012, 0.03), V(0.002, 0.007, -0.03), V(0.008, 0.005, -0.068), V(0.009, 0.004, -0.088)];
