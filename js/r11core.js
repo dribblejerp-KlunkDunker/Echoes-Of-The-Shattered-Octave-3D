@@ -13,7 +13,8 @@
 //    { color, rough, ns, metal }. R11.M = units per metre; R11.toWorld(mapX, mapY, gameZ) -> THREE.Vector3.
 //    R11.on(ev, fn) / R11.off: 'mapbuilt' (map, ctx) once the world of a map is built, ctx = { scene, THREE, mat, tier,
 //    M, toWorld, map, addLight(light, priority), hideCells(set) }; 'frame' (F) each frame (F.dt, F.t, F.walk, F.cam,
-//    F.env, F.map, F.tod, F.P (the hour's light)); 'tier' (name); 'style' (name).
+//    F.env, F.map, F.tod, F.P (the hour's light)); 'tier' (name); 'style' (name); 'ready' (once Three.js, the sky and the
+//    scanned materials are in: R11.mat works from then on).
 //    R11.paused / R11.renderOnce() for screenshots. R11.stats (draws, world draws, billboards, ...).
 //
 //  SPACE. Three.js y-up: three.x = map x (cells), three.z = map y (cells), three.y = game height x R3D.ZK (0.61875). The
@@ -46,7 +47,7 @@ const R11 = (() => {
     planks:  { scan: 'weathered_planks', rep: 1.4 },
     slate:   { scan: 'roof_slates_02', rep: 2.0, ns: 1.2 },
     bark:    { scan: 'bark_brown_02', rep: 1.4, ns: 1.6 },
-    grass:   { plain: 0xffffff, rough: 0.97, noise: 'grass', rep: 2.5 },
+    grass:   { plain: 0xffffff, rough: 0.97, noise: 'grass', rep: 1.4 },
     earth:   { plain: 0xffffff, rough: 0.95, noise: 'earth', rep: 3 },
     hedge:   { plain: 0xffffff, rough: 0.98, noise: 'hedge', rep: 1.2 },          // thorn, with flecks of packed wool (canon)
     thatch:  { plain: 0xffffff, rough: 1, noise: 'thatch', rep: 1.5 },
@@ -60,7 +61,7 @@ const R11 = (() => {
   // game texture -> [base, tint]. Unknown names go through KEYWORDS, then fall back to 'flat' in the texture's mean colour.
   const TEX = {
     t_cobble: ['cobble', 0xb9b4ad], t_flag: ['blocks', 0xa8a39b], t_stone: ['stone', 0xd8d2c8], t_stone_p20b_1: ['stone', 0xc8c2b8], t_stone_p20b_2: ['stone', 0xb8b4ac],
-    t_house: ['plaster', 0xd9cdb6], t_house_p20b_1: ['plaster', 0xdccfb8], t_house_p20b_2: ['plaster', 0xcfc4ae], t_house_p20b_3: ['plaster', 0xd4c9b0],
+    t_house: ['plaster', 0xe0d6c4], t_house_p20b_1: ['plaster', 0xdccfb8], t_house_p20b_2: ['plaster', 0xcfc4ae], t_house_p20b_3: ['plaster', 0xd4c9b0],
     t_roof: ['slate', 0x9aa0a6], t_wood: ['wood', 0x8a7a68], t_door: ['planks', 0xa08a70], t_hedge: ['hedge', 0xffffff], t_grass: ['grass', 0xffffff],
     t_grass_p20b_a: ['grass', 0xf2f4ea], t_grass_p20b_b: ['grass', 0xe4e8d8], t_grass_p20b_c: ['grass', 0xfaf2e0], t_grass_p20b_d: ['grass', 0xe8eee0],
     t_moss: ['grass', 0xb8c4a8], t_moss_p20b_a: ['grass', 0xb0bca0], t_moss_p20b_b: ['grass', 0xc0c8b0],
@@ -234,17 +235,17 @@ const R11 = (() => {
     const N = 128, data = new Uint8Array(N * N * 4);
     let s = 1234 + kind.length * 77; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
     const grid = (f) => { const g = new Float32Array(f * f); for (let i = 0; i < g.length; i++) g[i] = rnd(); return g; };
-    const octs = [grid(4), grid(8), grid(16), grid(32)];
+    const octs = [grid(4), grid(8), grid(16), grid(32), grid(64)];
     const val = (g, f, x, y) => { const fx = x * f / N, fy = y * f / N, x0 = Math.floor(fx), y0 = Math.floor(fy), tx = fx - x0, ty = fy - y0;
       const a = g[(y0 % f) * f + (x0 % f)], b = g[(y0 % f) * f + ((x0 + 1) % f)], c = g[((y0 + 1) % f) * f + (x0 % f)], d = g[((y0 + 1) % f) * f + ((x0 + 1) % f)];
       const sx = tx * tx * (3 - 2 * tx), sy = ty * ty * (3 - 2 * ty); return mix(mix(a, b, sx), mix(c, d, sx), sy); };
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
-      const n = val(octs[0], 4, x, y) * 0.4 + val(octs[1], 8, x, y) * 0.3 + val(octs[2], 16, x, y) * 0.2 + val(octs[3], 32, x, y) * 0.1;
+      const n = val(octs[0], 4, x, y) * 0.36 + val(octs[1], 8, x, y) * 0.26 + val(octs[2], 16, x, y) * 0.18 + val(octs[3], 32, x, y) * 0.12 + val(octs[4], 64, x, y) * 0.08;
       const fine = rnd();
       let r, g, b;
       // colours in sRGB 0..1: late-autumn turf, earth, the Hedge's thorn (with flecks of packed wool), straw
       const v = 0.8 + 0.4 * n + 0.14 * (fine - 0.5);
-      if (kind === 'grass') { const dry = smooth(0.5, 0.78, n); r = mix(0.24, 0.40, dry) * v; g = mix(0.30, 0.34, dry) * v; b = mix(0.14, 0.18, dry) * v; }
+      if (kind === 'grass') { const dry = smooth(0.5, 0.78, n), blade = 0.7 + 0.6 * fine; r = mix(0.2, 0.42, dry) * v * blade; g = mix(0.3, 0.35, dry) * v * blade; b = mix(0.09, 0.15, dry) * v * blade; }
       else if (kind === 'earth') { r = 0.34 * v; g = 0.27 * v; b = 0.19 * v; }
       else if (kind === 'hedge') { const k = 0.55 + 0.9 * n * n + 0.35 * (fine - 0.5); r = 0.15 * k; g = 0.2 * k; b = 0.11 * k; if (fine > 0.985 && n > 0.45) { r = 0.82; g = 0.79; b = 0.72; } }
       else if (kind === 'thatch') { const str = 0.5 + 0.5 * Math.sin((x * 0.9 + n * 20)); const k = 0.7 + 0.35 * n + 0.15 * str; r = 0.55 * k; g = 0.46 * k; b = 0.28 * k; }
