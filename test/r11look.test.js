@@ -195,17 +195,21 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
       ok(kL > 0.95, 'lamp kept ' + kL.toFixed(2));
       ok(g[2][2] > g[2][0] && g[2][1] >= g[2][0], 'deep shade ' + JSON.stringify(g[2]));
     });
-    await step('wet cobbles: the cobble material is wet; wet, the open floor is darker and more contrasted than dry', async () => {
+    // wet cobbles: looking down at the floor (where the sky's reflection is weak, so the darkening shows) the wet floor is
+    // darker, and its dark end (the water-filled joints) darker still; at the bench camera's grazing angle the wet floor
+    // shows the sky (a sheen and glints), which picture 1 shows too, so there the check is only that it changes
+    await step('wet cobbles: the cobble material is wet; looking down, wet cobbles are darker with darker joints; at the bench angle they show the sky', async () => {
       const r = await page.evaluate(() => {
         let wetMat = false; R11.scene.traverse((o) => { if (o.name === 'r11-cobble' && o.material && o.material.userData.r11wet) wetMat = true; });
-        R11.look.set({ wetForce: 0 }); S.bench(); S.frame(); const d = S.stats(0.46, 0.62, 0.6, 0.98);   // open floor between the hands
-        R11.look.set({ wetForce: null }); S.bench(); S.frame(); const w = S.stats(0.46, 0.62, 0.6, 0.98);
-        return { wetMat, d, w };
+        const down = () => { S.bench(); Engine.cam.pitch = -200; S.frame(); return { s: S.stats(0.4, 0.7, 0.62, 0.98), p10: S.pct(0.4, 0.7, 0.62, 0.98, 0.1) }; };
+        R11.look.set({ wetForce: 0 }); const d = down(); S.bench(); S.frame(); const dB = S.stats(0.46, 0.62, 0.6, 0.98);
+        R11.look.set({ wetForce: null }); const w = down(); S.bench(); S.frame(); const wB = S.stats(0.46, 0.62, 0.6, 0.98);
+        return { wetMat, d, w, dB, wB };
       });
-      dry = r.d;
-      console.log('  floor wet ' + JSON.stringify(r.w) + ' dry ' + JSON.stringify(r.d));
+      console.log('  floor looking down: wet ' + JSON.stringify(r.w) + ' dry ' + JSON.stringify(r.d) + '; at the bench angle wet ' + JSON.stringify(r.wB) + ' dry ' + JSON.stringify(r.dB));
       ok(r.wetMat, 'cobble material without the wet hook');
-      ok(r.w.L < r.d.L * 0.95 && r.w.sd / r.w.L > r.d.sd / r.d.L, 'wet ' + JSON.stringify(r.w) + ' dry ' + JSON.stringify(r.d));
+      ok(r.w.s.L < r.d.s.L * 0.92 && r.w.p10 < r.d.p10, 'looking down: wet ' + r.w.s.L + ' (p10 ' + r.w.p10 + ') dry ' + r.d.s.L + ' (p10 ' + r.d.p10 + ')');
+      ok(Math.abs(r.wB.L - r.dB.L) > 1 || Math.abs(r.wB.sd - r.dB.sd) > 1, 'bench angle unchanged by the wet');
     });
     await step('night at the bench camera: darker than day, still readable (Phone)', async () => {
       const r = await page.evaluate(() => { S.bench(0.96); S.frame(); const n = S.regions(); S.bench(); return n; });
