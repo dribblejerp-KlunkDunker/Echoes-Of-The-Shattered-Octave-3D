@@ -79,6 +79,28 @@ const HELPERS = () => {
     for (let i = 0; i < b.length; i += 4) { const l = 0.2126 * b[i] + 0.7152 * b[i + 1] + 0.0722 * b[i + 2]; r += b[i]; g += b[i + 1]; bl += b[i + 2]; L += l; L2 += l * l; const mx = Math.max(b[i], b[i + 1], b[i + 2]), mn = Math.min(b[i], b[i + 1], b[i + 2]); sat += (mx - mn) / (mx + 1); }
     const m = L / n; return { rgb: [r / n, g / n, bl / n].map(Math.round), L: Math.round(m * 10) / 10, sd: Math.round(Math.sqrt(Math.max(0, L2 / n - m * m)) * 10) / 10, sat: Math.round(sat / n * 1000) / 1000 };
   };
+  // a percentile of luma over a region (the sky shows through gaps in the oaks: its bright end is what reads as sky)
+  S.pct = (x0, y0, x1, y1, p) => {
+    const gl = R11.renderer.getContext(), c = R11.canvas(), vh = c.height * 0.75;
+    const X0 = (x0 * c.width) | 0, W = Math.max(1, ((x1 - x0) * c.width) | 0), H = Math.max(1, ((y1 - y0) * vh) | 0), Y0 = (c.height - y1 * vh) | 0;
+    const b = new Uint8Array(W * H * 4); gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.readPixels(X0, Y0, W, H, gl.RGBA, gl.UNSIGNED_BYTE, b);
+    const L = []; for (let i = 0; i < b.length; i += 4) L.push(0.2126 * b[i] + 0.7152 * b[i + 1] + 0.0722 * b[i + 2]);
+    L.sort((a, q) => a - q); return Math.round(L[Math.min(L.length - 1, Math.floor(p * L.length))]);
+  };
+  // the grade itself, on the GPU: R11.look.gradeGLSL (Phone's baked copy, the same text as Ultra's output pass) applied
+  // to known colours (linear, as they come out of AgX); returns sRGB 0..255
+  S.grade = (cols) => {
+    const T = R11.THREE, n = cols.length, rt = new T.WebGLRenderTarget(n, 1, { type: T.UnsignedByteType });
+    const pick = cols.map((c, i) => (i < n - 1 ? 'i == ' + i + ' ? vec3(' + c.join(', ') + ') : ' : 'vec3(' + c.join(', ') + ')')).join('');
+    const m = new T.ShaderMaterial({ toneMapped: false, depthTest: false,
+      vertexShader: 'void main() { gl_Position = vec4(position.xy, 0.0, 1.0); }',
+      fragmentShader: R11.look.gradeGLSL(false) + '\nvoid main() { int i = int(gl_FragCoord.x); vec3 c = ' + pick + '; gl_FragColor = vec4(pow(r11Grade(c), vec3(1.0 / 2.2)), 1.0); }' });
+    const scene = new T.Scene(), q = new T.Mesh(new T.PlaneGeometry(2, 2), m); q.frustumCulled = false; scene.add(q);
+    const cam = new T.OrthographicCamera(-1, 1, 1, -1, 0, 1), r = R11.renderer, prev = r.getRenderTarget();
+    r.setRenderTarget(rt); r.render(scene, cam); const b = new Uint8Array(n * 4); r.readRenderTargetPixels(rt, 0, 0, n, 1, b); r.setRenderTarget(prev);
+    rt.dispose(); m.dispose(); q.geometry.dispose();
+    const out = []; for (let i = 0; i < n; i++) out.push([b[i * 4], b[i * 4 + 1], b[i * 4 + 2]]); return out;
+  };
   S.regions = () => ({ all: S.stats(0, 0, 1, 1), sky: S.stats(0.3, 0.02, 0.6, 0.16), ground: S.stats(0.32, 0.7, 0.68, 0.98), mid: S.stats(0.3, 0.42, 0.75, 0.6) });
   // the neutral look: AgX alone at phase 1's exposure, no grade, a dry floor (for comparisons)
   S.NEUTRAL = { expDay: 1.0, expNight: 1.6, expDusk: 0, ambDay: 1, skyDay: 1, fogMix: 0, wetForce: 0, grade: { sat: 1, warmSat: 1, contrast: 1, gamma: 1, lift: 0, shadow: [0, 0, 0], mid: [0, 0, 0], high: [0, 0, 0] } };
@@ -128,16 +150,27 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
       await page.screenshot({ path: path.join(SHOT_DIR, 'r11look-ultra.png') });
       console.log('  Ultra ' + JSON.stringify(ultra) + ' exposure ' + r.look.exposure + ' wet ' + r.look.wet);
     });
-    await step('the grade: darker and less saturated than the neutral look (AgX alone, phase-1 exposure, dry)', async () => {
+    await step('the frame: darker than the neutral look (AgX alone, phase-1 exposure and fill, dry), more contrasted', async () => {
       const r = await page.evaluate((N) => { const keep = R11.look.get(); R11.look.set(S.NEUTRAL); S.bench(); S.frame(); const n = S.regions(); R11.look.set(Object.assign({}, keep.LOOK, { grade: keep.GRADE, wetForce: null })); return n; }, null);
       neutral = r;
       ok(ultra.all.L < neutral.all.L * 0.88, 'view luma ' + ultra.all.L + ' vs neutral ' + neutral.all.L);
-      ok(ultra.mid.sat < neutral.mid.sat, 'saturation ' + ultra.mid.sat + ' vs neutral ' + neutral.mid.sat);
+      ok(ultra.all.sd / ultra.all.L > neutral.all.sd / neutral.all.L, 'relative contrast ' + ultra.all.sd + '/' + ultra.all.L + ' vs neutral ' + neutral.all.sd + '/' + neutral.all.L);
       console.log('  neutral ' + JSON.stringify(neutral));
     });
-    await step('an overcast day, not night: the sky is the brightest band and reads as day', async () => {
-      ok(ultra.sky.L > ultra.ground.L * 1.25 && ultra.sky.L > ultra.mid.L, 'sky ' + ultra.sky.L + ' ground ' + ultra.ground.L + ' mid ' + ultra.mid.L);
-      ok(ultra.sky.L > 95 && ultra.sky.L < 215, 'sky luma ' + ultra.sky.L);
+    await step('the grade on known colours: greens and greys lose 10-25% saturation, a lamp keeps its colour, deep shade goes teal-grey', async () => {
+      const g = await page.evaluate(() => S.grade([[0.05, 0.22, 0.04], [0.9, 0.36, 0.07], [0.012, 0.012, 0.012], [0.18, 0.2, 0.24]]));
+      const sat = (c) => (Math.max(...c) - Math.min(...c)) / Math.max(1, Math.max(...c));
+      const inSat = (c) => sat(c.map((v) => 255 * Math.pow(v, 1 / 2.2)));
+      const kG = sat(g[0]) / inSat([0.05, 0.22, 0.04]), kB = sat(g[3]) / inSat([0.18, 0.2, 0.24]), kL = sat(g[1]) / inSat([0.9, 0.36, 0.07]);
+      ok(kG < 0.92 && kG > 0.6 && kB < 0.92, 'green kept ' + kG.toFixed(2) + ', blue-grey kept ' + kB.toFixed(2));
+      ok(kL > 0.95, 'lamp kept ' + kL.toFixed(2));
+      ok(g[2][2] > g[2][0] && g[2][1] >= g[2][0], 'deep shade ' + JSON.stringify(g[2]));
+      console.log('  graded ' + JSON.stringify(g));
+    });
+    await step('an overcast day, not night: the sky (through the oaks) is the brightest band and reads as day', async () => {
+      const r = await page.evaluate(() => { S.bench(); S.frame(); return { sky: S.pct(0, 0, 1, 0.22, 0.9), ground: S.stats(0.32, 0.7, 0.68, 0.98).L, mid: S.stats(0.3, 0.42, 0.75, 0.6).L }; });
+      ok(r.sky > r.ground * 1.3 && r.sky > r.mid * 1.3, JSON.stringify(r));
+      ok(r.sky > 95 && r.sky < 225, 'sky luma ' + r.sky);
     });
     await step('bloom only on what glows: the sky\'s ceiling is under the bloom threshold', async () => {
       const r = await page.evaluate(() => ({ cap: R11.look.get().LOOK.skyCap, th: R11.R.passes.bloom ? R11.R.passes.bloom.threshold : null }));

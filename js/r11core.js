@@ -62,7 +62,7 @@ const R11 = (() => {
   };
   // game texture -> [base, tint]. Unknown names go through KEYWORDS, then fall back to 'flat' in the texture's mean colour.
   const TEX = {
-    t_cobble: ['cobble', 0x857a6c], t_flag: ['blocks', 0xa8a39b], t_stone: ['stone', 0xd8d2c8], t_stone_p20b_1: ['stone', 0xc8c2b8], t_stone_p20b_2: ['stone', 0xb8b4ac],
+    t_cobble: ['cobble', 0x8a7562], t_flag: ['blocks', 0xa8a39b], t_stone: ['stone', 0xd8d2c8], t_stone_p20b_1: ['stone', 0xc8c2b8], t_stone_p20b_2: ['stone', 0xb8b4ac],
     t_house: ['plaster', 0xe0d6c4], t_house_p20b_1: ['plaster', 0xdccfb8], t_house_p20b_2: ['plaster', 0xcfc4ae], t_house_p20b_3: ['plaster', 0xd4c9b0],
     t_roof: ['slate', 0x9aa0a6], t_wood: ['wood', 0x8a7a68], t_door: ['planks', 0xa08a70], t_hedge: ['hedge', 0xffffff], t_grass: ['grass', 0xffffff],
     t_grass_p20b_a: ['grass', 0xf2f4ea], t_grass_p20b_b: ['grass', 0xe4e8d8], t_grass_p20b_c: ['grass', 0xfaf2e0], t_grass_p20b_d: ['grass', 0xe8eee0],
@@ -865,7 +865,7 @@ void main() {
   const LOOK = {
     expDay: 0.56, expNight: 1.3, expDusk: 0.12, expIn: 1.0,
     ambDay: 0.5,                            // the sky's fill (hemisphere and HDR environment) by day: deeper shade
-    skyDay: 0.85, skyCap: 1.15, skyCool: [0.95, 0.99, 1.05],   // the overcast a shade cooler by day (picture 1's sky is neutral grey)
+    skyDay: 0.72, skyCap: 1.15, skyCool: [0.95, 0.99, 1.05],   // the overcast a shade cooler by day (picture 1's sky is neutral grey)
               // the overcast dome's strength by day, and its ceiling (bloom never takes the sky)
     fogDay: [0.20, 0.215, 0.235], fogMix: 0.55, fogDensity: 0.4,   // the overcast air (linear), how far the day leans to it
     lampWarm: [1.0, 0.62, 0.3],             // practical lights pulled toward candle/tallow (multiplied, then renormalised)
@@ -882,9 +882,9 @@ vec3 NAME(vec3 c) {
   float Y = dot(g, LW);
   float warm = smoothstep(0.05, 0.26, g.r - g.b) * smoothstep(0.4, 0.82, max(g.r, g.g));
   g = mix(vec3(Y), g, mix($SAT, $WSAT, warm));
-  g = max($PIV + (g - $PIV) * $CON, vec3(0.0));
-  g = pow(g, vec3($GAM));
-  float Y2 = dot(g, LW);
+  float Yc = pow(max($PIV + (Y - $PIV) * $CON, 0.0), $GAM);   // contrast and gamma on luminance only: hues and
+  g *= Yc / max(Y, 1e-4);                                       // saturation are the grade's to set, not the curve's
+  float Y2 = Yc;
   g += $SH * (1.0 - smoothstep(0.03, 0.22, Y2)) * smoothstep(0.0, 0.04, Y2) + $MID * smoothstep(0.1, 0.22, Y2) * (1.0 - smoothstep(0.35, 0.6, Y2)) + $HI * smoothstep(0.5, 0.95, Y2);
   g = $LIFT + clamp(g, 0.0, 1.0) * (1.0 - $LIFT);
   return pow(g, vec3(2.2));
@@ -958,7 +958,7 @@ float r11Noise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0
         .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\nnormal = normalize(mix(normal, nonPerturbedNormal, max(r11Water, 0.0)));');
     };
     m.customProgramCacheKey = () => 'r11wet3';
-    m.envMapIntensity = 1.6;   // the sky in the wet: the day's thinner fill (LOOK.ambDay) must not take the reflections with it
+    m.envMapIntensity = 1.4;   // the sky in the wet: the day's thinner fill (LOOK.ambDay) must not take the reflections with it
     m.userData.r11wet = true;
   }
   function wetFrame(env) {
