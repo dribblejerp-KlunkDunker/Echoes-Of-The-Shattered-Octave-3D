@@ -142,41 +142,53 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
       console.log('  bench camera ' + JSON.stringify(B) + ', draws at Ultra ' + r.draws);
     });
     await page.waitForTimeout(5000);   // KIT's glTF props and textures arrive after the first frame of a map
-    await step('Ultra: the grade is the composer\'s output pass (no OutputPass), and the bench shot is written', async () => {
-      const r = await page.evaluate(() => { if (R11.tier() !== 'ultra') R11.setTier('ultra'); S.bench(); S.frame(); const P = R11.R.passes; return { tier: R11.tier(), grade: !!P.grade, names: R11.R.composer.passes.map((p) => p.constructor.name), reg: S.regions(), look: R11.look.get() }; });
-      ok(r.tier === 'ultra', 'tier ' + r.tier);
-      ok(r.grade && !r.names.includes('OutputPass'), 'passes ' + r.names.join(','));
+    // Ultra frames take minutes on SwiftShader under load: Ultra draws only the bench shot; the comparisons run at Phone,
+    // whose tone mapping carries the very same grade (gradeGLSL) as Ultra's output pass
+    await step('Ultra: the grade is the composer\'s output pass (no OutputPass); the sky (through the oaks) is the brightest band and reads as day; the bench shot and side-by-sides are written', async () => {
+      const r = await page.evaluate(() => { if (R11.tier() !== 'ultra') R11.setTier('ultra'); S.bench(); S.frame(); const P = R11.R.passes;
+        return { tier: R11.tier(), grade: !!P.grade, names: R11.R.composer.passes.map((p) => p.constructor.name), reg: S.regions(), sky: S.pct(0, 0, 1, 0.22, 0.9), look: R11.look.get(), draws: R11.stats.draws }; });
       ultra = r.reg;
       await page.screenshot({ path: path.join(SHOT_DIR, 'r11look-ultra.png') });
-      console.log('  Ultra ' + JSON.stringify(ultra) + ' exposure ' + r.look.exposure + ' wet ' + r.look.wet);
+      console.log('  Ultra ' + JSON.stringify(ultra) + ' sky p90 ' + r.sky + ' exposure ' + r.look.exposure + ' wet ' + r.look.wet + ' draws ' + r.draws);
+      ok(r.tier === 'ultra', 'tier ' + r.tier);
+      ok(r.grade && !r.names.includes('OutputPass'), 'passes ' + r.names.join(','));
+      ok(r.sky > ultra.ground.L * 1.3 && r.sky > ultra.mid.L * 1.3 && r.sky > 95 && r.sky < 225, 'sky ' + r.sky + ' ground ' + ultra.ground.L + ' mid ' + ultra.mid.L);
+      ok(fs.existsSync(BENCH1), 'picture 1 missing: ' + BENCH1);
+      await sideBySide(page, path.join(SHOT_DIR, 'r11look-ultra.png'), path.join(SHOT_DIR, 'r11look-sbs.png'), path.join(SHOT_DIR, 'r11look-sbs-grey.png'));
+      ok(fs.statSync(path.join(SHOT_DIR, 'r11look-sbs-grey.png')).size > 10000, 'grey side-by-side not written');
+    });
+    await step('bloom only on what glows: the sky\'s ceiling is under the bloom threshold', async () => {
+      const r = await page.evaluate(() => ({ cap: R11.look.get().LOOK.skyCap, th: R11.R.passes.bloom ? R11.R.passes.bloom.threshold : null }));
+      ok(r.th != null && r.cap < r.th, JSON.stringify(r));
+    });
+    await step('Phone: no composer (no extra full-screen pass), the grade rides in the tone mapping, and agrees with Ultra', async () => {
+      const r = await page.evaluate(() => { R11.setTier('phone'); S.bench(); S.frame(); return { tier: R11.tier(), composer: !!R11.R.composer, tm: R11.renderer.toneMapping === R11.THREE.CustomToneMapping, reg: S.regions(), draws: R11.stats.draws }; });
+      phone = r.reg;
+      await page.screenshot({ path: path.join(SHOT_DIR, 'r11look-phone.png') });
+      await sideBySide(page, path.join(SHOT_DIR, 'r11look-phone.png'), path.join(SHOT_DIR, 'r11look-sbs-phone.png'), path.join(SHOT_DIR, 'r11look-sbs-phone-grey.png'));
+      console.log('  Phone ' + JSON.stringify(phone) + ', draws at Phone ' + r.draws);
+      ok(r.tier === 'phone' && !r.composer && r.tm, 'tier ' + r.tier + ' composer ' + r.composer + ' custom tone mapping ' + r.tm);
+      ok(Math.abs(phone.all.L - ultra.all.L) < Math.max(14, ultra.all.L * 0.22), 'phone ' + phone.all.L + ' ultra ' + ultra.all.L);
     });
     await step('the frame: darker than the neutral look (AgX alone, phase-1 exposure and fill, dry), more contrasted', async () => {
-      const r = await page.evaluate((N) => { const keep = R11.look.get(); R11.look.set(S.NEUTRAL); S.bench(); S.frame(); const n = S.regions(); R11.look.set(Object.assign({}, keep.LOOK, { grade: keep.GRADE, wetForce: null })); return n; }, null);
-      neutral = r;
-      ok(ultra.all.L < neutral.all.L * 0.88, 'view luma ' + ultra.all.L + ' vs neutral ' + neutral.all.L);
-      ok(ultra.all.sd / ultra.all.L > neutral.all.sd / neutral.all.L, 'relative contrast ' + ultra.all.sd + '/' + ultra.all.L + ' vs neutral ' + neutral.all.sd + '/' + neutral.all.L);
+      const r = await page.evaluate(() => { const keep = R11.look.get(); R11.look.set(S.NEUTRAL); S.bench(); S.frame(); const n = S.regions(); R11.look.set(Object.assign({}, keep.LOOK, { grade: keep.GRADE, wetForce: null })); S.bench(); S.frame(); return { n, back: S.regions() }; });
+      neutral = r.n;
       console.log('  neutral ' + JSON.stringify(neutral));
+      ok(Math.abs(r.back.all.L - phone.all.L) < 3, 'the look comes back: ' + r.back.all.L + ' vs ' + phone.all.L);
+      ok(phone.all.L < neutral.all.L * 0.88, 'view luma ' + phone.all.L + ' vs neutral ' + neutral.all.L);
+      ok(phone.all.sd / phone.all.L > neutral.all.sd / neutral.all.L, 'relative contrast ' + phone.all.sd + '/' + phone.all.L + ' vs neutral ' + neutral.all.sd + '/' + neutral.all.L);
     });
     await step('the grade on known colours: greens and greys lose 10-25% saturation, a lamp keeps its colour, deep shade goes teal-grey', async () => {
       const g = await page.evaluate(() => S.grade([[0.05, 0.22, 0.04], [0.9, 0.36, 0.07], [0.012, 0.012, 0.012], [0.18, 0.2, 0.24]]));
       const sat = (c) => (Math.max(...c) - Math.min(...c)) / Math.max(1, Math.max(...c));
       const inSat = (c) => sat(c.map((v) => 255 * Math.pow(v, 1 / 2.2)));
       const kG = sat(g[0]) / inSat([0.05, 0.22, 0.04]), kB = sat(g[3]) / inSat([0.18, 0.2, 0.24]), kL = sat(g[1]) / inSat([0.9, 0.36, 0.07]);
+      console.log('  graded ' + JSON.stringify(g));
       ok(kG < 0.92 && kG > 0.6 && kB < 0.92, 'green kept ' + kG.toFixed(2) + ', blue-grey kept ' + kB.toFixed(2));
       ok(kL > 0.95, 'lamp kept ' + kL.toFixed(2));
       ok(g[2][2] > g[2][0] && g[2][1] >= g[2][0], 'deep shade ' + JSON.stringify(g[2]));
-      console.log('  graded ' + JSON.stringify(g));
     });
-    await step('an overcast day, not night: the sky (through the oaks) is the brightest band and reads as day', async () => {
-      const r = await page.evaluate(() => { S.bench(); S.frame(); return { sky: S.pct(0, 0, 1, 0.22, 0.9), ground: S.stats(0.32, 0.7, 0.68, 0.98).L, mid: S.stats(0.3, 0.42, 0.75, 0.6).L }; });
-      ok(r.sky > r.ground * 1.3 && r.sky > r.mid * 1.3, JSON.stringify(r));
-      ok(r.sky > 95 && r.sky < 225, 'sky luma ' + r.sky);
-    });
-    await step('bloom only on what glows: the sky\'s ceiling is under the bloom threshold', async () => {
-      const r = await page.evaluate(() => ({ cap: R11.look.get().LOOK.skyCap, th: R11.R.passes.bloom ? R11.R.passes.bloom.threshold : null }));
-      ok(r.th != null && r.cap < r.th, JSON.stringify(r));
-    });
-    await step('wet cobbles: the cobble material is wet; wet, the cobbles are darker and more contrasted than dry', async () => {
+    await step('wet cobbles: the cobble material is wet; wet, the open floor is darker and more contrasted than dry', async () => {
       const r = await page.evaluate(() => {
         let wetMat = false; R11.scene.traverse((o) => { if (o.name === 'r11-cobble' && o.material && o.material.userData.r11wet) wetMat = true; });
         R11.look.set({ wetForce: 0 }); S.bench(); S.frame(); const d = S.stats(0.46, 0.62, 0.6, 0.98);   // open floor between the hands
@@ -184,22 +196,9 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
         return { wetMat, d, w };
       });
       dry = r.d;
+      console.log('  floor wet ' + JSON.stringify(r.w) + ' dry ' + JSON.stringify(r.d));
       ok(r.wetMat, 'cobble material without the wet hook');
       ok(r.w.L < r.d.L * 0.95 && r.w.sd / r.w.L > r.d.sd / r.d.L, 'wet ' + JSON.stringify(r.w) + ' dry ' + JSON.stringify(r.d));
-    });
-    await step('side-by-side PNGs (ours | picture 1), colour and greyscale', async () => {
-      ok(fs.existsSync(BENCH1), 'picture 1 missing: ' + BENCH1);
-      await sideBySide(page, path.join(SHOT_DIR, 'r11look-ultra.png'), path.join(SHOT_DIR, 'r11look-sbs.png'), path.join(SHOT_DIR, 'r11look-sbs-grey.png'));
-      ok(fs.statSync(path.join(SHOT_DIR, 'r11look-sbs-grey.png')).size > 10000, 'grey side-by-side not written');
-    });
-    await step('Phone: no composer (no extra full-screen pass), the grade rides in the tone mapping, and agrees with Ultra', async () => {
-      const r = await page.evaluate(() => { R11.setTier('phone'); S.bench(); S.frame(); return { tier: R11.tier(), composer: !!R11.R.composer, tm: R11.renderer.toneMapping === R11.THREE.CustomToneMapping, reg: S.regions(), draws: R11.stats.draws }; });
-      phone = r.reg;
-      await page.screenshot({ path: path.join(SHOT_DIR, 'r11look-phone.png') });
-      await sideBySide(page, path.join(SHOT_DIR, 'r11look-phone.png'), path.join(SHOT_DIR, 'r11look-sbs-phone.png'), path.join(SHOT_DIR, 'r11look-sbs-phone-grey.png'));
-      ok(r.tier === 'phone' && !r.composer && r.tm, 'tier ' + r.tier + ' composer ' + r.composer + ' custom tone mapping ' + r.tm);
-      ok(Math.abs(phone.all.L - ultra.all.L) < Math.max(14, ultra.all.L * 0.22), 'phone ' + phone.all.L + ' ultra ' + ultra.all.L);
-      console.log('  Phone ' + JSON.stringify(phone) + ', draws at Phone ' + r.draws);
     });
     await step('night at the bench camera: darker than day, still readable (Phone)', async () => {
       const r = await page.evaluate(() => { S.bench(0.96); S.frame(); const n = S.regions(); S.bench(); return n; });
