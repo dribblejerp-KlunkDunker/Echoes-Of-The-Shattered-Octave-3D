@@ -214,7 +214,9 @@ gl_Position = projectionMatrix * mvPosition;`);
     M.ivy = new THREE.MeshStandardMaterial({ map: ivyTex(THREE, mulberry(523)), alphaTest: 0.42, roughness: 0.78, side: THREE.DoubleSide });
     M.ivyDepth = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: M.ivy.map, alphaTest: 0.42 });
     M.hare = new THREE.MeshStandardMaterial({ map: hareTex(THREE), transparent: true, depthWrite: false, roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
-    M.fallen = new THREE.MeshStandardMaterial({ map: M.leaves.map, alphaTest: 0.45, roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
+    // the fallen leaves: their own texture of a few big leaves, so the litter survives the mipmaps at a distance (the crown's
+    // texture of many small ones dissolves to nothing under alpha-test a few metres off)
+    M.fallen = new THREE.MeshStandardMaterial({ map: litterTex(THREE, mulberry(97)), alphaTest: 0.4, roughness: 0.82, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
     M.grime = new THREE.MeshStandardMaterial({ map: grimeTex(THREE, r), transparent: true, depthWrite: false, roughness: 1, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
     M.hills = farFog(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));
     M.forest = farFog(new THREE.MeshStandardMaterial({ roughness: 1, flatShading: true }));
@@ -295,6 +297,20 @@ gl_Position = projectionMatrix * mvPosition;`);
         g.lineTo(0, 15); for (let k = 3; k >= 0; k--) { const yy = -11 + k * 7; g.quadraticCurveTo(-5, yy + 3, -10, yy - 2); }
         g.closePath(); g.fill();
         g.strokeStyle = 'rgba(60,30,8,.55)'; g.lineWidth = 1; g.beginPath(); g.moveTo(0, -12); g.lineTo(0, 14); g.stroke(); g.restore();
+      }
+    });
+  }
+  function litterTex(THREE, r) {
+    return canvasTex(THREE, 128, 128, (g, w, h) => {
+      g.clearRect(0, 0, w, h);
+      const cols = ['#f0dcc0', '#e2cba8', '#f8ead2', '#d6bc98', '#ead6b8'];
+      for (let i = 0; i < 9; i++) {
+        const x = 18 + r() * (w - 36), y = 18 + r() * (h - 36);
+        g.save(); g.translate(x, y); g.rotate(r() * PI * 2); g.scale(1.7 + r() * 0.6, 1.7 + r() * 0.6); g.fillStyle = cols[(r() * cols.length) | 0];
+        g.beginPath(); g.moveTo(0, -11);
+        for (let k = 0; k < 4; k++) { const yy = -8 + k * 5; g.quadraticCurveTo(7.5, yy - 1.5, 3.5, yy + 2.5); }
+        g.lineTo(0, 11); for (let k = 3; k >= 0; k--) { const yy = -8 + k * 5; g.quadraticCurveTo(-3.5, yy + 2.5, -7.5, yy - 1.5); }
+        g.closePath(); g.fill(); g.strokeStyle = 'rgba(70,40,20,.5)'; g.lineWidth = 0.7; g.beginPath(); g.moveTo(0, -9); g.lineTo(0, 12); g.stroke(); g.restore();
       }
     });
   }
@@ -1492,22 +1508,22 @@ gl_Position = projectionMatrix * mvPosition;`);
         const kind = best ? (best.copper ? 1 : best.green ? 2 : 0) : (rF() < 0.5 ? 0 : 2);
         if (kind === 1) cF.setHSL(0.05 + rF() * 0.05, 0.55 + rF() * 0.2, 0.22 + rF() * 0.12);
         else if (kind === 2) cF.setHSL(0.07 + rF() * 0.05, 0.38 + rF() * 0.15, 0.2 + rF() * 0.1);
-        else cF.setHSL(0.015 + rF() * 0.035, 0.36 + rF() * 0.16, 0.27 + rF() * 0.12);
-        if (wet) cF.multiplyScalar(0.62 + rF() * 0.25);
+        else cF.setHSL(0.015 + rF() * 0.04, 0.42 + rF() * 0.16, 0.33 + rF() * 0.13);
+        if (wet) cF.multiplyScalar(0.7 + rF() * 0.2);
         return [cF.r, cF.g, cF.b];
       };
-      for (let i = 0, nA = 0; i < T.ground * 3 && nA < T.ground; i++) {
+      const near = (x, y) => { const d1 = Math.hypot(x - 25, y - 21), d2 = Math.hypot(x - 53, y - 18); return 1 + 3 * Math.exp(-Math.min(d1, d2) / 10); };
+      for (let i = 0, nA = 0; i < T.ground * 6 && nA < T.ground; i++) {
         let x, z;
         const heroes = oaks.filter((q) => q.hero), u = rF();
         if (heroes.length && u < 0.45) { const k = heroes[(rF() * heroes.length) | 0], a = rF() * PI * 2, rr = Math.pow(rF(), 0.7) * 11; x = k.x + Math.cos(a) * rr; z = k.z + Math.sin(a) * rr; }   // the square's old oaks drop the most
         else if (oaks.length && u < 0.75) { const k = oaks[(rF() * oaks.length) | 0], a = rF() * PI * 2, rr = Math.sqrt(rF()) * 9 * (k.s / 1.8); x = k.x + Math.cos(a) * rr; z = k.z + Math.sin(a) * rr; }
-        else { x = (2 + rF() * (map.w - 4)) * C; z = (2 + rF() * (map.h - 4)) * C; }
+        else { x = (2 + rF() * (map.w - 4)) * C; z = (2 + rF() * (map.h - 4)) * C; if (rF() * 4 > near(x / C, z / C)) continue; }   // blown about the square more than the back lanes
         if (!open(x, z)) continue;
-        pts.push([x, z, rF() * PI * 2, 0, 0.6 + rF() * 0.9, tint(x, z, rF() < 0.4), rF()]); nA++;
+        pts.push([x, z, rF() * PI * 2, 0, 0.6 + rF() * 0.9, tint(x, z, rF() < 0.3), rF()]); nA++;
       }
       // where drifts lie: wall feet (open cells against the kit's buildings), kerbs, and the steps the builders reported
       const segs = []; let wsum = 0;
-      const near = (x, y) => { const d1 = Math.hypot(x - 25, y - 21), d2 = Math.hypot(x - 53, y - 18); return 1 + 3 * Math.exp(-Math.min(d1, d2) / 10); };
       for (let y = 1; y < map.h - 1; y++) for (let x = 1; x < W - 1; x++) {
         const i = y * W + x; if (map.cells[i]) continue;
         for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
@@ -1650,7 +1666,7 @@ gl_Position = projectionMatrix * mvPosition;`);
     return 0;
   }
   function innSign(B, sf, x, out) {
-    const THREE = B.THREE, y = 3.42, L = 1.25, bw = 0.96, bh = 1.06, bz = out + 0.27 + bw / 2, by = y - 0.1 - bh / 2;
+    const THREE = B.THREE, y = 3.42, L = 1.18, bw = 0.9, bh = 1.04, bz = out + 0.27 + bw / 2, by = y - 0.1 - bh / 2;
     sf.ibox('iron', 0.1, 0.9, 0.03, x, y - 0.3, out + 0.015);
     sf.ibox('iron', 0.05, 0.05, L, x, y, out + L / 2);
     sf.beam('iron', 0.035, x, y - 0.72, out + 0.03, x, y - 0.02, out + 0.78);
