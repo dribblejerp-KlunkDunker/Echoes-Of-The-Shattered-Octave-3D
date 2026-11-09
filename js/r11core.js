@@ -872,7 +872,7 @@ void main() {
     windowGlow: [1.0, 0.46, 0.13], windowI: 3.4,   // lit window panes (emissive), warm, bright enough for a little bloom
     bloomStrength: 0.5, bloomRadius: 0.4, bloomThreshold: 1.35,
   };
-  const GRADE = { sat: 0.88, warmSat: 1.08, contrast: 1.25, pivot: 0.38, gamma: 1.12, lift: 0.005,
+  const GRADE = { sat: 0.82, warmSat: 1.08, contrast: 1.25, pivot: 0.38, gamma: 1.12, lift: 0.005,
     shadow: [-0.018, 0.004, 0.012], mid: [0.02, 0.006, -0.018], high: [0.006, 0.002, -0.008] };
   const WET = { value: 0.72 };             // 0 dry .. 1 soaked (weather 'wet' raises it; snow lowers it)
   const GRADE_SRC = `

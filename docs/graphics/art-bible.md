@@ -80,7 +80,7 @@ stronger than the HUD frame already gives, no god rays.
   AgX + grade), so Phone pays for no extra full-screen pass.
 - **Exposure by hour (outdoors):** day `expDay`, night `expNight`, a small lift at dusk and dawn (`expDusk`) when the
   lamps take over; indoors `expIn`.
-- **Grade (display space):** 12% desaturation outside warm, bright notes (lamps and windows keep their colour), contrast
+- **Grade (display space):** 18% desaturation outside warm, bright notes (lamps and windows keep their colour), contrast
   1.25 about a low pivot and a gamma that darkens the mid-tones (both on luminance only, so the curve never adds
   saturation), a teal-grey tint into the deep shadows, an earthy warmth in
   the lower mid-tones (wood, stone, leaf litter), the sky and highlights left near neutral, a lifted black (never pure
