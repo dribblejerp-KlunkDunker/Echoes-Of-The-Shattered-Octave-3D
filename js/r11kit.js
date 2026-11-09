@@ -1,7 +1,8 @@
 // r11kit — ROADMAP R11 phase 1, team KIT: the art of the realistic view.
 //
 // window.R11KIT = {
-//   dressMap(map, ctx) -> { group, hiddenCells: Set<cellIndex>, replaced: Set<entity>, lights: [PointLight], stats }
+//   dressMap(map, ctx) -> { group, hiddenCells: Set<cellIndex>, replaced: Set<entity>, lights: [PointLight], stats,
+//       chimneyTops: [[x, y, z] world units] (where smoke should leave the kit's chimneys) }
 //       CORE calls it on 'mapbuilt' (ctx = { scene, THREE, mat, tier, addLight(light, priority), hideCells }).
 //       Oakhaven ('oakhaven', either build): every building's wall cells are replaced by a kit building sized to its
 //       footprint (hiddenCells: wall cells only, never doors or open cells), with props, trees, hush-lamps, puddles,
@@ -1214,6 +1215,8 @@ const R11KIT = (function () {
     }).catch((e) => warnOnce('props', e));
     out._crates = CRATES.splice(0); out.doorsDrawn = DOORS.splice(0);
     out.boxes = B.boxes; out.landmarks = landmarks; out.chimneys = chimneys; out.tier = tierName; out.metres = metres;
+    // where smoke should leave the kit's chimneys, in world units (js/firesmoke.js's chimney decos sit on the old roofs)
+    out.chimneyTops = chimneys.map((c) => [c[0] * UPM(), c[1] * UPM(), c[2] * UPM()]);
     out.stats.draws = countDraws(out.group);
     if (typeof window !== 'undefined' && window.R11 && typeof window.R11.on === 'function' && !S.tierHooked) { S.tierHooked = true; try { window.R11.on('tier', (n) => setTier(n)); } catch (e) { /* none */ } }
   }
@@ -1421,7 +1424,9 @@ const R11KIT = (function () {
       case 'knife': blade(0.24, 0.032, 0.02, 0.07, 0.11); break;
       case 'axe': {
         add(new THREE.CylinderGeometry(0.016, 0.019, 0.6, 9), L.wood, 0, 0.18);
-        const head = new THREE.Shape(); head.moveTo(0, -0.03); head.lineTo(0.06, -0.05); head.quadraticCurveTo(0.14, -0.07, 0.15, 0.0); head.quadraticCurveTo(0.15, 0.08, 0.06, 0.07); head.lineTo(0, 0.04); head.closePath();
+        // a bearded head: a narrow neck at the haft, the edge sweeping down into the beard
+        const head = new THREE.Shape(); head.moveTo(0, 0.035); head.lineTo(0.05, 0.03); head.quadraticCurveTo(0.09, 0.045, 0.13, 0.062);
+        head.quadraticCurveTo(0.155, -0.02, 0.118, -0.115); head.quadraticCurveTo(0.08, -0.07, 0.052, -0.032); head.lineTo(0, -0.03); head.closePath();
         const hg = new THREE.ExtrudeGeometry(head, { depth: 0.012, bevelEnabled: true, bevelThickness: 0.004, bevelSize: 0.004, bevelSegments: 1 }); hg.translate(0, 0, -0.006);
         add(hg, L.steel, 0.012, 0.42); add(new THREE.ConeGeometry(0.014, 0.07, 6), L.iron, -0.04, 0.42, 0, 0, 0, PI / 2); add(new THREE.BoxGeometry(0.035, 0.07, 0.035), L.iron, 0, 0.42);
         break;
