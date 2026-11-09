@@ -19,7 +19,8 @@
 //   ready()          -> Promise: the glTF props (Poly Haven, CC0) are in.
 // }
 // Scale and axes (brief): three.x = map x, three.z = map y, three.y = game height x ZK; KIT builds in metres inside a
-// group scaled by R11.M (units per metre, 0.1875 when CORE is absent). A cell is 1/M = 5.33 m; a map wall 3.3 m.
+// group scaled by R11.M (units per metre; CORE's rule 0.88 x ZK / 1.65 = 0.33 when CORE is absent): a cell is 1/M = 3.03 m,
+// a map wall (1 game unit) 1.88 m. Storeys are real storeys (3 m and 2.7 m): the kit's houses stand above the map's walls.
 'use strict';
 const R11KIT = (function () {
   const PI = Math.PI;
@@ -28,14 +29,15 @@ const R11KIT = (function () {
   const warned = {};
   const warnOnce = (k, e) => { if (!warned[k]) { warned[k] = true; try { console.warn('r11kit: ' + k + ' failed', e); } catch (x) { /* none */ } } };
   const tr = (s) => { try { return (typeof STORY_I18N !== 'undefined' && STORY_I18N.translate && STORY_I18N.translate(s)) || s; } catch (e) { return s; } };
-  const UPM = () => { try { const m = typeof window !== 'undefined' && window.R11 && +window.R11.M; if (m > 0) return m; } catch (e) { /* none */ } return 0.1875; };
   const ZKf = () => { try { if (typeof R3D !== 'undefined' && +R3D.ZK > 0) return +R3D.ZK; } catch (e) { /* none */ } return 0.61875; };
+  // units per metre: R11.M when CORE is there, else CORE's own rule (the standing eye, 0.88 game units x ZK, is 1.65 m)
+  const UPM = () => { try { const m = typeof window !== 'undefined' && window.R11 && +window.R11.M; if (m > 0) return m; } catch (e) { /* none */ } return 0.88 * ZKf() / 1.65; };
   const T3 = (ctx) => (ctx && ctx.THREE) || (window.R11 && window.R11.THREE) || (window.R11THREE && window.R11THREE.THREE) || null;
   const addons = () => window.R11THREE || {};
   const TIERS = {
-    ultra: { leaves: 1500, ground: 2600, forest: 1600, props: 1, shadowSmall: true, puddle: 1, seg: 150 },
-    high: { leaves: 1000, ground: 1600, forest: 1100, props: 1, shadowSmall: true, puddle: 1, seg: 120 },
-    phone: { leaves: 380, ground: 600, forest: 500, props: 0.5, shadowSmall: false, puddle: 0.6, seg: 80 },
+    ultra: { leaves: 1800, ground: 2600, forest: 1600, props: 1, shadowSmall: true, puddle: 1, seg: 150 },
+    high: { leaves: 1200, ground: 1600, forest: 1100, props: 1, shadowSmall: true, puddle: 1, seg: 120 },
+    phone: { leaves: 420, ground: 600, forest: 500, props: 0.5, shadowSmall: false, puddle: 0.6, seg: 80 },
   };
   const tierOf = (n) => TIERS[n] ? n : 'high';
   const mulberry = (a) => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -62,6 +64,23 @@ const R11KIT = (function () {
     matCache.set(key, m);
     return m;
   }
+  // the far ring keeps a share of its shape in the air: the scene's fog reaches it at FAR_FOG of its density (capped), so
+  // the Grey Teeth and the downs show through as aerial perspective instead of vanishing where the town's fog is thick
+  const FAR_FOG = 0.4;
+  function farFog(m) {
+    m.onBeforeCompile = (sh) => {
+      sh.fragmentShader = sh.fragmentShader.replace('#include <fog_fragment>', `#ifdef USE_FOG
+  #ifdef FOG_EXP2
+    float fogFactor = 1.0 - exp( - fogDensity * fogDensity * ${FAR_FOG * FAR_FOG} * vFogDepth * vFogDepth );
+  #else
+    float fogFactor = smoothstep( fogNear, fogFar * 2.5, vFogDepth );
+  #endif
+  gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, min( fogFactor, 0.94 ) );
+#endif`);
+    };
+    m.customProgramCacheKey = () => 'r11kit-farfog';
+    return m;
+  }
   function canvasTex(THREE, w, h, draw, srgb) {
     const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h);
     const t = new THREE.CanvasTexture(c); if (srgb !== false) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
@@ -86,7 +105,9 @@ const R11KIT = (function () {
     M.glassLit = new THREE.MeshStandardMaterial({ color: 0x2a1a0a, emissive: 0xffa040, emissiveIntensity: 2.2, roughness: 0.3 });
     M.flame = new THREE.MeshBasicMaterial({ color: new THREE.Color(1, 0.62, 0.25).multiplyScalar(6) });
     M.reed = new THREE.MeshStandardMaterial({ color: 0x8a7a4a, roughness: 0.7 });
-    M.puddle = new THREE.MeshStandardMaterial({ color: 0x15191c, roughness: 0.03, metalness: 0.0, envMapIntensity: 1.8, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+    // a puddle: still water over the cobbles, its edge soaking out into wet stone (alpha falls off toward the rim)
+    const pudA = canvasTex(THREE, 128, 128, (g, w, h) => { const gr = g.createRadialGradient(w / 2, h / 2, 8, w / 2, h / 2, 64); gr.addColorStop(0, '#fff'); gr.addColorStop(0.62, '#e8e8e8'); gr.addColorStop(1, '#000'); g.fillStyle = gr; g.fillRect(0, 0, w, h); }, false);
+    M.puddle = new THREE.MeshStandardMaterial({ color: 0x2c3236, roughness: 0.05, metalness: 0.0, envMapIntensity: 1.6, alphaMap: pudA, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
     const cloth = (base, stripe) => canvasTex(THREE, 256, 256, (g, w, h) => {
       g.fillStyle = base; g.fillRect(0, 0, w, h);
       if (stripe) for (let x = 0; x < w; x += 64) { g.fillStyle = stripe; g.fillRect(x, 0, 30, h); }
@@ -104,8 +125,11 @@ const R11KIT = (function () {
     M.leafDepth = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: M.leaves.map, alphaTest: 0.45 });
     M.fallen = new THREE.MeshStandardMaterial({ map: M.leaves.map, alphaTest: 0.45, roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
     M.grime = new THREE.MeshStandardMaterial({ map: grimeTex(THREE, r), transparent: true, depthWrite: false, roughness: 1, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
-    M.hills = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 });
-    M.forest = new THREE.MeshStandardMaterial({ roughness: 1, flatShading: true });
+    M.hills = farFog(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));
+    M.forest = farFog(new THREE.MeshStandardMaterial({ roughness: 1, flatShading: true }));
+    M.farChapel = farFog(scanned(THREE, ctx, 'castle_wall_slates', { color: 0xd2d2ce }).clone());
+    M.farSlate = farFog(scanned(THREE, ctx, 'roof_slates_02', { color: 0x8c9298, ns: 1.2 }).clone());
+    M.farPlaster = farFog(scanned(THREE, ctx, 'grey_plaster_02', { color: 0xf4ead4 }).clone());
     M.goods = new THREE.MeshStandardMaterial({ roughness: 0.8 });
     M.rope = new THREE.MeshStandardMaterial({ color: 0x6b5a40, roughness: 0.95 });
     MATS = M; MATS_T = THREE;
@@ -407,10 +431,11 @@ const R11KIT = (function () {
   const openable = (c) => !!(c && c.door && !c.portal && !c.locked && !c.lockDifficulty);
 
   // ======================================================================== houses: a footprint becomes a row of lots
-  const WALLM = () => ZKf() / UPM();      // a map wall in metres (3.3)
+  const WALLM = () => ZKf() / UPM();      // a map wall (1 game unit) in metres
+  const STOREY = 3.0;                       // a ground storey in metres
   // the parts of one timber-framed house on a lot (lot-local: x along its street face, +z out to the street)
   function houseLot(B, f, w, d, o) {
-    const THREE = B.THREE, r = o.rnd, G = WALLM(), UP = 2.7, jet = o.jet == null ? 0.3 : o.jet, nf = o.nf, shed = o.style === 'shed';
+    const THREE = B.THREE, r = o.rnd, G = STOREY, UP = 2.7, jet = o.jet == null ? 0.3 : o.jet, nf = o.nf, shed = o.style === 'shed';
     const E = o.exp, u0 = r() * 7, v0 = r() * 7, vt = shed ? 'shed' : (o.variant || 'timber'), stoneUp = vt === 'stone';
     const sides = [['f', 0, w, d / 2], ['r', PI / 2, d, w / 2], ['b', PI, w, d / 2], ['l', -PI / 2, d, w / 2]];
     const PL = [[1, 0.97, 0.9], [0.99, 0.9, 0.74], [0.94, 0.92, 0.88], [0.97, 0.87, 0.79], [0.9, 0.88, 0.78], [1, 0.95, 0.82]];
@@ -593,8 +618,10 @@ const R11KIT = (function () {
   function chapel(B, f, W, D, o) {   // the Chapel of the Carillon (Book One: "the Chapel of the Pure Note with its empty belfry")
     const THREE = B.THREE, r = o.rnd, C = 'chapel';
     const door = o.doors.find((d) => d.side === 'f') || { pos: 0 };
-    const xn = clamp(door.pos + 1.2, -W / 2 + 8, W / 2 - 8), NW = 14, NH = 12, nx0 = xn - NW / 2, nx1 = xn + NW / 2;
-    const zf = D / 2, PD = 2.6, pw = 2.8, pz = zf - PD;   // the porch: a recess inside the door cell, the door at its back
+    const Cm = 1 / UPM(), NW = clamp(W * 0.58, 8, 14), xn = clamp(door.pos, -W / 2 + NW / 2, W / 2 - NW / 2), NH = clamp(D * 0.55, 8, 12), nx0 = xn - NW / 2, nx1 = xn + NW / 2;
+    // the porch: a recess inside the door cell, shallower than half a cell (CORE's own door leaf stands on the cell's
+    // mid-plane, inside the masonry behind it), the door at its back
+    const zf = D / 2, PD = Math.min(2.6, Cm * 0.45), pw = Math.min(2.8, Cm * 0.82), pz = zf - PD;
     const px = clamp(door.pos, nx0 + 2, nx1 - 2);
     // nave body (behind the porch), its side walls beside the porch, and the front wall with the porch arch through it
     f.part(C, worldUV(THREE, new THREE.BoxGeometry(NW, NH, D - PD), 2.6), xn, NH / 2, (-D / 2 + pz) / 2);
@@ -605,22 +632,23 @@ const R11KIT = (function () {
     // the porch's inside: walls, vault, steps up to the door
     for (const k of [-1, 1]) f.part(C, worldUV(THREE, new THREE.BoxGeometry(0.4, 4.6, PD), 2.6), px + k * (pw / 2 + 0.2), 2.3, pz + PD / 2);
     f.part(C, worldUV(THREE, new THREE.BoxGeometry(pw + 0.8, 0.4, PD), 2.6), px, 4.5, pz + PD / 2);
-    for (let i = 0; i < 3; i++) f.part(C, worldUV(THREE, new THREE.BoxGeometry(pw, 0.15 * (i + 1), 0.6), 1.6), px, 0.075 * (i + 1), pz + 0.3 + (2 - i) * 0.6);
+    const ns = Math.max(1, Math.floor(PD / 0.42)), sd = PD / (ns + 0.5);
+    for (let i = 0; i < ns; i++) f.part(C, worldUV(THREE, new THREE.BoxGeometry(pw, 0.15 * (i + 1), sd), 1.6), px, 0.075 * (i + 1), pz + sd / 2 + (ns - 1 - i) * sd);
     const dshape = archShape(THREE, 1.9, 2.3, 3.4); DOORS.push(f.at(px, pz));
-    f.part('boards', worldUV(THREE, new THREE.ExtrudeGeometry(dshape, { depth: 0.1, bevelEnabled: false }), 1.1), px, 0.45, pz);
+    f.part('boards', worldUV(THREE, new THREE.ExtrudeGeometry(dshape, { depth: 0.1, bevelEnabled: false }), 1.1), px, 0.15 * ns, pz);
     for (const yy of [1.2, 2.6]) f.ibox('iron', 1.6, 0.07, 0.04, px, yy, pz + 0.13);
     f.ibox('iron', 0.1, 0.1, 0.05, px + 0.5, 1.6, pz + 0.14);
     // the warrant on the Chapel door, and the notice board at the Chapel front (canon: the Synod Gazette, Book One ch. 9)
     f.part('notices', new THREE.PlaneGeometry(0.42, 0.56), px - 0.35, 1.9, pz + 0.12);
     noticeBoard(B, f, clamp(px + pw / 2 + 1.6, nx0 + 1, nx1 - 1), zf, 1.0);
     // the west window over the porch
-    f.part('glassDark', new THREE.ExtrudeGeometry(archShape(THREE, 2.2, 3.4, 5.0), { depth: 0.05, bevelEnabled: false }), xn, NH - 5.2, zf + 0.01);
-    for (const x of [-0.55, 0.55]) f.ibox('chapelTrim', 0.12, 4.2, 0.12, xn + x, NH - 5.2 + 2.1, zf + 0.06);
+    f.part('glassDark', new THREE.ExtrudeGeometry(archShape(THREE, 2.0, 3.0, 4.6), { depth: 0.05, bevelEnabled: false }), xn, NH - 3.6, zf + 0.01);
+    for (const x of [-0.5, 0.5]) f.ibox('chapelTrim', 0.12, 3.8, 0.12, xn + x, NH - 3.6 + 1.9, zf + 0.06);
     // the nave roof
     f.part('slate', worldUV(THREE, gableRoof(THREE, D + 0.02, NW, rh, 0.45), 2.2), xn, NH, 0, PI / 2);
     f.part(C, worldUV(THREE, gableEnds(THREE, D, NW, rh), 2.6), xn, NH, 0, PI / 2);
     // aisles to the footprint's edges, lean-to roofs against the nave
-    const AH = 6.2;
+    const AH = Math.min(6.2, NH - 3.5);
     for (const [a0, a1] of [[-W / 2, nx0], [nx1, W / 2]]) {
       const aw = a1 - a0; if (aw < 1) continue;
       const ax = (a0 + a1) / 2, west = ax < xn;
@@ -628,21 +656,23 @@ const R11KIT = (function () {
       f.part('slate', worldUV(THREE, leanRoof(THREE, D, aw, 2.6, 0.4), 2.2), ax, AH, 0, west ? -PI / 2 : PI / 2);
       // lancets along the outer wall, buttresses between
       const sf = f.sub(ax, 0, west ? -PI / 2 : PI / 2), out = aw / 2;
-      for (let z = -D / 2 + 4; z <= D / 2 - 3.5; z += 5.6) {
-        sf.part('glassDark', new THREE.ExtrudeGeometry(archShape(THREE, 0.95, 2.1, 3.0), { depth: 0.05, bevelEnabled: false }), z, 1.9, out + 0.01);
-        sf.ibox('chapelTrim', 1.25, 0.16, 0.16, z, 1.84, out + 0.06);
-        sf.part(C, worldUV(THREE, new THREE.BoxGeometry(0.9, AH * 0.85, 0.5), 2.6), z + 2.8, AH * 0.425, out + 0.25);
+      const nl = Math.max(2, Math.round(D / 5.6));
+      for (let i = 0; i < nl; i++) {
+        const z = -D / 2 + D * (i + 0.5) / nl;
+        sf.part('glassDark', new THREE.ExtrudeGeometry(archShape(THREE, 0.95, 1.9, 2.8), { depth: 0.05, bevelEnabled: false }), z, 1.5, out + 0.01);
+        sf.ibox('chapelTrim', 1.25, 0.16, 0.16, z, 1.44, out + 0.06);
+        if (i < nl - 1) sf.part(C, worldUV(THREE, new THREE.BoxGeometry(0.9, AH * 0.85, 0.5), 2.6), z + D / nl / 2, AH * 0.425, out + 0.25);
       }
       // the aisle's front (and back) face
       for (const [s2, a2] of [['f', 0], ['b', PI]]) { const ff = f.sub(ax, 0, a2), lx = a2 === 0 ? 0 : 0; ff.part('glassDark', new THREE.ExtrudeGeometry(archShape(THREE, 0.9, 1.9, 2.8), { depth: 0.05, bevelEnabled: false }), lx, 1.8, D / 2 + 0.01); void s2; }
       if (o.grime) { sf.part('grime', new THREE.PlaneGeometry(D, 0.9), 0, 0.45, out + 0.02); }
     }
     // clerestory lancets in the nave walls above the aisles
-    for (const k of [-1, 1]) { const sf = f.sub(xn, 0, k * PI / 2); for (let z = -D / 2 + 4; z <= D / 2 - 5; z += 4.2) sf.part('glassDark', new THREE.ExtrudeGeometry(archShape(THREE, 0.7, 1.4, 2.1), { depth: 0.05, bevelEnabled: false }), z, AH + 3.2, NW / 2 + 0.01); }
+    for (const k of [-1, 1]) { const sf = f.sub(xn, 0, k * PI / 2); for (let z = -D / 2 + 3; z <= D / 2 - 3; z += 3.6) sf.part('glassDark', new THREE.ExtrudeGeometry(archShape(THREE, 0.6, 1.2, 1.8), { depth: 0.05, bevelEnabled: false }), z, AH + 2.6, NW / 2 + 0.01); }
     // buttresses on the front corners of the nave
     for (const x of [nx0, nx1]) f.part(C, worldUV(THREE, new THREE.BoxGeometry(0.9, NH * 0.8, 0.55), 2.6), x, NH * 0.4, zf - 0.27 + 0.27);
     // the bell-tower, where the map raises it; its belfry is open to the weather and nothing hangs in it (canon)
-    const t = o.tower || { x: xn, z: -D / 4 }, TW = 8, TS = NH + 12, BH = 5.6;
+    const t = o.tower || { x: xn, z: -D / 4 }, TW = clamp(o.towerW || 7, 5.5, 8), TS = NH + 11, BH = 5.2;
     f.part(C, worldUV(THREE, new THREE.BoxGeometry(TW, TS, TW), 2.6), t.x, TS / 2, t.z);
     f.part(C, worldUV(THREE, new THREE.BoxGeometry(TW + 0.5, 0.45, TW + 0.5), 2.6), t.x, TS, t.z);
     for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) f.part(C, worldUV(THREE, new THREE.BoxGeometry(1.5, BH, 1.5), 2.6), t.x + a * (TW / 2 - 0.75), TS + BH / 2, t.z + b * (TW / 2 - 0.75));
@@ -668,7 +698,7 @@ const R11KIT = (function () {
   function greenhall(B, f, W, D, o) {   // the Greenhall: the grandest house in town, "the Greenhall's long timbered front", its steps, its dome
     const THREE = B.THREE, r = o.rnd;
     const door = o.doors.find((d) => d.side === 'f') || { pos: 0 };
-    const G1 = 4.6, G2 = 4.0, jet = 0.45, zf = D / 2, PD = 2.6, pw = 3.6, px = door.pos, pz = zf - PD;
+    const Cm = 1 / UPM(), G1 = 4.6, G2 = 4.0, jet = 0.45, zf = D / 2, PD = Math.min(2.6, Cm * 0.45), pw = Math.min(3.6, Cm * 0.85), px = door.pos, pz = zf - PD;
     // ground storey in ashlar, with the entrance as a recess (porch) in the door cell
     f.part('ashlar', worldUV(THREE, new THREE.BoxGeometry(W, G1, D - PD), 3.0), 0, G1 / 2, -PD / 2);
     const segL = (px - pw / 2 - 0.4) - (-W / 2), segR = W / 2 - (px + pw / 2 + 0.4);
@@ -677,8 +707,9 @@ const R11KIT = (function () {
     for (const k of [-1, 1]) f.part('ashlar', worldUV(THREE, new THREE.BoxGeometry(0.4, G1, PD), 3.0), px + k * (pw / 2 + 0.2), G1 / 2, pz + PD / 2);
     f.part('ashlar', worldUV(THREE, new THREE.ExtrudeGeometry(notchShape(THREE, pw + 0.8, G1, 0, pw, 2.2, 4.0, false, 0), { depth: 0.6, bevelEnabled: false }), 3.0), px, 0, zf - 0.6);
     f.part('ashlar', worldUV(THREE, new THREE.BoxGeometry(pw, 0.6, PD), 3.0), px, G1 - 0.3, pz + PD / 2);
-    for (let i = 0; i < 4; i++) f.part('ashlar', worldUV(THREE, new THREE.BoxGeometry(pw, 0.16 * (i + 1), 0.55), 1.6), px, 0.08 * (i + 1), pz + 0.28 + (3 - i) * 0.55);
-    f.part('boards', worldUV(THREE, new THREE.ExtrudeGeometry(roundArch(THREE, 2.0, 2.4), { depth: 0.1, bevelEnabled: false }), 1.1), px, 0.64, pz); DOORS.push(f.at(px, pz));
+    const ns = Math.max(1, Math.floor(PD / 0.36)), sd = PD / (ns + 0.4);
+    for (let i = 0; i < ns; i++) f.part('ashlar', worldUV(THREE, new THREE.BoxGeometry(pw, 0.16 * (i + 1), sd), 1.6), px, 0.08 * (i + 1), pz + sd / 2 + (ns - 1 - i) * sd);
+    f.part('boards', worldUV(THREE, new THREE.ExtrudeGeometry(roundArch(THREE, Math.min(2.0, pw - 0.4), 2.4), { depth: 0.1, bevelEnabled: false }), 1.1), px, 0.16 * ns, pz); DOORS.push(f.at(px, pz));
     for (const yy of [1.4, 2.7]) f.ibox('iron', 1.7, 0.07, 0.04, px, yy, pz + 0.13);
     // tall round-headed windows along the ground storey, a plinth and a string course
     const sf0 = f;
@@ -695,7 +726,7 @@ const R11KIT = (function () {
         sf.ibox('timber', 0.06, 2.15, 0.05, x, 1.3 + 1.07, out + 0.05);
       }
       if (s === 'f') { noticeBoard(B, sf, px - pw / 2 - 2.2, out, 1.0); noticeBoard(B, sf, px + pw / 2 + 2.2, out, 1.0); }
-      if (o.grime) sf.part('grime', new THREE.PlaneGeometry(along, 0.9), 0, 0.45 + 0.5, out + 0.17);
+      if (o.grime) sf.part('grime', new THREE.PlaneGeometry(along + 0.3, 0.9), 0, 0.45, out + 0.16);
     }
     // the timbered upper storey, jettied all round, close-studded with a long band of windows
     const W2 = W + 2 * jet, D2 = D + 2 * jet;
@@ -724,7 +755,7 @@ const R11KIT = (function () {
     const RH = 7.0;
     f.part('slate', worldUV(THREE, hipRoof(THREE, W2, D2, RH, 0.5), 2.2), 0, G1 + G2, 0);
     for (const x of [-W / 2 + 5, W / 2 - 5]) { f.part('stone', worldUV(THREE, new THREE.BoxGeometry(0.9, RH * 0.6 + 2, 0.9), 2.0), x, G1 + G2 + (RH * 0.6 + 2) / 2 - 0.4, -D2 / 6); }
-    const dm = o.dome || { x: 0, z: 0 }, dy = G1 + G2 + RH - 1.6, R = 5.6, DH = 4.2;
+    const dm = o.dome || { x: 0, z: 0 }, dy = G1 + G2 + RH - 1.6, R = clamp(D * 0.3, 3.5, 5.6), DH = 4.2;
     f.part('ashlar', worldUV(THREE, new THREE.CylinderGeometry(R, R, DH + 1.6, 16, 1, true), 3.0), dm.x, dy + (DH + 1.6) / 2 - 1.6, dm.z);
     f.part('ashlar', worldUV(THREE, new THREE.CylinderGeometry(R + 0.35, R + 0.35, 0.4, 16, 1), 3.0), dm.x, dy + DH, dm.z);
     for (let i = 0; i < 8; i++) { const a = i / 8 * PI * 2 + PI / 8, df = f.sub(dm.x, dm.z, a); df.part('glassDark', new THREE.ExtrudeGeometry(roundArch(THREE, 0.9, 1.4), { depth: 0.04, bevelEnabled: false }), 0, dy + 1.0, R * Math.cos(PI / 16) + 0.03); }
@@ -746,25 +777,20 @@ const R11KIT = (function () {
     }
     f.part('boards', worldUV(THREE, new THREE.BoxGeometry(w - 0.5, G - 0.2, d - 0.5), 2.0), 0, (G - 0.2) / 2, 0);
     f.part('boards', worldUV(THREE, new THREE.BoxGeometry(w, 0.2, d), 2.0), 0, G + 0.1, 0);
-    // four legs leaning in to a tall head, braced
-    const top = 31, b0 = Math.min(hw, hd) - 0.4, b1 = 1.0;
-    for (const [ax, az] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) f.beam('timber', 0.46, ax * b0, G, az * b0, ax * b1, top, az * b1);
-    const rAt = (y) => lerp(b0, b1, (y - G) / (top - G));
-    for (let y = G + 3.5; y < top - 1; y += 7) {
-      const ra = rAt(y), rb = rAt(Math.min(top, y + 7));
-      for (let s = 0; s < 4; s++) {
-        const tf = f.sub(0, 0, s * PI / 2);
-        tf.ibox('timber', 2 * ra + 0.3, 0.34, 0.34, 0, y, ra);
-        tf.beam('timber', 0.26, -ra, y, ra, rb, y + 7, rb);
-        tf.beam('timber', 0.26, ra, y, ra + 0.08, -rb, y + 7, rb + 0.08);
-      }
-    }
-    f.ibox('timber', 2.6, 0.5, 2.6, 0, top + 0.25, 0);
+    // the pylon: one great column of four bound timbers, iron bands, raking shores from the crib's corners, a ladder of cleats
+    const top = 30, cw = 1.3;
+    for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) f.ibox('timber', cw / 2 - 0.02, top - G, cw / 2 - 0.02, a * cw / 4, G + (top - G) / 2, b * cw / 4, 0, 0, 0, 0x8a7a6a);
+    for (let y = G + 1.5; y < top; y += 3.2) f.ibox('iron', cw + 0.08, 0.14, cw + 0.08, 0, y, 0);
+    for (const [ax, az] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) f.beam('timber', 0.4, ax * (Math.min(hw, hd) - 0.5), G, az * (Math.min(hw, hd) - 0.5), ax * cw / 2, G + 11, az * cw / 2);
+    for (let y = G + 0.6; y < top - 1; y += 0.55) f.ibox('timber', 0.36, 0.07, 0.12, 0, y, -cw / 2 - 0.05);
+    f.ibox('timber', cw + 0.6, 0.5, cw + 0.6, 0, top + 0.25, 0);
+    const b1 = cw / 2;
     // the gallows-arm, out over the crib's corner (within the block), the mooring ring, a coil of cable
     const ad = Math.min(hw, hd) * 1.25, aang = -PI / 4;
     const af = f.sub(0, 0, aang + PI / 2);
     af.ibox('timber', 0.4, 0.45, ad, 0, top - 0.6, ad / 2);
-    af.beam('timber', 0.28, 0, top - 4.2, b1 + 0.2, 0, top - 0.8, ad * 0.6);
+    af.beam('timber', 0.32, 0, top - 4.6, b1 + 0.1, 0, top - 0.75, ad * 0.62);
+    af.ibox('timber', 0.5, 0.5, 0.9, 0, top - 0.6, -0.2);
     const ring = new THREE.TorusGeometry(0.55, 0.07, 6, 18); const rp = af.at(0, ad - 0.3);
     B.put('iron', ring, rp[0], top - 1.6, rp[1], af.ry + PI / 2);
     B.put('rope', new THREE.CylinderGeometry(0.035, 0.035, 0.9, 5), rp[0], top - 0.85 - 0.1, rp[1]);
@@ -772,7 +798,7 @@ const R11KIT = (function () {
     if (o.landmarks) o.landmarks.push(['mooring mast', f.at(0, 0), top + 1]);
   }
   function wellHouse(B, f, o) {   // the well-house in the square: stone, layers of decrees, the dead Queen's glass seal (canon)
-    const THREE = B.THREE, s = 3.0, h = 2.3;
+    const THREE = B.THREE, s = (o && o.s) || 2.6, h = 2.3;
     f.part('stone', worldUV(THREE, new THREE.BoxGeometry(s, 0.9, s), 1.6), 0, 0.45, 0);
     f.part('glassDark', new THREE.BoxGeometry(s - 0.9, 0.02, s - 0.9), 0, 0.91, 0);
     for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) f.part('stone', worldUV(THREE, new THREE.BoxGeometry(0.55, h, 0.55), 1.6), a * (s / 2 - 0.27), h / 2, b * (s / 2 - 0.27));
@@ -799,15 +825,15 @@ const R11KIT = (function () {
     for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) f.ibox('iron', 0.08, 0.12, 0.08, a * size * 0.18, 1.08, b * size * 0.18);   // the stubs where the cradle was cut away
   }
   function stall(B, f, kind, r) {   // a market table under an awning (at the map's market tables)
-    const THREE = B.THREE, W = 3.0, D = 1.8;
+    const THREE = B.THREE, W = 2.6, D = 1.6;
     for (const [a, b, h] of [[-1, 1, 2.1], [1, 1, 2.1], [-1, -1, 2.55], [1, -1, 2.55]]) f.ibox('timber', 0.11, h, 0.11, a * W / 2, h / 2, b * D / 2);
     f.part('boards', worldUV(THREE, new THREE.BoxGeometry(W, 0.08, D * 0.62), 1.2), 0, 0.9, D * 0.12);
     f.ibox('timber', W - 0.2, 0.84, 0.05, 0, 0.45, D * 0.42);
-    const roof = new THREE.PlaneGeometry(W + 0.4, D + 0.5, 8, 4), p = roof.attributes.position;
-    for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin((p.getX(i) / (W + 0.4) + 0.5) * PI * 4) * 0.04);
+    const roof = new THREE.PlaneGeometry(W + 0.3, D + 0.4, 8, 4), p = roof.attributes.position;
+    for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin((p.getX(i) / (W + 0.3) + 0.5) * PI * 4) * 0.04);
     roof.computeVertexNormals(); roof.rotateX(-PI / 2 + 0.25);
     f.part(kind, roof, 0, 2.33, 0.0);
-    f.part(kind, new THREE.PlaneGeometry(W + 0.4, 0.3), 0, 1.98, D / 2 + 0.33);
+    f.part(kind, new THREE.PlaneGeometry(W + 0.3, 0.3), 0, 1.98, D / 2 + 0.28);
     // goods: fleeces and bales (the Carders' Quarter), jars, apples
     for (let i = 0; i < 6; i++) { const x = -W / 2 + 0.35 + i * (W - 0.7) / 5, g = r(); if (g < 0.4) f.ibox('goods', 0.42, 0.22, 0.32, x, 1.05, 0.1 + r() * 0.2, r(), 0, 0, 0xd9cdb0); else if (g < 0.7) for (let j = 0; j < 3; j++) f.ibox('goods', 0.1, 0.13, 0.1, x - 0.12 + j * 0.12, 1.0, 0.25, 0, 0, 0, 0xb87a24); else f.ibox('goods', 0.36, 0.14, 0.26, x, 1.01, 0.2, r(), 0, 0, 0x7a2a1a); }
   }
@@ -823,9 +849,9 @@ const R11KIT = (function () {
     if (open) P('puddle', new THREE.CircleGeometry(0.25 * s, 14).rotateX(-PI / 2).translate(0, 0.8 * s, 0), 0);
   }
   function cart(B, x, z, ry, y) {   // a two-wheeled handcart, shafts down
-    const THREE = B.THREE, f = B.frame(x, z, ry, y || 0);
+    const THREE = B.THREE, f0 = B.frame(x, z, ry, y || 0), f = f0.sub(0, -0.45, 0);
     f.part('boards', worldUV(THREE, new THREE.BoxGeometry(1.3, 0.08, 2.0), 1.2), 0, 0.82, 0, 0, -0.12);
-    for (const k of [-1, 1]) { f.ibox('timber', 0.06, 0.35, 2.0, k * 0.65, 0.98, 0, 0, -0.12); f.ibox('timber', 0.08, 0.08, 2.0, k * 0.45, 0.62, 1.6, 0, 0.32); }
+    for (const k of [-1, 1]) { f.ibox('timber', 0.06, 0.35, 2.0, k * 0.65, 0.98, 0, 0, -0.12); f.ibox('timber', 0.08, 0.08, 1.4, k * 0.45, 0.6, 1.5, 0, 0.32); }
     f.ibox('timber', 1.3, 0.35, 0.06, 0, 0.98, -1.0, 0, -0.12);
     for (const k of [-1, 1]) { f.part('timber', new THREE.TorusGeometry(0.48, 0.05, 6, 16).rotateY(PI / 2), k * 0.78, 0.5, -0.2); f.ibox('timber', 0.05, 0.92, 0.06, k * 0.78, 0.5, -0.2); f.ibox('timber', 0.05, 0.06, 0.92, k * 0.78, 0.5, -0.2); }
     f.ibox('iron', 1.6, 0.05, 0.05, 0, 0.5, -0.2);
@@ -850,8 +876,8 @@ const R11KIT = (function () {
         if (depth <= 2) spots.push(q.clone());
       }
     };
-    grow(new THREE.Vector3(0, -0.3, 0), new THREE.Vector3(0.05, 1, 0.02), 5.2, 0.8, 5);
-    for (let k = 0; k < 6; k++) { const a = k / 6 * PI * 2 + r() * .4; geos.push(taperedTube(THREE, [new THREE.Vector3(0, 1.1, 0), new THREE.Vector3(Math.cos(a) * 0.9, 0.25, Math.sin(a) * 0.9), new THREE.Vector3(Math.cos(a) * 1.5, -0.1, Math.sin(a) * 1.5)], 0.4, 0.1, 6)); }
+    grow(new THREE.Vector3(0, -0.3, 0), new THREE.Vector3(0.05, 1, 0.02), 5.2, 0.55, 5);
+    for (let k = 0; k < 6; k++) { const a = k / 6 * PI * 2 + r() * .4; geos.push(taperedTube(THREE, [new THREE.Vector3(0, 0.9, 0), new THREE.Vector3(Math.cos(a) * 0.6, 0.2, Math.sin(a) * 0.6), new THREE.Vector3(Math.cos(a) * 1.05, -0.1, Math.sin(a) * 1.05)], 0.28, 0.08, 6)); }
     const mg = addons().mergeGeometries; let geo = null;
     try { geo = mg(geos, false); } catch (e) { warnOnce('oak merge', e); geo = geos[0]; }
     geo.computeBoundingBox();
@@ -864,24 +890,28 @@ const R11KIT = (function () {
     const THREE = B.THREE, M = B.M, C = 1 / UPM(), r = mulberry(4190);
     const X1 = map.w * C, Z1 = map.h * C, cx = X1 / 2, cz = Z1 / 2;
     const lms = (typeof LANDMARKS !== 'undefined' && (LANDMARKS[map.id] || null)) || [];
-    const size = 2600, seg = o.T.seg, g = new THREE.PlaneGeometry(size, size, seg, seg).rotateX(-PI / 2);
+    // how far CORE's camera sees (its rule: max(140, the map's diagonal x 1.5 + 80) units), less the walk across town
+    const farU = (o.far > 0 ? o.far : Math.max(140, Math.hypot(map.w, map.h) * 1.5 + 80)), half = Math.hypot(map.w, map.h) / 2 * C;
+    const Rmax = Math.max(220, farU / UPM() * 0.92 - half * 0.55);
+    const size = Rmax * 2, seg = o.T.seg, g = new THREE.PlaneGeometry(size, size, seg, seg).rotateX(-PI / 2);
     const p = g.attributes.position, cols = [], c = new THREE.Color();
     const noise = (x, z) => Math.sin(x * .011) * Math.cos(z * .013) + .5 * Math.sin(x * .027 + 1.3) * Math.sin(z * .023 + .7) + .25 * Math.sin(x * .061 + z * .047);
     const ridged = (x, z) => 1 - Math.abs(Math.sin(x * 0.019 + Math.sin(z * 0.011) * 2) * Math.cos(z * 0.017 + x * 0.004));
     const wrap = (a) => { while (a > PI) a -= PI * 2; while (a < -PI) a += PI * 2; return a; };
     // what the LANDMARKS list says, in metres: the Grey Teeth far north with snow, the chalk shoulder, the downs, the quarry head
-    const ridges = lms.map((lm) => ({ a: lm.a, aw: lm.aw, peak: 1100 * lm.h * (lm.far > 0.7 ? 0.9 : 0.3), r0: lm.far > 0.7 ? 760 : 260 + lm.far * 620, r1: lm.far > 0.7 ? 1280 : 520 + lm.far * 700, p: lm.p || 1.4, ridge: lm.ridge || 0, seed: lm.seed || 0, snow: !!lm.cap, col: lm.c || [40, 42, 50], chalk: lm.far < 0.2 && lm.h > 0.2 }));
+    const ridges = lms.map((lm) => ({ a: lm.a, aw: lm.aw, peak: Rmax * lm.h * (lm.far > 0.7 ? 0.85 : 0.4), r0: Rmax * (lm.far > 0.7 ? 0.6 : 0.28 + lm.far * 0.4), r1: Rmax * (lm.far > 0.7 ? 0.93 : 0.5 + lm.far * 0.45), p: lm.p || 1.4, ridge: lm.ridge || 0, seed: lm.seed || 0, snow: !!lm.cap, col: lm.c || [40, 42, 50], chalk: lm.far < 0.2 && lm.h > 0.2 }));
     const H = new Float32Array(p.count), kindArr = new Uint8Array(p.count);
     for (let i = 0; i < p.count; i++) {
       const x = p.getX(i) + cx, z = p.getZ(i) + cz;
       const dx = Math.max(-x, 0, x - X1), dz = Math.max(-z, 0, z - Z1), dd = Math.hypot(dx, dz);
-      let h = dd <= 0 ? -3 : sstep(dd, 6, 420) * (26 + 22 * noise(x, z)) + sstep(dd, 2, 60) * 2.0 * Math.sin(x * 0.05) * Math.cos(z * 0.043);
+      // under CORE's floor (which runs on past the map's edge) near the town, rising into the downs beyond
+      let h = dd <= 0 ? -3 : -0.6 + sstep(dd, 14, Rmax * 0.62) * (18 + 14 * noise(x, z));
       const ang = Math.atan2(z - cz, x - cx), rr = Math.hypot(x - cx, z - cz);
       let kind = 0;
       for (const R of ridges) {
         const t = Math.abs(wrap(ang - R.a)) / R.aw; if (t >= 1) continue;
         let prof = Math.pow(1 - t, R.p); if (R.ridge) prof *= 1 + R.ridge * Math.sin(t * 11 + R.seed * 2.7) * 0.5;
-        const k = sstep(rr, R.r0, (R.r0 + R.r1) / 2) * (1 - sstep(rr, R.r1, R.r1 + 200));
+        const k = sstep(rr, R.r0, (R.r0 + R.r1) / 2) * (1 - sstep(rr, R.r1, R.r1 + Rmax * 0.15));
         let add = R.peak * prof * k;
         if (R.snow) add *= 0.7 + 0.5 * ridged(x, z);
         if (add > h * 0.5) { h = Math.max(h, add + h * 0.4); if (add > 12) kind = R.snow ? 2 : R.chalk ? 3 : 4; }
@@ -893,10 +923,11 @@ const R11KIT = (function () {
       // fields on the downs: patches of stubble, pasture and plough; darker woods on the crests
       const fx = Math.floor((x * 0.8 + z * 0.6) / 140), fz = Math.floor((-x * 0.6 + z * 0.8) / 110), fh = hash2(fx, fz);
       if (fh < 0.3) c.setRGB(0.20, 0.22, 0.10); else if (fh < 0.55) c.setRGB(0.27, 0.24, 0.13); else if (fh < 0.7) c.setRGB(0.19, 0.15, 0.10); else c.setRGB(0.15, 0.19, 0.09);
-      if (h > 40) c.lerp(new THREE.Color(0.10, 0.12, 0.07), sstep(h, 40, 70));
-      if (k === 2) { c.setRGB(0.21, 0.22, 0.25); if (h > 230 + 40 * Math.sin(x * 0.01)) c.setRGB(0.70, 0.72, 0.76); }
-      else if (k === 3) { c.lerp(new THREE.Color(0.62, 0.60, 0.54), sstep(h, 30, 70)); }
-      else if (k === 4) { c.lerp(new THREE.Color(0.26, 0.25, 0.27), sstep(h, 40, 90) * 0.7); }
+      if (h > 22) c.lerp(new THREE.Color(0.10, 0.12, 0.07), sstep(h, 22, 45));
+      const snowLine = Rmax * 0.3 * 0.85 * 0.62;
+      if (k === 2) { c.setRGB(0.21, 0.22, 0.25); if (h > snowLine + snowLine * 0.15 * Math.sin(x * 0.02)) c.setRGB(0.70, 0.72, 0.76); }
+      else if (k === 3) { c.lerp(new THREE.Color(0.62, 0.60, 0.54), sstep(h, 14, 40)); }
+      else if (k === 4) { c.lerp(new THREE.Color(0.26, 0.25, 0.27), sstep(h, 20, 50) * 0.7); }
       cols.push(c.r, c.g, c.b);
     }
     g.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3)); g.computeVertexNormals();
@@ -917,7 +948,7 @@ const R11KIT = (function () {
       left--;
       const ra2 = Math.sqrt(r()) * 70, aa = r() * PI * 2, x = wx + Math.cos(aa) * ra2, z = wz + Math.sin(aa) * ra2;
       const dx = Math.max(-x, 0, x - X1), dz = Math.max(-z, 0, z - Z1), dd = Math.hypot(dx, dz);
-      if (dd < 22 || dd > 1000) continue;
+      if (dd < 22 || dd > Rmax * 0.85) continue;
       const q = hAt(x, z); if (!q || q.k === 2 || q.k === 3) continue;
       const fx = Math.floor((x * 0.8 + z * 0.6) / 140), fz = Math.floor((-x * 0.6 + z * 0.8) / 110);
       if (q.h < 22 && hash2(fx + 7, fz - 3) > 0.45 && dd > 60) continue;   // woods on crests and in shaws, fields below
@@ -929,13 +960,13 @@ const R11KIT = (function () {
     group.add(forest);
     // Greenroot's spire on the downs (js/sky.js: the Oakhaven panorama stamps its chapel at bearing -0.75)
     if (map.id === 'oakhaven') {
-      const a = -0.75, R0 = 980, x = cx + Math.cos(a) * R0, z = cz + Math.sin(a) * R0, q = hAt(x, z), y = q ? q.h : 30;
+      const a = -0.75, R0 = Rmax * 0.78, x = cx + Math.cos(a) * R0, z = cz + Math.sin(a) * R0, q = hAt(x, z), y = q ? q.h : 30;
       const ff = B.frame(x, z, a + PI / 2, y - 1);
-      ff.part('chapel', worldUV(THREE, new THREE.BoxGeometry(9, 9, 18), 4), 0, 4.5, 0);
-      ff.part('slate', worldUV(THREE, gableRoof(THREE, 18.5, 9.2, 5, 0.3), 4), 0, 9, 0);
-      ff.part('chapel', worldUV(THREE, new THREE.BoxGeometry(4.5, 16, 4.5), 4), 0, 8, 9);
-      ff.part('slate', worldUV(THREE, new THREE.ConeGeometry(3.4, 16, 4).rotateY(PI / 4), 4), 0, 24, 9);
-      for (let i = 0; i < 3; i++) { const bx = (r() - .5) * 70, bz = (r() - .5) * 50; ff.part('plaster', worldUV(THREE, new THREE.BoxGeometry(8, 5, 6), 4), bx, 2.5, bz + 30); ff.part('slate', worldUV(THREE, gableRoof(THREE, 8.2, 6.2, 3, 0.3), 4), bx, 5, bz + 30); }
+      ff.part('farChapel', worldUV(THREE, new THREE.BoxGeometry(9, 9, 18), 4), 0, 4.5, 0);
+      ff.part('farSlate', worldUV(THREE, gableRoof(THREE, 18.5, 9.2, 5, 0.3), 4), 0, 9, 0);
+      ff.part('farChapel', worldUV(THREE, new THREE.BoxGeometry(4.5, 16, 4.5), 4), 0, 8, 9);
+      ff.part('farSlate', worldUV(THREE, new THREE.ConeGeometry(3.4, 16, 4).rotateY(PI / 4), 4), 0, 24, 9);
+      for (let i = 0; i < 3; i++) { const bx = (r() - .5) * 70, bz = (r() - .5) * 50; ff.part('farPlaster', worldUV(THREE, new THREE.BoxGeometry(8, 5, 6), 4), bx, 2.5, bz + 30); ff.part('farSlate', worldUV(THREE, gableRoof(THREE, 8.2, 6.2, 3, 0.3), 4), bx, 5, bz + 30); }
     }
   }
 
@@ -1002,15 +1033,15 @@ const R11KIT = (function () {
       }
       const o = { rnd, doors, chimneys, landmarks, grime: true, lit: 0.3, style: kind === 'shed' ? 'shed' : kind === 'inn' ? 'inn' : 'house' };
       B.cat = 'bldg';
-      if (kind === 'chapel') { o.tower = feat; const res = chapel(B, f, Wf, Df, o); out.chapel = res; }
+      if (kind === 'chapel') { o.tower = feat; o.towerW = Math.sqrt(towerCells.length || 4) * C; const res = chapel(B, f, Wf, Df, o); out.chapel = res; }
       else if (kind === 'greenhall') { o.dome = feat; greenhall(B, f, Wf, Df, o); }
       else {
         if (kind === 'inn') {
           // the Boar & Dulcimer: the door's lot is a wide three-storey front; the board hangs by the door
           const d0 = doors.find((d) => d.side === 'f');
           if (d0) {
-            const wide = 13.5, l0 = clamp(d0.pos - wide / 2 + 1.5, -Wf / 2 + 6, Wf / 2 - wide - 4), left = l0 - (-Wf / 2), right = Wf / 2 - (l0 + wide);
-            const split = (len) => { const n = Math.max(1, Math.round(len / 7.5)); return Array(n).fill(len / n); };
+            const wide = Math.min(13.5, Wf * 0.45), l0 = clamp(d0.pos - wide / 2 + 1.5, -Wf / 2 + 3, Math.max(-Wf / 2 + 3, Wf / 2 - wide - 3)), left = l0 - (-Wf / 2), right = Wf / 2 - (l0 + wide);
+            const split = (len) => { if (len < 0.5) return []; const n = Math.max(1, Math.round(len / 7.5)); return Array(n).fill(len / n); };
             o.lotWidths = [...split(left), wide, ...split(right)];
             o.extra = null;
           }
@@ -1050,9 +1081,11 @@ const R11KIT = (function () {
     }
     // ---- the well-house in the square (Book One; church55: Kaelen "at the corner of the well-house", rite43: a woman by it)
     if (map.cells[22 * W + 27] === null && map.cells[22 * W + 28] === null) {
-      B.cat = 'open'; const wx = 27.78 * C, wz = 22.18 * C;
-      wellHouse(B, B.frame(wx, wz, 0, gAt(27.78, 22.18)), {});
-      out.wellHouse = [27.78, 22.18, 1.6 / C];
+      // its south-west corner a step from where church55 stands Kaelen (27.3, 22.6) "with his right hand flat on the stone"
+      const hs = 1.3, kx = 27.3 * C + 0.35, kz = 22.6 * C - 0.35, wx = kx + hs, wz = kz - hs;
+      B.cat = 'open';
+      wellHouse(B, B.frame(wx, wz, 0, gAt(wx / C, wz / C)), { s: hs * 2 });
+      out.wellHouse = [wx / C, wz / C, hs / C];
     }
     // ---- the map's own decos that get a body
     const ents = map.entities || [];
@@ -1084,7 +1117,7 @@ const R11KIT = (function () {
     if (oaks.length) {
       const byT = new Map(), ob = new THREE.Object3D(), leafM = [], colA = [];
       for (const k of oaks) {
-        const tpl = oakTemplate(THREE, k.seed), sc = k.s * 1.25;
+        const tpl = oakTemplate(THREE, k.seed), sc = clamp(0.75 + (k.s - 1.5) * 0.5, 0.75, 1.45) * Math.min(1.6, (k.e && k.e.radius ? (k.e.radius + 0.22) * C / 1.9 : 1));
         ob.position.set(k.x, k.y, k.z); ob.rotation.set(0, k.rot, 0); ob.scale.set(sc, sc * (0.95 + (k.seed % 2) * 0.1), sc); ob.updateMatrix();
         if (!byT.has(k.seed)) byT.set(k.seed, []); byT.get(k.seed).push(ob.matrix.clone());
         k.m = ob.matrix.clone(); k.tpl = tpl; k.sc = sc;
@@ -1096,14 +1129,14 @@ const R11KIT = (function () {
         mesh.castShadow = true; mesh.receiveShadow = true; mesh.name = 'kit:oak' + seed; metres.add(mesh);
       }
       const per = T.leaves, rL = mulberry(77), v = new THREE.Vector3(), col = new THREE.Color();
-      const card = new THREE.PlaneGeometry(2.0, 2.0);
+      const card = new THREE.PlaneGeometry(2.3, 2.3);
       const leaves = new THREE.InstancedMesh(card, M.leaves, per * oaks.length);
       let n = 0;
       for (const k of oaks) {
         for (let i = 0; i < per; i++) {
           const c = k.tpl.spots[(rL() * k.tpl.spots.length) | 0];
           v.set(c.x + (rL() - .5) * 2.4, c.y + (rL() - .35) * 1.8, c.z + (rL() - .5) * 2.4).applyMatrix4(k.m);
-          ob.position.copy(v); ob.rotation.set(rL() * PI, rL() * PI, rL() * PI); const s = (0.75 + rL() * 0.7) * Math.sqrt(k.sc / 2.2); ob.scale.set(s, s, s); ob.updateMatrix();
+          ob.position.copy(v); ob.rotation.set(rL() * PI, rL() * PI, rL() * PI); const s = (0.75 + rL() * 0.7) * k.sc; ob.scale.set(s, s, s); ob.updateMatrix();
           leaves.setMatrixAt(n, ob.matrix);
           if (k.green) col.setHSL(0.17 + rL() * .07, 0.42 + rL() * 0.15, 0.24 + rL() * .1); else col.setHSL(0.055 + rL() * .05, 0.6 + rL() * 0.2, 0.33 + rL() * .14);
           leaves.setColorAt(n, col); n++;
@@ -1141,7 +1174,7 @@ const R11KIT = (function () {
     }
     // ---- the far ring
     B.cat = 'far';
-    try { farRing(B, metres, map, { T }); } catch (e) { warnOnce('far ring', e); }
+    try { farRing(B, metres, map, { T, far: ctx.far }); } catch (e) { warnOnce('far ring', e); }
     // ---- into meshes
     const noShadow = new Set(['glassLit', 'glassDark', 'puddle', 'grime', 'notices', 'seal', 'flame']);
     const small = new Set(['iron', 'goods', 'shutter', 'flame', 'reed', 'rope']);
@@ -1150,7 +1183,8 @@ const R11KIT = (function () {
     // glTF props: hush-lamp lanterns and the crates (Poly Haven, CC0), instanced when they come in
     const lampLights = [];
     for (const L of lampsAt) {
-      const pl = new THREE.PointLight(0xffa24a, 9 * UPM() * UPM(), 10 * UPM(), 2);
+      if (L[6]) continue;
+      const pl = new THREE.PointLight(0xffa24a, 0.6, 2.4, 2);   // in CORE's pool terms (the engine's lamps: ~0.75 over ~5.6 cells)
       pl.position.set(L[0] * UPM(), L[1] * UPM(), L[2] * UPM()); pl.name = 'kit:lamp'; pl.castShadow = false;
       lampLights.push(pl); out.lights.push(pl);
       if (ctx.addLight) { try { ctx.addLight(pl, L[3] || 1); } catch (e) { warnOnce('addLight', e); out.group.add(pl); } } else out.group.add(pl);
@@ -1210,7 +1244,7 @@ const R11KIT = (function () {
     f.ibox('iron', 0.025, 0.2, 0.025, 0, 3.2, 0.62);
     f.ibox('timber', 0.22, 0.08, 0.22, 0, 3.52, 0);
     const q = f.at(0, 0.62);
-    lampsAt.push([q[0], y + 2.95, q[1], 1, false, ry]);
+    lampsAt.push([q[0], y + 2.95, q[1], 1, false, ry, true]);   // the engine already lights this deco: no second light
     reed(B, q[0], y + 3.13, q[1]);
   }
   function reed(B, x, y, z) { B.box('reed', 0.022, 0.16, 0.022, x, y + 0.08, z); B.box('reed', 0.035, 0.03, 0.035, x, y + 0.155, z); }
@@ -1424,9 +1458,14 @@ const R11KIT = (function () {
     }
     return g;
   }
+  const VM_KINDS = new Set(['glass-arm', 'sword', 'longsword', 'knife', 'axe', 'mace', 'maul', 'spear', 'staff', 'pistol', 'crossbow', 'fists', 'blade']);
   function viewmodel(kind, opts) {
     const THREE = T3(null); if (!THREE) return null;
+    // CORE's names and raw weapon ids are welcome too: 'dagger', 'bow', 'glass', 'hands', or any key of WEAPONS
     kind = String(kind || 'blade');
+    const ALIAS = { dagger: 'knife', bow: 'crossbow', glass: 'fists', hands: 'fists', fist: 'fists', hammer: 'mace' };
+    if (ALIAS[kind]) kind = ALIAS[kind];
+    else if (!VM_KINDS.has(kind)) { let k = 'blade'; try { if (typeof WEAPONS === 'object' && WEAPONS[kind]) k = kindFor(kind); } catch (e) { /* blade */ } kind = k; }
     const V = (x, y, z) => new THREE.Vector3(x, y, z);
     let built;
     if (kind === 'glass-arm') built = glassArm(THREE, opts);
@@ -1468,7 +1507,7 @@ const R11KIT = (function () {
   }
 
   return {
-    TEXTS, dressMap, viewmodel, kindFor, setTier, countDraws, TIERS,
+    TEXTS, dressMap, viewmodel, kindFor, setTier, countDraws, TIERS, units: UPM, kinds: () => [...VM_KINDS],
     ready: () => { const THREE = T3(null); return THREE ? loadProps(THREE) : Promise.resolve(null); },
     get debug() { return S.debug; }, set debug(v) { S.debug = !!v; },
     get last() { return S.last; },

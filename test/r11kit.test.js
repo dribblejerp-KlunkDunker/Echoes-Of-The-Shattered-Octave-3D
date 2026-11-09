@@ -20,7 +20,7 @@ const check = (cond, label) => { if (cond) console.log('PASS ' + label); else { 
 // the harness, run in the page: a renderer, the sky, sun and fog, plain ground and boxes for whatever KIT does not hide
 async function harness() {
   window.__kitH = async function (o) {
-    const X = window.R11THREE, THREE = X.THREE, M = 0.1875, ZK = 0.61875;
+    const X = window.R11THREE, THREE = X.THREE, M = R11KIT.units(), ZK = 0.61875;
     let H = window.__kh;
     if (!H) {
       const cv = document.createElement('canvas'); cv.width = o.w; cv.height = o.h;
@@ -42,7 +42,7 @@ async function harness() {
   window.__kitScene = async function (map, tier) {
     const H = await window.__kitH({ w: 1280, h: 800 }), THREE = H.THREE, M = H.M, ZK = H.ZK;
     const scene = new THREE.Scene(); scene.background = H.hdr; scene.environment = H.env; scene.backgroundIntensity = 0.95; scene.environmentIntensity = 1.05;
-    scene.fog = new THREE.FogExp2(0x8c9599, 0.0021 / M * 0.6);
+    scene.fog = new THREE.FogExp2(0x8c9599, 0.4 / Math.max(2, map.fogDist || 22));   // CORE's outdoor rule
     const lights = [];
     const ctx = { scene, THREE, tier, addLight(l, p) { lights.push([l, p]); scene.add(l); } };
     const t0 = performance.now();
@@ -72,7 +72,7 @@ async function harness() {
     const sun = new THREE.DirectionalLight(0xffeeda, 1.35); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
     sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02;
     scene.add(sun, sun.target);
-    const cam = new THREE.PerspectiveCamera(70, 1280 / 800, 0.015, 420);
+    const cam = new THREE.PerspectiveCamera(70, 1280 / 800, 0.02, Math.max(140, Math.hypot(map.w, map.h) * 1.5 + 80));   // CORE's far rule
     window.__ks = { scene, cam, sun, res, ms, lights };
     return { ms, draws: res.stats.draws, hidden: res.hiddenCells.size, stats: res.stats, lights: lights.length };
   };
@@ -124,11 +124,11 @@ async function harness() {
     check(r.group, 'dressMap(oakhaven) returns a group with children (' + r.s.ms.toFixed(0) + ' ms, ' + r.s.stats.buildings + ' buildings, ' + r.s.stats.lots + ' lots, ' + r.s.stats.oaks + ' oaks, ' + r.s.stats.lamps + ' hush-lamps)');
     check(r.s.hidden > 300 && !r.bad.length, 'hiddenCells are wall cells only, never doors or open ground (' + r.s.hidden + ' hidden, ' + r.bad.length + ' bad)');
     check(['chapel', 'greenhall', 'inn'].every((k) => r.kinds.includes(k)), 'the Chapel, the Greenhall and the Boar & Dulcimer are found by their doors (' + r.kinds.filter((k) => k !== 'house' && k !== 'shed').join(', ') + ')');
-    check(r.lights >= 20 && r.replaced >= 40, 'hush-lamps light through ctx.addLight and the map\'s oaks, lamps, tables and crates are replaced (' + r.lights + ' lights, ' + r.replaced + ' decos)');
+    check(r.lights >= 2 && r.lights < 10 && r.replaced >= 100, 'the inn door\'s lanterns light through ctx.addLight (the street hush-lamps keep the engine\'s own lights, not doubled); the map\'s oaks, lamps, tables, crates, casks and carts are replaced (' + r.lights + ' lights, ' + r.replaced + ' decos)');
 
     // ---- what you see is what blocks you: sample every kit part's box against walkable ground
     r = await page.evaluate(() => {
-      const m = window.__maps.oakhaven, res = window.__ks.res, C = 1 / 0.1875, W = m.w, out = { bldg: 0, worst: [], props: 0, propBad: [], n: res.boxes.length };
+      const m = window.__maps.oakhaven, res = window.__ks.res, C = 1 / R11KIT.units(), W = m.w, out = { bldg: 0, worst: [], props: 0, propBad: [], n: res.boxes.length };
       const walk = (x, y) => x >= 0 && y >= 0 && x < W && y < m.h && !m.isBlocked(x, y);
       // distance (m) from a point to the nearest blocked cell, looking two cells round
       const toBlocked = (px, pz) => { const cx = Math.floor(px / C), cy = Math.floor(pz / C); let best = 1e9; for (let y = cy - 2; y <= cy + 2; y++) for (let x = cx - 2; x <= cx + 2; x++) { if (walk(x, y)) continue; const dx = Math.max(x * C - px, 0, px - (x + 1) * C), dz = Math.max(y * C - pz, 0, pz - (y + 1) * C); best = Math.min(best, Math.hypot(dx, dz)); } return best; };
@@ -159,7 +159,7 @@ async function harness() {
 
     // ---- every map door of a kit building still has a door, at its cell
     r = await page.evaluate(() => {
-      const m = window.__maps.oakhaven, res = window.__ks.res, C = 1 / 0.1875, W = m.w, out = { n: 0, miss: [], hiddenDoor: 0 };
+      const m = window.__maps.oakhaven, res = window.__ks.res, C = 1 / R11KIT.units(), W = m.w, out = { n: 0, miss: [], hiddenDoor: 0 };
       for (const k in m.doors) {
         const i = +k, x = i % W, y = (i / W) | 0;
         if (res.hiddenCells.has(i)) out.hiddenDoor++;
@@ -175,7 +175,7 @@ async function harness() {
 
     // ---- canon: the Chapel's belfry holds nothing; no castle on the skyline; the landmarks stand where the map raises them
     r = await page.evaluate(() => {
-      const res = window.__ks.res, C = 1 / 0.1875;
+      const res = window.__ks.res, C = 1 / R11KIT.units();
       return { lm: (res.landmarks || []).map((l) => [l[0], l[1][0] / C, l[1][1] / C, l[2]]) };
     });
     const lm = (n) => r.lm.find((l) => l[0] === n);
@@ -197,13 +197,15 @@ async function harness() {
 
     // ---- the viewmodels
     r = await page.evaluate(() => {
-      const kinds = ['glass-arm', 'sword', 'longsword', 'knife', 'axe', 'mace', 'maul', 'spear', 'staff', 'pistol', 'crossbow', 'fists', 'blade'];
+      const kinds = R11KIT.kinds();
       const ok = kinds.filter((k) => { const v = R11KIT.viewmodel(k); if (!v || !v.group || !v.group.isObject3D) return false; v.update(0.5, 0); v.update(0.6, 0.4); return v.group.children.length > 0; });
       const map = { sword: R11KIT.kindFor('sword'), longsword: R11KIT.kindFor('longsword'), axe: R11KIT.kindFor('axe'), pistol: R11KIT.kindFor('pistol'), hands: R11KIT.kindFor('hands'), glass: R11KIT.kindFor('glass'), dirk: R11KIT.kindFor('p12_dirk'), nope: R11KIT.kindFor('no_such_thing') };
       const all = Object.keys(WEAPONS).map((id) => R11KIT.kindFor(id));
-      return { ok, kinds, map, all };
+      const alias = ['dagger', 'bow', 'glass', 'hands', 'tollhammer', 'p12_glassblade'].map((k) => R11KIT.viewmodel(k).kind);
+      return { ok, kinds, map, all, alias };
     });
-    check(r.ok.length === r.kinds.length, 'every viewmodel kind builds and updates (' + r.ok.join(', ') + ')');
+    check(r.ok.length === r.kinds.length && r.kinds.length >= 13, 'every viewmodel kind builds and updates (' + r.ok.join(', ') + ')');
+    check(r.alias.join() === 'knife,crossbow,fists,fists,mace,longsword', 'CORE\'s kind names and raw weapon ids map onto kit kinds (' + r.alias.join() + ')');
     check(r.map.sword === 'sword' && r.map.axe === 'axe' && r.map.pistol === 'pistol' && r.map.hands === 'fists' && r.map.dirk === 'knife' && r.map.nope === 'blade' && r.all.every((k) => r.kinds.includes(k)), 'weapons map to kinds from their WEAPONS entries, a generic blade otherwise (' + JSON.stringify(r.map) + ')');
     if (SHOTS) {
       await page.evaluate(() => window.__kitVM(['glass-arm', 'sword'])); await grab(page, path.join(SHOTS, 'kit-vm-sword.png'));
