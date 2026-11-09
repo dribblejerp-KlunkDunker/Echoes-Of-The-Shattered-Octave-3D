@@ -259,8 +259,8 @@ const R11VM = (function () {
   function makeMats(seed) {
     const lt = leatherTex(seed), bt = typeof document !== 'undefined' ? bladeTex(seed + 1) : null;
     const M = {
-      blade: new THREE.MeshStandardMaterial({ name: 'r11vm:steel', color: 0xa2a8ae, metalness: 1, roughness: 1, roughnessMap: bt && bt.rough, map: bt && bt.col, envMapIntensity: 1.15 }),
-      steel: new THREE.MeshStandardMaterial({ name: 'r11vm:guard', color: 0xa9adb2, metalness: 1, roughness: 0.3, envMapIntensity: 1.1 }),
+      blade: new THREE.MeshStandardMaterial({ name: 'r11vm:steel', color: 0x8f969d, metalness: 1, roughness: 1, roughnessMap: bt && bt.rough, map: bt && bt.col, envMapIntensity: 1.0 }),
+      steel: new THREE.MeshStandardMaterial({ name: 'r11vm:guard', color: 0x8a8f95, metalness: 1, roughness: 0.34, envMapIntensity: 1.0 }),
       iron: new THREE.MeshStandardMaterial({ name: 'r11vm:iron', color: 0x5d5f62, metalness: 1, roughness: 0.48 }),
       bronze: new THREE.MeshStandardMaterial({ name: 'r11vm:bronze', color: 0xb08250, metalness: 1, roughness: 0.34 }),
       brass: new THREE.MeshStandardMaterial({ name: 'r11vm:brass', color: 0xb8964f, metalness: 1, roughness: 0.3 }),
@@ -614,7 +614,7 @@ const R11VM = (function () {
   const glassVert = `attribute vec3 bary; varying vec3 vN; varying vec3 vV; varying vec3 vP; varying vec3 vB;
     void main() { vec4 mv = modelViewMatrix * vec4(position, 1.0); vN = normalize(normalMatrix * normal); vV = -mv.xyz; vP = position; vB = bary; gl_Position = projectionMatrix * mv; }`;
   // premultiplied: rgb is light added, alpha how much of what is behind it the glass hides
-  const glassFrag = `uniform float uTime; uniform float uBack; uniform vec3 uDeep; uniform vec3 uRim; uniform vec3 uGlint;
+  const glassFrag = `uniform float uTime; uniform float uK; uniform float uBack; uniform vec3 uDeep; uniform vec3 uRim; uniform vec3 uGlint;
     varying vec3 vN; varying vec3 vV; varying vec3 vP; varying vec3 vB;
     void main() {
       vec3 n = normalize(vN); if (!gl_FrontFacing) n = -n;
@@ -632,33 +632,33 @@ const R11VM = (function () {
       float edge = smoothstep(0.5, 0.92, fr);
       // the facets' edges: fine bright seams in the glass, brighter where the light runs through
       float e = min(vB.x, min(vB.y, vB.z)), seam = 1.0 - smoothstep(0.0, 0.018, e);
-      vec3 c = uDeep * (0.2 + 0.45 * inner + sky) + uRim * (fr * 0.8 + edge * 0.25) + uGlint * (sp * 0.35 + seam * (0.06 + 0.14 * inner));
-      float a = clamp(0.14 + 0.55 * fr + 0.1 * inner + 0.4 * sp + 0.15 * seam, 0.0, 0.8);
-      gl_FragColor = vec4(c * uBack, a * uBack);
+      vec3 c = uDeep * (0.1 + 0.32 * inner + 0.6 * sky) + uRim * (fr * 1.0 + edge * 0.45) + uGlint * (sp * 0.4 + seam * (0.05 + 0.14 * inner));
+      float a = clamp(0.5 + 0.35 * fr + 0.08 * inner + 0.2 * sp + 0.1 * seam, 0.0, 0.9);
+      gl_FragColor = vec4(c * uBack * uK, a * uBack);
       #include <tonemapping_fragment>
       #include <colorspace_fragment>
     }`;
-  const coreFrag = `uniform float uTime; uniform vec3 uDeep; varying vec3 vN; varying vec3 vV; varying vec3 vP;
+  const coreFrag = `uniform float uTime; uniform float uK; uniform vec3 uDeep; varying vec3 vN; varying vec3 vV; varying vec3 vP;
     void main() {
       float ndv = clamp(abs(dot(normalize(vN), normalize(vV))), 0.0, 1.0);
       float s = -vP.z * 22.0;
       float w = 0.5 + 0.5 * sin(s - uTime * 2.2 + 9.0 * vP.x);
-      gl_FragColor = vec4(uDeep * (0.05 + 0.32 * w * w) * pow(ndv, 1.5), 1.0);
+      gl_FragColor = vec4(uDeep * (0.05 + 0.32 * w * w) * pow(ndv, 1.5) * uK, 1.0);
       #include <tonemapping_fragment>
       #include <colorspace_fragment>
     }`;
   const veinVert = `varying vec2 vUv; varying vec3 vN; varying vec3 vV;
     void main() { vec4 mv = modelViewMatrix * vec4(position, 1.0); vUv = uv; vN = normalize(normalMatrix * normal); vV = -mv.xyz; gl_Position = projectionMatrix * mv; }`;
   // the vein: sea-green and moving (canon: "the green vein was moving"); the glow round it is the river seen through ice
-  const veinFrag = `uniform float uTime; uniform vec3 uCol; uniform float uGlow; varying vec2 vUv; varying vec3 vN; varying vec3 vV;
+  const veinFrag = `uniform float uTime; uniform float uK; uniform vec3 uCol; uniform float uGlow; varying vec2 vUv; varying vec3 vN; varying vec3 vV;
     void main() {
       float ndv = clamp(abs(dot(normalize(vN), normalize(vV))), 0.0, 1.0);
       float x = vUv.x;
       float flow = 0.55 + 0.45 * sin(x * 46.0 - uTime * 3.1) * (0.6 + 0.4 * sin(x * 11.0 - uTime * 1.3));
       vec3 c;
       if (uGlow > 0.5) c = uCol * 0.16 * pow(ndv, 2.0) * (0.7 + 0.5 * flow);
-      else c = uCol * (0.42 + 0.4 * flow) * (0.7 + 0.3 * ndv);
-      gl_FragColor = vec4(c, 1.0);
+      else c = uCol * (0.6 + 0.5 * flow) * (0.7 + 0.3 * ndv);
+      gl_FragColor = vec4(c * uK, 1.0);
       #include <tonemapping_fragment>
       #include <colorspace_fragment>
     }`;
@@ -715,20 +715,20 @@ const R11VM = (function () {
     const mg = mergeFn();
     const shellGeo = facet(mg(plain(glassHandParts(1)), false), 0.0045, r);
     const coreGeo = facet(mg(plain(glassHandParts(0.42)), false), 0.003, r);
-    const U = { uTime: { value: 0 }, uBack: { value: 1 }, uDeep: { value: new THREE.Color(0x1890bd) }, uRim: { value: new THREE.Color(0x52d8f5) }, uGlint: { value: new THREE.Color(0xa6f2ff) } };
+    const U = { uTime: { value: 0 }, uK: { value: 1 }, uBack: { value: 1 }, uDeep: { value: new THREE.Color(0x12c2d2) }, uRim: { value: new THREE.Color(0x5ff2ec) }, uGlint: { value: new THREE.Color(0xa6f2ff) } };
     const mk = (side, back) => new THREE.ShaderMaterial({ name: 'r11vm:glass', uniforms: Object.assign({}, U, { uBack: { value: back } }), vertexShader: glassVert, fragmentShader: glassFrag,
       transparent: true, depthWrite: false, side, blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor, blendEquation: THREE.AddEquation });
-    const backM = mk(THREE.BackSide, 0.55), frontM = mk(THREE.FrontSide, 1);
-    backM.uniforms.uTime = frontM.uniforms.uTime = U.uTime;
-    const coreM = new THREE.ShaderMaterial({ name: 'r11vm:glass-core', uniforms: { uTime: U.uTime, uDeep: { value: new THREE.Color(0x6fe6ff) } }, vertexShader: glassVert, fragmentShader: coreFrag,
+    const backM = mk(THREE.BackSide, 0.5), frontM = mk(THREE.FrontSide, 1);
+    backM.uniforms.uTime = frontM.uniforms.uTime = U.uTime; backM.uniforms.uK = frontM.uniforms.uK = U.uK;
+    const coreM = new THREE.ShaderMaterial({ name: 'r11vm:glass-core', uniforms: { uTime: U.uTime, uK: U.uK, uDeep: { value: new THREE.Color(0x6ff0f0) } }, vertexShader: glassVert, fragmentShader: coreFrag,
       transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
     // the one vein: up the forearm under the back of it, through the wrist, into the palm toward the middle finger
     const vp = [V(0.012, 0.016, 0.42), V(0.006, 0.019, 0.3), V(0.013, 0.017, 0.2), V(0.003, 0.016, 0.11), V(-0.004, 0.012, 0.03), V(0.002, 0.007, -0.03), V(0.008, 0.005, -0.068), V(0.009, 0.004, -0.088)];
     const curve = new THREE.CatmullRomCurve3(vp, false, 'centripetal');
     const sea = new THREE.Color(0x1fe08a);
-    const veinM = new THREE.ShaderMaterial({ name: 'r11vm:vein', uniforms: { uTime: U.uTime, uCol: { value: sea }, uGlow: { value: 0 } }, vertexShader: veinVert, fragmentShader: veinFrag });
+    const veinM = new THREE.ShaderMaterial({ name: 'r11vm:vein', uniforms: { uTime: U.uTime, uK: U.uK, uCol: { value: sea }, uGlow: { value: 0 } }, vertexShader: veinVert, fragmentShader: veinFrag });
     veinM.userData.vein = true; veinM.userData.canon = 'the green vein, like a river under ice';
-    const glowM = new THREE.ShaderMaterial({ name: 'r11vm:vein-glow', uniforms: { uTime: U.uTime, uCol: { value: sea }, uGlow: { value: 1 } }, vertexShader: veinVert, fragmentShader: veinFrag,
+    const glowM = new THREE.ShaderMaterial({ name: 'r11vm:vein-glow', uniforms: { uTime: U.uTime, uK: U.uK, uCol: { value: sea }, uGlow: { value: 1 } }, vertexShader: veinVert, fragmentShader: veinFrag,
       transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
     const veinGeo = new THREE.TubeGeometry(curve, 64, 0.0028, 8, false);
     { const p = veinGeo.attributes.position, u = veinGeo.attributes.uv; for (let i = 0; i < p.count; i++) { const t = u.getX(i), pt = curve.getPointAt(Math.min(1, t)), kk = 1 - 0.45 * t; p.setXYZ(i, pt.x + (p.getX(i) - pt.x) * kk, pt.y + (p.getY(i) - pt.y) * kk, pt.z + (p.getZ(i) - pt.z) * kk); } veinGeo.computeVertexNormals(); }
@@ -753,7 +753,7 @@ const R11VM = (function () {
   // framed like picture 1: the fist low in the right of the view, the blade going up out of the top, its flat toward us
   // and its edge toward the middle; the glass hand low left, reaching in and up
   const POSE = {
-    blade: { p: [0.285, -0.118, -0.54], y: [0.1, 1, -0.28], z: [0.3, 0, 1], s: 1 },
+    blade: { p: [0.268, -0.134, -0.54], y: [0.1, 1, -0.28], z: [0.3, 0, 1], s: 1 },
     knife: { p: [0.26, -0.11, -0.48], y: [-0.12, 1, -0.6], z: [0.3, 0, 1], s: 1 },
     axe: { p: [0.27, -0.13, -0.52], y: [-0.1, 1, -0.45], z: [0.3, 0, 1], s: 1 },
     maul: { p: [0.27, -0.14, -0.52], y: [-0.45, 0.8, -0.5], z: [0.3, 0.3, 1], s: 1 },
@@ -837,7 +837,12 @@ const R11VM = (function () {
         hand.position.set(base.p.x + sx + bx, base.p.y + sy + by, base.p.z);
         eul.set(Math.sin(t * 0.7) * 0.012 + by * 0.6, sx * 1.5, Math.sin(t * 0.8) * 0.01 * side);
         hand.quaternion.copy(base.q).premultiply(qq.setFromEuler(eul));
-        if (built.U) built.U.uTime.value = t;
+        if (built.U) {
+          built.U.uTime.value = t;
+          // self-lit: the glass keeps its own brightness whatever exposure CORE gives the street (night is exposed up)
+          let ex = 1; try { const r = typeof window !== 'undefined' && window.R11 && window.R11.renderer; if (r && r.toneMappingExposure > 0) ex = r.toneMappingExposure; } catch (e) { ex = 1; }
+          built.U.uK.value = 1 / ex;
+        }
       },
       stats() {
         let draws = 0, tris = 0;
