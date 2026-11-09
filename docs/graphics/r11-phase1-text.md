@@ -1,6 +1,8 @@
 # Game - R11 Phase 1 New In-Game Text (for review)
 
-The realistic 3D look, phase 1 (8–9 Nov 2026, repo Echoes-Of-The-Shattered-Octave-3D, branch `claude/r11-phase1`). Four teams: CORE (the renderer), KIT (Oakhaven's buildings, props, far ring, first-person hands), HUD (the bronze bar), BENCH (graphics quality and the benchmark). Everything below is new player-facing text or lore-bearing art. Anything invented is marked **[PROPOSED]** for the author's ruling; everything else is checked against the books, the World Bibles or the game's own text.
+The realistic 3D look, phase 1 (8–9 Nov 2026, repo Echoes-Of-The-Shattered-Octave-3D, branch `claude/r11-phase1`). Four teams: CORE (the renderer), KIT (Oakhaven's buildings, props, far ring, first-person hands), HUD (the bronze bar), BENCH (graphics quality and the benchmark). Everything below is new player-facing text or lore-bearing art. Anything invented was marked [PROPOSED] for the author's ruling and is now **[APPROVED]**; everything else is checked against the books, the World Bibles or the game's own text.
+
+**Owner's ruling (9 Nov 2026): every [PROPOSED] item in this document is approved** ("yes to all proposed ideas"). They are now canon for the game; the marks below read [APPROVED].
 
 Commander's lore fixes during integration:
 - The mooring mast is Book One's "a hundred and twenty feet of riveted iron on four splayed legs in the bedrock of the quarry rim" (a riveted lattice tower, 36.5 m), not a gallows-like post.
@@ -51,13 +53,13 @@ No other words are drawn. Notices on the well-house, the Greenhall front and the
 - **Props** only where the map has them: casks (p_barrel, open, on its side), crates, carts, the market tables (Carders' Quarter) as stalls.
 - **The far ring** from js/upgrades.js LANDMARKS: the Grey Teeth north with snow, the chalk cliff shoulder, the downs, the quarry head; Greenroot's spire on the downs at the bearing js/sky.js gives it. **No castle.**
 
-## [PROPOSED] — invented detail the owner should rule on
-1. [PROPOSED] The inn board's painting: a boar in profile and a hammered dulcimer with its two hammers, gilt on dark wood (only the name is canon).
-2. The market stalls' awnings are "the colour of old wine and old moss" (canon: the game's Massday market line, calendar11); [PROPOSED] their goods (fleeces, honey jars, red cloth).
-3. [PROPOSED] The Greenhall dome covered in slate with iron ribs and a small lantern on top (the dome is canon; its covering is not).
-4. [PROPOSED] The well-house's form: four stone piers, a parapet and a slate pyramid roof, with a windlass beam and a bucket.
-5. [PROPOSED] The Chapel tower's slate pyramid cap and iron finial above the open belfry.
-6. [PROPOSED] Plaster tints on houses (cream, ochre, grey-white, pinkish) and the mix of timbered, rendered and all-stone upper storeys.
+## [APPROVED] invented detail (approved by the owner, 9 Nov 2026)
+1. [APPROVED] The inn board's painting: a boar in profile and a hammered dulcimer with its two hammers, gilt on dark wood (only the name is canon).
+2. The market stalls' awnings are "the colour of old wine and old moss" (canon: the game's Massday market line, calendar11); [APPROVED] their goods (fleeces, honey jars, red cloth).
+3. [APPROVED] The Greenhall dome covered in slate with iron ribs and a small lantern on top (the dome is canon; its covering is not).
+4. [APPROVED] The well-house's form: four stone piers, a parapet and a slate pyramid roof, with a windlass beam and a bucket.
+5. [APPROVED] The Chapel tower's slate pyramid cap and iron finial above the open belfry.
+6. [APPROVED] Plaster tints on houses (cream, ochre, grey-white, pinkish) and the mix of timbered, rendered and all-stone upper storeys.
 
 ---
 
@@ -90,7 +92,7 @@ It had no French, on the canvas bar either. Each of the 360 dates is now an exac
 (a `The {0} of {1}` pattern would have caught other "The X of Y" names, so it is deliberately not a pattern).
 
 Month names: the four from the glossary are the author's (Moisson, Chute des cendres, Mois du givre, Mois d'accalmie).
-The other eight are **[PROPOSED]**:
+The other eight were [PROPOSED] and are now **[APPROVED]**:
 Thawmonth = Mois du dégel, Seedmonth = Mois des semailles, Lambmonth = Mois des agneaux, Reedmonth = Mois des roseaux,
 Longsun = Longsoleil, Dustmonth = Mois de la poussière, Firstfruit = Premiers-fruits, Sheafmonth = Mois des gerbes.
 Day numbers are French cardinals ("le premier", "le deux" ... "le trente").
