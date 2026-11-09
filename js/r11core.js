@@ -1367,10 +1367,18 @@ void main() {
   }
 
   // ================================================================================================ init (async)
+  // Three.js is fetched and parsed only when the realistic look is wanted (Pixel players, and pages that never turn it on,
+  // never pay for it): the module script is added once, here, not in index.html
+  let threeAsked = false;
+  function loadThree() {
+    if (threeAsked || typeof document === 'undefined') return;
+    threeAsked = true;
+    try { const sc = document.createElement('script'); sc.type = 'module'; sc.src = 'js/r11three.mjs'; sc.onerror = () => fail(new Error('js/r11three.mjs did not load')); document.head.appendChild(sc); } catch (e) { fail(e); }
+  }
   function init() {
     if (st.loading || st.loaded) return;
     T3 = (typeof window !== 'undefined' && window.R11THREE) || null;
-    if (!T3) return;   // the module has not arrived yet: the 'r11three' event calls back
+    if (!T3) { loadThree(); return; }   // the module has not arrived yet: the 'r11three' event calls back
     if (st.available === false || !probe()) return;
     st.loading = true;
     try {

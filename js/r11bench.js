@@ -62,6 +62,8 @@ const R11BENCH = (function () {
   }
   // The tier in force at first run: a manual choice stands untouched; otherwise the stored automatic result, else the pick.
   function autoTier() {
+    // a tier the page asks for (window.__r11 = { tier }, the test harness's opt-in) wins, unsaved, over any pick
+    try { const w = typeof window !== 'undefined' && window.__r11; if (w && typeof w === 'object' && TIERS.indexOf(w.tier) >= 0) { st.manual = true; st.tier = w.tier; return w.tier; } } catch (e) { /* none */ }
     const o = load();
     if (o.tierManual === true && TIERS.indexOf(o.tier) >= 0) { st.manual = true; st.tier = o.tier; return o.tier; }
     st.manual = false;
