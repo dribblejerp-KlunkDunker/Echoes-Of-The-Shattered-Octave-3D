@@ -4,6 +4,7 @@
 //   - R11.benchCam {map, x, y, dir, pitch, tod}: Oakhaven's square framed like picture 1; R11 draws it
 //   - Ultra and Phone shots at the bench camera, a side-by-side (ours | picture 1) and a greyscale side-by-side (the
 //     value bands) into SHOT_DIR: r11look-ultra.png, r11look-phone.png, r11look-sbs.png, r11look-sbs-grey.png
+//   - Ultra, High and Phone all draw graded (High: the same output pass as Ultra)
 //   - the grade: darker and less saturated than the neutral look (AgX alone, phase-1 exposure), the sky still the
 //     brightest band (overcast day, not night), the grade is the composer's output pass at Ultra (no OutputPass) and the
 //     materials' own tone mapping at Phone (no composer: no extra full-screen pass), and both tiers agree
@@ -160,6 +161,12 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
     await step('bloom only on what glows: the sky\'s ceiling is under the bloom threshold', async () => {
       const r = await page.evaluate(() => ({ cap: R11.look.get().LOOK.skyCap, th: R11.R.passes.bloom ? R11.R.passes.bloom.threshold : null }));
       ok(r.th != null && r.cap < r.th, JSON.stringify(r));
+    });
+    await step('High: the same grade output pass compiles and draws (one frame, near Ultra\'s values)', async () => {
+      const r = await page.evaluate(() => { R11.setTier('high'); S.bench(); S.pin(() => render()); const P = R11.R.passes; return { tier: R11.tier(), grade: !!P.grade, names: R11.R.composer.passes.map((p) => p.constructor.name), all: S.stats(0, 0, 1, 1), draws: R11.stats.draws }; });
+      console.log('  High ' + JSON.stringify(r.all) + ' draws ' + r.draws);
+      ok(r.tier === 'high' && r.grade && !r.names.includes('OutputPass'), JSON.stringify(r));
+      ok(Math.abs(r.all.L - ultra.all.L) < Math.max(12, ultra.all.L * 0.2) && r.all.sd > 15, 'high ' + r.all.L + ' sd ' + r.all.sd + ' ultra ' + ultra.all.L);
     });
     await step('Phone: no composer (no extra full-screen pass), the grade rides in the tone mapping, and agrees with Ultra', async () => {
       const r = await page.evaluate(() => { R11.setTier('phone'); S.bench(); S.frame(); return { tier: R11.tier(), composer: !!R11.R.composer, tm: R11.renderer.toneMapping === R11.THREE.CustomToneMapping, reg: S.regions(), draws: R11.stats.draws }; });
