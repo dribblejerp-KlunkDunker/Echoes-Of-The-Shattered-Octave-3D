@@ -874,7 +874,7 @@ void main() {
   };
   const GRADE = { sat: 0.82, warmSat: 1.08, contrast: 1.25, pivot: 0.38, gamma: 1.12, lift: 0.005,
     shadow: [-0.018, 0.004, 0.012], mid: [0.02, 0.006, -0.018], high: [0.006, 0.002, -0.008] };
-  const WET = { value: 0.72 };             // 0 dry .. 1 soaked (weather 'wet' raises it; snow lowers it)
+  const WET = { value: 0 };                // 0 dry .. 1 soaked: wet only in rain or storm (the owner's ruling)
   const GRADE_SRC = `
 vec3 NAME(vec3 c) {
   const vec3 LW = vec3(0.2126, 0.7152, 0.0722);
@@ -964,7 +964,8 @@ float r11Noise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0
   function wetFrame(env) {
     let w = 0;
     try { if (typeof Weather !== 'undefined' && Weather && Weather.STATES) { const s = Weather.STATES[Weather.state]; if (s) w = s.wet || 0; if (Weather.state === 'snow') w = -1; } } catch (e) { w = 0; }
-    const want = !env.outdoor ? 0.3 : w < 0 ? 0.35 : 0.72 + 0.28 * w;
+    // the owner's ruling (9 Nov 2026): the cobbles are wet only when it rains (rain, storm); dry otherwise, and indoors
+    const want = env.outdoor && w > 0 ? 0.72 + 0.28 * w : 0;
     WET.value = LOOK.wetForce != null ? LOOK.wetForce : want;
   }
   // R11.look: the numbers above, readable and live-tunable (tests and the art bible's screenshots use it)

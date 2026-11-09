@@ -8,8 +8,8 @@ Anything below that a player could read as lore is marked **[PROPOSED]** until t
 
 ## 1. The look in one paragraph
 
-Overcast, grounded, grim, and lived in. The light comes from a flat grey sky. The ground is wet, dark cobbles with the
-bright sky caught in the water between the stones. The only saturated notes are warm: lantern flames, lit windows,
+Overcast, grounded, grim, and lived in. The light comes from a flat grey sky. The ground is dark cobbles; in rain they go
+wet, with the bright sky caught in the water between the stones. The only saturated notes are warm: lantern flames, lit windows,
 autumn ochre in the oaks. Shade is deep under eaves and in doorways and carries a teal-grey cast. Distance fades into
 blue-grey air, never into white. Nothing glows unless it is a flame, a lit window, or light-glass.
 
@@ -20,7 +20,7 @@ blue-grey air, never into white. Nothing glows unless it is a flame, a lit windo
 | Sky | 140–160 | the overcast; the brightest large area in any daytime frame |
 | Far air, hills | 85–110 | the haze; ochre and green muted toward grey |
 | Mid-ground | 50–70 | walls in light, stalls, the well-house, the oak's trunk |
-| Wet cobbles | 55–75 (joints 25–40) | the floor, with sky-bright glints in the wet |
+| Cobbles (wet in rain) | 55–75 (joints 25–40) | the floor; in rain, sky-bright glints in the wet |
 | Deep shade | 20–35 | under eaves, doorways, the inside of the inn porch |
 | Practical light | 180–255 | flames, lit panes (the only notes allowed to clip) |
 
@@ -119,8 +119,8 @@ roughness down to 0.06, the normal bumps half-drowned. Stone tops are damp and d
 the joints (roughness 0.06) carry the sharp glints of sky.
 Puddle cells (a world-space noise, about 15% of the floor) fill the joints first, then go over the stones as still
 water (roughness 0.035, flat). The sky (the HDR environment) and the lamps (the point lights' highlights) show in the
-wet. Wetness follows the weather: damp by default under the Hush's grey sky, soaked when the weather says rain, drier
-under snow. No falling rain unless the weather says rain.
+wet. **Owner's ruling (9 Nov 2026): the cobbles are wet only when it rains** (the weather's rain or storm); dry on every
+other day, in snow, and indoors. No falling rain unless the weather says rain.
 
 ## 7. Scale sheet
 
