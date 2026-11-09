@@ -41,7 +41,7 @@ const R11 = (() => {
   // rep = metres per texture repeat (world-space UVs at a fixed texel density); 'plain' = a PBR colour (with a small
   // procedural breakup texture) for what no scan covers. Vertex colours carry the per-texture tint below.
   const BASE = {
-    cobble:  { scan: 'cobblestone_floor_08', rep: 1.6, rough: 0.62, ns: 1.4 },     // damp cobbles: lower roughness
+    cobble:  { scan: 'cobblestone_floor_08', rep: 1.6, rough: 0.82, ns: 1.4 },     // the wet is in wetHook (phase 2 LOOK)
     stone:   { scan: 'rustic_stone_wall', rep: 2.4 },
     blocks:  { scan: 'medieval_blocks_02', rep: 2.6 },                              // dressed stone, flags, marble
     plaster: { scan: 'white_plaster_rough_02', rep: 2.0 },
@@ -62,7 +62,7 @@ const R11 = (() => {
   };
   // game texture -> [base, tint]. Unknown names go through KEYWORDS, then fall back to 'flat' in the texture's mean colour.
   const TEX = {
-    t_cobble: ['cobble', 0xb9b4ad], t_flag: ['blocks', 0xa8a39b], t_stone: ['stone', 0xd8d2c8], t_stone_p20b_1: ['stone', 0xc8c2b8], t_stone_p20b_2: ['stone', 0xb8b4ac],
+    t_cobble: ['cobble', 0x8a7562], t_flag: ['blocks', 0xa8a39b], t_stone: ['stone', 0xd8d2c8], t_stone_p20b_1: ['stone', 0xc8c2b8], t_stone_p20b_2: ['stone', 0xb8b4ac],
     t_house: ['plaster', 0xe0d6c4], t_house_p20b_1: ['plaster', 0xdccfb8], t_house_p20b_2: ['plaster', 0xcfc4ae], t_house_p20b_3: ['plaster', 0xd4c9b0],
     t_roof: ['slate', 0x9aa0a6], t_wood: ['wood', 0x8a7a68], t_door: ['planks', 0xa08a70], t_hedge: ['hedge', 0xffffff], t_grass: ['grass', 0xffffff],
     t_grass_p20b_a: ['grass', 0xf2f4ea], t_grass_p20b_b: ['grass', 0xe4e8d8], t_grass_p20b_c: ['grass', 0xfaf2e0], t_grass_p20b_d: ['grass', 0xe8eee0],
@@ -294,6 +294,7 @@ const R11 = (() => {
       m = new THREE.MeshStandardMaterial({ color: 0x0e1418, roughness: 0.06, metalness: 0, normalMap: waterNormals(), normalScale: new THREE.Vector2(0.35, 0.35), envMapIntensity: 1.6, vertexColors: true });
     } else if (b.scan) {
       m = mat(b.scan, { rough: b.rough, ns: b.ns, vc: true });
+      if (key === 'cobble') wetHook(m);
     } else {
       m = new THREE.MeshStandardMaterial({ color: b.plain, roughness: b.rough, metalness: b.metal || 0, map: b.noise ? noiseTex(b.noise) : null, vertexColors: true });
       if (key === 'glass') { m.emissive = new THREE.Color(0x1a6a7a); m.emissiveIntensity = 0.35; }
@@ -854,6 +855,155 @@ void main() {
     stats.billboards = n;
   }
 
+  // ================================================================================================ LOOK (R11 phase 2)
+  // Toward the owner's picture 1 (docs/graphics/art-bible.md): darker and warmer, wet cobbles catching the sky, warm
+  // lamps and windows as the only saturated notes, teal-grey shadows. Every number is here, live-tunable through
+  // R11.look.set({...}) (Ultra/High at once; Phone's tone mapping is baked from GRADE when the renderer starts).
+  //   exposure by hour (outdoors): night .. day, a lift at dusk/dawn; indoors one value
+  //   GRADE: after AgX, in display (gamma) space: saturation (kept on warm bright notes), contrast about a pivot, a gamma,
+  //   a teal-grey tint into the shadows, a little warmth into the highlights, a lifted black
+  const LOOK = {
+    expDay: 0.56, expNight: 1.3, expDusk: 0.12, expIn: 1.0,
+    ambDay: 0.5,                            // the sky's fill (hemisphere and HDR environment) by day: deeper shade
+    skyDay: 0.72, skyCap: 1.15, skyCool: [0.95, 0.99, 1.05],   // the overcast a shade cooler by day (picture 1's sky is neutral grey)
+              // the overcast dome's strength by day, and its ceiling (bloom never takes the sky)
+    fogDay: [0.20, 0.215, 0.235], fogMix: 0.55, fogDensity: 0.4,   // the overcast air (linear), how far the day leans to it
+    lampWarm: [1.0, 0.62, 0.3],             // practical lights pulled toward candle/tallow (multiplied, then renormalised)
+    windowGlow: [1.0, 0.46, 0.13], windowI: 3.4,   // lit window panes (emissive), warm, bright enough for a little bloom
+    bloomStrength: 0.5, bloomRadius: 0.4, bloomThreshold: 1.35,
+  };
+  const GRADE = { sat: 0.82, warmSat: 1.08, contrast: 1.25, pivot: 0.38, gamma: 1.12, lift: 0.005,
+    shadow: [-0.018, 0.004, 0.012], mid: [0.02, 0.006, -0.018], high: [0.006, 0.002, -0.008] };
+  const WET = { value: 0 };                // 0 dry .. 1 soaked: wet only in rain or storm (the owner's ruling)
+  const GRADE_SRC = `
+vec3 NAME(vec3 c) {
+  const vec3 LW = vec3(0.2126, 0.7152, 0.0722);
+  vec3 g = pow(max(c, vec3(0.0)), vec3(1.0 / 2.2));
+  float Y = dot(g, LW);
+  float warm = smoothstep(0.05, 0.26, g.r - g.b) * smoothstep(0.4, 0.82, max(g.r, g.g));
+  g = mix(vec3(Y), g, mix($SAT, $WSAT, warm));
+  float Yc = pow(max($PIV + (Y - $PIV) * $CON, 0.0), $GAM);   // contrast and gamma on luminance only: hues and
+  g *= Yc / max(Y, 1e-4);                                       // saturation are the grade's to set, not the curve's
+  float Y2 = Yc;
+  g += $SH * (1.0 - smoothstep(0.03, 0.22, Y2)) * smoothstep(0.0, 0.04, Y2) + $MID * smoothstep(0.1, 0.22, Y2) * (1.0 - smoothstep(0.35, 0.6, Y2)) + $HI * smoothstep(0.5, 0.95, Y2);
+  g = $LIFT + clamp(g, 0.0, 1.0) * (1.0 - $LIFT);
+  return pow(g, vec3(2.2));
+}`;
+  const f3 = (v) => 'vec3(' + v.map((x) => (+x).toFixed(5)).join(', ') + ')', f1 = (x) => (+x).toFixed(5);
+  function gradeGLSL(name, uniforms) {
+    const G = GRADE, rep = uniforms
+      ? { $SAT: 'uGrA.x', $WSAT: 'uGrA.y', $CON: 'uGrA.z', $PIV: 'uGrA.w', $GAM: 'uGrB.x', $LIFT: 'uGrB.y', $SH: 'uGrS', $MID: 'uGrM', $HI: 'uGrH' }
+      : { $SAT: f1(G.sat), $WSAT: f1(G.warmSat), $CON: f1(G.contrast), $PIV: f1(G.pivot), $GAM: f1(G.gamma), $LIFT: f1(G.lift), $SH: f3(G.shadow), $MID: f3(G.mid), $HI: f3(G.high) };
+    return GRADE_SRC.replace('NAME', name).replace(/\$[A-Z]+/g, (k) => rep[k]);
+  }
+  // Phone (no composer): the grade rides in the materials' own tone mapping (CustomToneMapping = AgX, then the grade)
+  function patchTone() {
+    const C = THREE.ShaderChunk, tail = 'vec3 CustomToneMapping( vec3 color ) { return color; }';
+    const base0 = C.tonemapping_pars_fragment.indexOf('R11 grade') >= 0 ? C.tonemapping_pars_fragment.split('// R11 grade')[0] : C.tonemapping_pars_fragment.replace(tail, '');
+    C.tonemapping_pars_fragment = base0 + '// R11 grade' + gradeGLSL('r11GradeC', false) + '\nvec3 CustomToneMapping( vec3 color ) { return r11GradeC( AgXToneMapping( color ) ); }';
+  }
+  // Ultra/High: the composer's output pass is ours (it replaces OutputPass: exposure, AgX, the grade, sRGB in one pass)
+  let gradeMat = null;
+  function gradePass() {
+    const U = { tDiffuse: { value: null }, toneMappingExposure: { value: 1 }, uGrA: { value: new THREE.Vector4() }, uGrB: { value: new THREE.Vector4() }, uGrS: { value: new THREE.Vector3() }, uGrM: { value: new THREE.Vector3() }, uGrH: { value: new THREE.Vector3() } };
+    gradeMat = new THREE.ShaderMaterial({
+      name: 'R11GradeOutput', uniforms: U, depthTest: false, depthWrite: false, toneMapped: false,   // (Three's prefix brings the sRGB functions)
+      vertexShader: 'varying vec2 vUv;\nvoid main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+      fragmentShader: 'uniform sampler2D tDiffuse; uniform vec4 uGrA; uniform vec4 uGrB; uniform vec3 uGrS; uniform vec3 uGrM; uniform vec3 uGrH;\nvarying vec2 vUv;\n' +
+        '#include <tonemapping_pars_fragment>\n' + gradeGLSL('r11GradeU', true) +
+        '\nvoid main() { vec4 c = texture2D(tDiffuse, vUv); c.rgb = r11GradeU(AgXToneMapping(c.rgb)); gl_FragColor = sRGBTransferOETF(vec4(c.rgb, 1.0)); }',
+    });
+    gradeUniforms();
+    return new T3.ShaderPass(gradeMat);
+  }
+  function gradeUniforms() {
+    if (!gradeMat) return;
+    const U = gradeMat.uniforms, G = GRADE;
+    U.uGrA.value.set(G.sat, G.warmSat, G.contrast, G.pivot); U.uGrB.value.set(G.gamma, G.lift, 0, 0);
+    U.uGrS.value.set(G.shadow[0], G.shadow[1], G.shadow[2]); U.uGrM.value.set(G.mid[0], G.mid[1], G.mid[2]); U.uGrH.value.set(G.high[0], G.high[1], G.high[2]);
+  }
+  // wet cobbles: the scan's joints (rough, low AO in its ARM map) hold water: darker, low roughness, the bumps drowned;
+  // puddle cells (a world-space noise) fill the joints first, then go over the stones as still water. The sky (the HDR
+  // environment) and the lamps (the point lights' highlights) show in the wet.
+  const WET_FRAG = `
+#include <roughnessmap_fragment>
+{
+#ifdef USE_ROUGHNESSMAP
+  float r11j = smoothstep(0.6, 0.76, texelRoughness.g) * (0.55 + 0.45 * (1.0 - smoothstep(0.66, 0.8, texelRoughness.r)));
+#else
+  float r11j = 0.0;
+#endif
+  vec2 r11p = vR11W.xz;
+  float r11n = r11Noise(r11p * 1.9) * 0.62 + r11Noise(r11p * 5.3 + 17.1) * 0.38;
+  float r11pud = smoothstep(0.6, 0.74, r11n) * smoothstep(0.35, 0.8, uR11Wet);
+  float r11h = 1.0 - r11j;
+  r11Water = smoothstep(r11h - 0.08, r11h + 0.08, r11pud * 1.3 - 0.1);
+  float r11wet = clamp(uR11Wet * (0.4 + 0.6 * r11j) + r11pud, 0.0, 1.0);
+  diffuseColor.rgb *= mix(1.0, mix(0.46, 0.24, r11j), r11wet) * (1.0 - 0.22 * r11Water);
+  roughnessFactor = mix(roughnessFactor, mix(0.46, 0.06, r11j), r11wet);
+  roughnessFactor = mix(roughnessFactor, 0.035, r11Water);
+}`;
+  const WET_PARS = `
+varying vec3 vR11W; uniform float uR11Wet; float r11Water = 0.0;
+float r11Hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float r11Noise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(r11Hash(i), r11Hash(i + vec2(1.0, 0.0)), f.x), mix(r11Hash(i + vec2(0.0, 1.0)), r11Hash(i + vec2(1.0, 1.0)), f.x), f.y); }`;
+  function wetHook(m) {
+    m.onBeforeCompile = (sh) => {
+      sh.uniforms.uR11Wet = WET;
+      sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vR11W;')
+        .replace('#include <fog_vertex>', '#include <fog_vertex>\nvR11W = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>' + WET_PARS)
+        .replace('#include <roughnessmap_fragment>', WET_FRAG)
+        .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\nnormal = normalize(mix(normal, nonPerturbedNormal, max(r11Water, 0.0)));');
+    };
+    m.customProgramCacheKey = () => 'r11wet3';
+    m.envMapIntensity = 0.8;   // the sky in the wet: the day's thinner fill (LOOK.ambDay) must not take the reflections with it
+    m.userData.r11wet = true;
+  }
+  function wetFrame(env) {
+    let w = 0;
+    try { if (typeof Weather !== 'undefined' && Weather && Weather.STATES) { const s = Weather.STATES[Weather.state]; if (s) w = s.wet || 0; if (Weather.state === 'snow') w = -1; } } catch (e) { w = 0; }
+    // the owner's ruling (9 Nov 2026): the cobbles are wet only when it rains (rain, storm); dry otherwise, and indoors
+    const want = env.outdoor && w > 0 ? 0.72 + 0.28 * w : 0;
+    WET.value = LOOK.wetForce != null ? LOOK.wetForce : want;
+  }
+  // R11.look: the numbers above, readable and live-tunable (tests and the art bible's screenshots use it)
+  function lookSet(p) {
+    p = p || {};
+    for (const k in p) { if (k === 'grade') continue; if (k in LOOK || k === 'wetForce') LOOK[k] = p[k]; }
+    if (p.grade) for (const k in p.grade) if (k in GRADE) GRADE[k] = p.grade[k];
+    gradeUniforms();
+    const b = R.passes && R.passes.bloom; if (b) { b.strength = LOOK.bloomStrength; b.radius = LOOK.bloomRadius; b.threshold = LOOK.bloomThreshold; }
+    if (THREE) { patchTone(); if (kitGroup) warmPractical(kitGroup); if (p.grade && !R.composer) rebakeTone(); }
+    return lookGet();
+  }
+  // Phone's grade is baked into every program's tone mapping: a new grade needs new programs (a define in their key)
+  let gradeVer = 0;
+  function rebakeTone() {
+    gradeVer++;
+    const touch = (o) => { for (const mm of (o.material ? [].concat(o.material) : [])) { if (!mm) continue; mm.defines = Object.assign({}, mm.defines || {}, { R11_GRADE_V: gradeVer }); mm.needsUpdate = true; } };
+    if (R.scene) R.scene.traverse(touch);
+    if (R.vmScene) R.vmScene.traverse(touch);
+  }
+  const lookGet = () => JSON.parse(JSON.stringify({ LOOK, GRADE, wet: WET.value, exposure: LP.exposure }));
+  // practical light: KIT's lit panes go warm and bright (only warm emissive panes: never the glass seal or the arm)
+  function warmPractical(group) {
+    if (!group) return;
+    const seen = new Set(), wc = LOOK.windowGlow;
+    group.traverse((o) => {
+      for (const mm of (o.material ? [].concat(o.material) : [])) {
+        if (!mm || seen.has(mm) || !mm.emissive || !(mm.emissiveIntensity > 1)) continue;
+        seen.add(mm);
+        const e = mm.emissive; if (!(e.r > 0.6 && e.g < e.r * 0.8 && e.b < e.g)) continue;
+        e.setRGB(wc[0], wc[1], wc[2]); mm.emissiveIntensity = Math.max(mm.emissiveIntensity, LOOK.windowI);
+      }
+    });
+  }
+  // the bench camera: Oakhaven's square on a Massday afternoon framed like picture 1 (docs/graphics/art-bible.md):
+  // the Boar & Dulcimer on the left, the well-house ahead with the iron-oaks over it, the market stalls, overcast
+  const benchCam = { map: 'oakhaven', x: 18.5, y: 20.5, dir: 0.1, pitch: 0, tod: 0.625, day: 3, weather: 'overcast' };
+
   // ================================================================================================ sky, light, fog
   const SKY_VS = `
 out vec3 vDir;
@@ -861,7 +1011,7 @@ void main() { vDir = position; vec4 p = projectionMatrix * mat4(mat3(viewMatrix)
   const FRAG_OUT = 'layout(location = 0) out highp vec4 pc_fragColor;\n#define gl_FragColor pc_fragColor\n';
   const SKY_FS = FRAG_OUT + `
 uniform sampler2D uHdr; uniform float uDay; uniform vec3 uTint; uniform vec3 uZen; uniform vec3 uHor; uniform vec3 uGlow; uniform vec3 uSunD;
-uniform vec3 uMoonD; uniform float uMoon; uniform float uStars; uniform vec3 uFog; uniform float uFlash; uniform float uTime;
+uniform vec3 uMoonD; uniform float uMoon; uniform float uStars; uniform vec3 uFog; uniform float uFlash; uniform float uTime; uniform float uCap;
 in vec3 vDir;
 float hash(vec3 p) { p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
 void main() {
@@ -873,6 +1023,7 @@ void main() {
   vec3 grad = mix(uHor, uZen, smoothstep(0.0, 0.55, el));
   float sg = max(dot(d, uSunD), 0.0); grad += uGlow * pow(sg, 6.0) * 0.6;
   vec3 c = mix(grad, hdr * uTint, uDay);
+  c *= min(1.0, uCap / max(max(c.r, max(c.g, c.b)), 1e-4));   // R11 LOOK: the overcast never reaches the bloom threshold
   if (uStars > 0.0 && el > 0.0) { vec3 q = floor(d * 420.0); float h = hash(q); if (h > 0.9975) c += vec3(0.8, 0.85, 1.0) * uStars * (h - 0.9975) * 400.0 * smoothstep(0.0, 0.2, el) * (0.7 + 0.3 * sin(uTime * 2.0 + h * 90.0)); }
   if (uMoon > 0.0) { float md = dot(d, uMoonD); c += vec3(0.75, 0.8, 0.9) * uMoon * (smoothstep(0.99975, 0.99985, md) * 3.0 + pow(max(md, 0.0), 200.0) * 0.15); }
   // below the horizon the air of the place (the fog colour), so the far ground meets it
@@ -887,7 +1038,7 @@ void main() {
     const m = new THREE.ShaderMaterial({
       glslVersion: THREE.GLSL3, side: THREE.BackSide, depthWrite: false, depthTest: true, fog: false,
       uniforms: { uHdr: { value: R.hdr }, uDay: { value: 1 }, uTint: { value: new THREE.Color(1, 1, 1) }, uZen: { value: new THREE.Color() }, uHor: { value: new THREE.Color() }, uGlow: { value: new THREE.Color() },
-        uSunD: { value: new THREE.Vector3(0, 1, 0) }, uMoonD: { value: new THREE.Vector3(0, 1, 0) }, uMoon: { value: 0 }, uStars: { value: 0 }, uFog: { value: new THREE.Color() }, uFlash: { value: 0 }, uTime: { value: 0 } },
+        uSunD: { value: new THREE.Vector3(0, 1, 0) }, uMoonD: { value: new THREE.Vector3(0, 1, 0) }, uMoon: { value: 0 }, uStars: { value: 0 }, uFog: { value: new THREE.Color() }, uFlash: { value: 0 }, uTime: { value: 0 }, uCap: { value: 1.15 } },
       vertexShader: SKY_VS, fragmentShader: SKY_FS,
     });
     R.sky = new THREE.Mesh(g, m); R.sky.frustumCulled = false; R.sky.renderOrder = -1000; R.sky.name = 'r11-sky';
@@ -926,10 +1077,16 @@ void main() {
     const fc = [srgbToLin((fp & 255) / 255), srgbToLin(((fp >>> 8) & 255) / 255), srgbToLin(((fp >>> 16) & 255) / 255)];
     const hor = P.hor;
     let fr = fc[0], fg = fc[1], fb = fc[2];
-    if (outdoor) { const k = 0.35 * day; fr = mix(fr, srgbToLin(clamp(hor[0], 0, 1)), k); fg = mix(fg, srgbToLin(clamp(hor[1], 0, 1)), k); fb = mix(fb, srgbToLin(clamp(hor[2], 0, 1)), k); }
     const fogK = outdoor ? 0.8 : 1.0;
-    R.scene.fog.color.setRGB(fr * fogK, fg * fogK, fb * fogK);
-    R.scene.fog.density = (outdoor ? 0.4 : 1.1) / Math.max(2, env.fogDist);
+    fr *= fogK; fg *= fogK; fb *= fogK;
+    if (outdoor) {
+      // by day the air leans to the overcast (LOOK.fogDay, a little toward the hour's horizon colour): darker than the
+      // horizon of phase 1, still plainly day; the hour's own warmth comes through the horizon share
+      const k = LOOK.fogMix * day, fd = LOOK.fogDay, hk = 0.3;
+      fr = mix(fr, mix(fd[0], srgbToLin(clamp(hor[0], 0, 1)) * 0.6, hk), k); fg = mix(fg, mix(fd[1], srgbToLin(clamp(hor[1], 0, 1)) * 0.6, hk), k); fb = mix(fb, mix(fd[2], srgbToLin(clamp(hor[2], 0, 1)) * 0.6, hk), k);
+    }
+    R.scene.fog.color.setRGB(fr, fg, fb);
+    R.scene.fog.density = (outdoor ? LOOK.fogDensity : 1.1) / Math.max(2, env.fogDist);
     // sun or moon
     const sun = R.sun;
     const sd = P.sun;                     // light21: z-up GL
@@ -941,9 +1098,10 @@ void main() {
     // the sky's light: hemisphere (tinted by the hour) + the HDR environment (scaled by the hour)
     const aS = P.ambS, aG = P.ambG;
     const indoorAmb = outdoor ? 0 : 0.18 + 0.9 * (env.ambient || 0);
-    if (outdoor) { R.hemi.color.setRGB(aS[0], aS[1], aS[2]); R.hemi.groundColor.setRGB(aG[0], aG[1], aG[2]); R.hemi.intensity = 0.55 + 0.6 * night; }
+    const ambK = outdoor ? mix(1, LOOK.ambDay, day) : 1;
+    if (outdoor) { R.hemi.color.setRGB(aS[0], aS[1], aS[2]); R.hemi.groundColor.setRGB(aG[0], aG[1], aG[2]); R.hemi.intensity = (0.55 + 0.6 * night) * ambK; }
     else { R.hemi.color.setRGB(0.62, 0.55, 0.47); R.hemi.groundColor.setRGB(0.3, 0.26, 0.22); R.hemi.intensity = indoorAmb * (env.flick || 1); }
-    R.scene.environmentIntensity = outdoor ? (0.03 + 0.8 * day) * (1 - dark * 0.6) : 0.12 + 0.25 * (env.ambient || 0);
+    R.scene.environmentIntensity = outdoor ? (0.03 + 0.8 * day) * (1 - dark * 0.6) * ambK : 0.12 + 0.25 * (env.ambient || 0);
     // the sky dome
     const U = R.sky.material.uniforms;
     R.sky.visible = outdoor;
@@ -951,8 +1109,10 @@ void main() {
       U.uDay.value = day;
       // the overcast HDR tinted by the hour: warm at dusk and dawn, dimmed by storm dark
       const warm = 1 - smooth(0.15, 0.55, Math.abs(elev));
-      const tk = (0.25 + 0.75 * day) * (1 - dark * 0.55);
-      U.uTint.value.setRGB(tk * (1 + warm * 0.25), tk * (1 - warm * 0.05), tk * (1 - warm * 0.28));
+      const tk = (0.25 + 0.75 * day) * (1 - dark * 0.55) * mix(1, LOOK.skyDay, day);
+      U.uCap.value = LOOK.skyCap;
+      const cool = LOOK.skyCool;
+      U.uTint.value.setRGB(tk * (1 + warm * 0.25) * mix(1, cool[0], day), tk * (1 - warm * 0.05) * mix(1, cool[1], day), tk * (1 - warm * 0.28) * mix(1, cool[2], day));
       U.uZen.value.setRGB(srgbToLin(clamp(P.zen[0], 0, 1)), srgbToLin(clamp(P.zen[1], 0, 1)), srgbToLin(clamp(P.zen[2], 0, 1)));
       U.uHor.value.setRGB(srgbToLin(clamp(hor[0], 0, 1)), srgbToLin(clamp(hor[1], 0, 1)), srgbToLin(clamp(hor[2], 0, 1)));
       U.uGlow.value.setRGB(srgbToLin(clamp(P.glow[0], 0, 1)), srgbToLin(clamp(P.glow[1], 0, 1)), srgbToLin(clamp(P.glow[2], 0, 1)));
@@ -965,9 +1125,12 @@ void main() {
       U.uTime.value = LF.now;
     }
     renderer.setClearColor(R.scene.fog.color, 1);
-    // exposure: night is dark but readable
-    LP.exposure = outdoor ? mix(1.6, 1.0, day) : 1.15;
+    // exposure by hour (LOOK): a grey day is exposed down (picture 1 is dark), the night lifted to stay readable, a
+    // touch more at dusk and dawn when the lamps take over
+    const dusk = outdoor ? 1 - smooth(0.12, 0.45, Math.abs(elev)) : 0;
+    LP.exposure = outdoor ? mix(LOOK.expNight, LOOK.expDay, day) * (1 + LOOK.expDusk * dusk) : LOOK.expIn;
     renderer.toneMappingExposure = LP.exposure;
+    if (gradeMat) gradeMat.uniforms.toneMappingExposure.value = LP.exposure;
     // billboards' light
     const BU = BB.mat && BB.mat.uniforms;
     if (BU) {
@@ -998,16 +1161,19 @@ void main() {
       const L = Ls[i], br = Math.max(L.cr || 0, L.cg || 0, L.cb || 0);
       if (br <= 1 || !(L.r > 0)) continue;
       const dx = L.x - cx, dy = L.y - cy;
-      candidates.push({ d: Math.sqrt(dx * dx + dy * dy) - L.r * 0.3, x: L.x, y: (L.z != null ? L.z : (ground(env.map, L.x, L.y) + 0.55)) * ZK, z: L.y, r: (L.cr || 0) / br, g: (L.cg || 0) / br, b: (L.cb || 0) / br, I: 0.9 * Math.min(2, br / 70), dist: L.r * 1.25 });
+      candidates.push({ d: Math.sqrt(dx * dx + dy * dy) - L.r * 0.3, x: L.x, y: (L.z != null ? L.z : (ground(env.map, L.x, L.y) + 0.55)) * ZK, z: L.y, r: (L.cr || 0) / br, g: (L.cg || 0) / br, b: (L.cb || 0) / br, I: 0.9 * Math.min(2, br / 70), dist: L.r * 1.25, warm: true });
     }
     if (!_wp) _wp = new THREE.Vector3();
     for (const k of kitLights) {
       const l = k.light; if (!l) continue;
       l.getWorldPosition(_wp);
       const dx = _wp.x - cx, dy = _wp.z - cy;
-      candidates.push({ d: Math.sqrt(dx * dx + dy * dy) - (k.priority || 0), x: _wp.x, y: _wp.y, z: _wp.z, r: l.color.r, g: l.color.g, b: l.color.b, I: l.intensity, dist: l.distance || 3, decay: l.decay });
+      candidates.push({ d: Math.sqrt(dx * dx + dy * dy) - (k.priority || 0), x: _wp.x, y: _wp.y, z: _wp.z, r: l.color.r, g: l.color.g, b: l.color.b, I: l.intensity, dist: l.distance || 3, decay: l.decay, warm: l.color.r > l.color.b });
     }
     candidates.sort((a, b) => a.d - b.d);
+    // LOOK: practical light (flame behind horn or glass) pulled warmer; cold lights (glass, sound magic) untouched
+    const lw = LOOK.lampWarm;
+    for (const c of candidates) { if (!c.warm) continue; const r = c.r * lw[0], g = c.g * lw[1], b = c.b * lw[2], mx = Math.max(r, g, b, 1e-4); c.r = r / mx; c.g = g / mx; c.b = b / mx; c.warm = false; }
     const BU = BB.mat && BB.mat.uniforms;
     let used = 0;
     for (let i = 0; i < N; i++) {
@@ -1124,7 +1290,7 @@ void main() {
           const r = R11KIT.dressMap(m, ctx);
           if (r && r.hiddenCells) for (const c of r.hiddenCells) hiddenNow.add(c);
           if (r && r.replaced) for (const e of r.replaced) replacedNow.add(e);
-          if (r && r.group) { kitGroup = r.group; R.scene.add(kitGroup); }
+          if (r && r.group) { kitGroup = r.group; R.scene.add(kitGroup); try { warmPractical(kitGroup); } catch (e) { warnOnce('warm', e); } }
         } catch (e) { warnOnce('kit dressMap', e); }
       }
       curMap = m;
@@ -1181,8 +1347,9 @@ void main() {
       C.addPass(g); R.passes.ao = g;
     }
     const vp = new T3.RenderPass(R.vmScene, R.vmCam); vp.clear = false; vp.clearDepth = true; C.addPass(vp); R.passes.vm = vp;
-    if (t.bloom) { const b = new T3.UnrealBloomPass(new THREE.Vector2(size.x, size.y), 0.45, 0.35, 2.4); C.addPass(b); R.passes.bloom = b; }
-    C.addPass(new T3.OutputPass());
+    if (t.bloom) { const b = new T3.UnrealBloomPass(new THREE.Vector2(size.x, size.y), LOOK.bloomStrength, LOOK.bloomRadius, LOOK.bloomThreshold); C.addPass(b); R.passes.bloom = b; }
+    // the output pass is the grade (exposure, AgX, the LOOK grade, sRGB): no extra full-screen pass
+    const gp = gradePass(); C.addPass(gp); R.passes.grade = gp;
     if (t.smaa) { C.addPass(new T3.SMAAPass()); }
     R.composer = C;
   }
@@ -1201,6 +1368,7 @@ void main() {
     try {
       const p = G.player, id = String(p.weapons ? p.weapons[p.weapon] : 'hands').toLowerCase();
       if (id === 'hands' || id === 'fists') return 'fists';
+      if (typeof R11VM !== 'undefined' && R11VM && typeof R11VM.kindFor === 'function') { const k = R11VM.kindFor(id); if (k) return k; }
       if (typeof R11KIT !== 'undefined' && R11KIT && typeof R11KIT.kindFor === 'function') { const k = R11KIT.kindFor(id); if (k) return k; }
       const rules = [[/sword|blade|sabre|saber|falchion|brand/, 'sword'], [/dagger|knife|dirk|stiletto/, 'dagger'], [/axe/, 'axe'], [/mace|club|hammer|cudgel|flail|maul/, 'mace'], [/spear|pike|halberd|glaive|lance/, 'spear'], [/crossbow|bow/, 'bow'], [/staff|rod|wand|cane/, 'staff']];
       for (const [re, k] of rules) if (re.test(id)) return k;
@@ -1208,7 +1376,9 @@ void main() {
     } catch (e) { return 'sword'; }
   }
   function vmFrame(t, walk) {
-    const K = typeof R11KIT !== 'undefined' && R11KIT && typeof R11KIT.viewmodel === 'function' ? R11KIT : null;
+    // phase 2: HANDS' js/r11vm.js (window.R11VM) when it is there, else KIT's phase-1 viewmodels
+    const K = (typeof R11VM !== 'undefined' && R11VM && typeof R11VM.viewmodel === 'function') ? R11VM
+      : typeof R11KIT !== 'undefined' && R11KIT && typeof R11KIT.viewmodel === 'function' ? R11KIT : null;
     if (!K) return;
     const kind = weaponKind();
     if (!VM.arm) { try { VM.arm = K.viewmodel('glass-arm'); if (VM.arm && VM.arm.group) R.vmScene.add(VM.arm.group); } catch (e) { warnOnce('kit viewmodel arm', e); VM.arm = { group: null }; } }
@@ -1289,6 +1459,7 @@ void main() {
     LF.now = nowS;
     ensureWorld(m);
     const P = lightFrame(env, m, tod);
+    wetFrame(env);
     const eye = cameraFrame(c, env, m);
     if (R.sun.castShadow) sunFollow(eye);
     lightsFrame(env);
@@ -1380,10 +1551,10 @@ void main() {
     st.loading = true;
     try {
       THREE = T3.THREE;
-      patchFog();
+      patchFog(); patchTone();
       renderer = new THREE.WebGLRenderer({ canvas, context: gl, antialias: false, powerPreference: 'high-performance', stencil: false, alpha: false, premultipliedAlpha: false });
       renderer.outputColorSpace = THREE.SRGBColorSpace;
-      renderer.toneMapping = THREE.AgXToneMapping; renderer.toneMappingExposure = 1.0;
+      renderer.toneMapping = THREE.CustomToneMapping; renderer.toneMappingExposure = 1.0;   // AgX, then the LOOK grade
       renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
       renderer.info.autoReset = false;
       maxAniso = renderer.capabilities.getMaxAnisotropy();
@@ -1508,6 +1679,7 @@ void main() {
     canvas: () => canvas, failed: () => st.failed,
     memory: () => (renderer ? Object.assign({}, renderer.info.memory) : null),
     pickFrameCam: () => vcam, replaced: () => replacedNow,
+    benchCam, look: { get: lookGet, set: lookSet, gradeGLSL: (u) => gradeGLSL('r11Grade', !!u) },
   };
   function boot() {
     load();
