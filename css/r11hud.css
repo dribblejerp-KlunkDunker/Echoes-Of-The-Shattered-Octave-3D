@@ -23,6 +23,9 @@
   touch-action: manipulation; pointer-events: auto; cursor: default; overflow: hidden; }
 #r11hud[hidden], #r11hud-more[hidden] { display: none !important; }
 #game.p7-photo #r11hud, #game.p7-photo #r11hud-more { visibility: hidden !important; }
+/* the compact bar's columns: no weapon panel (narrow), and no place panel either (phone upright) */
+#r11hud.r11h-compact.r11h-noweapon { grid-template-columns: auto auto auto minmax(0, 1fr); }
+#r11hud.r11h-compact.r11h-noweapon.r11h-noplace { grid-template-columns: auto minmax(0, 1fr) auto; }
 
 /* the MORE panel: over the view, right above the bar, only while it is open */
 #r11hud-more { position: absolute; bottom: calc(25% + 4px); left: 1cqw; z-index: 1; box-sizing: border-box; width: min(400px, calc(100% - 2cqw)); max-height: calc(75% - 8px); overflow: auto;

@@ -334,7 +334,7 @@ const R11HUD = (function () {
       let tip = name;
       try { if (G.map.outdoor && typeof Weather !== 'undefined' && typeof weatherLine === 'function') tip += ' · ' + weatherLine(); } catch (e) { /* none */ }
       tip += '\n' + p.name + ' · Lv ' + p.level + ' · ' + p.gold + ' sov.' + (p.fragments ? '\nfragments ' + p.fragments : '');
-      put(els.place, tip, 'title');
+      put(els.place, tip, 'title'); put(els.place, TX.place, 'aria-label');
       put(els.mname, name); put(els.mwhen, when);
     } catch (e) { warnOnce('update', e); }
   }
