@@ -81,7 +81,8 @@ stronger than the HUD frame already gives, no god rays.
 - **Exposure by hour (outdoors):** day `expDay`, night `expNight`, a small lift at dusk and dawn (`expDusk`) when the
   lamps take over; indoors `expIn`.
 - **Grade (display space):** 12% desaturation outside warm, bright notes (lamps and windows keep their colour), contrast
-  1.2 about a low pivot, a gamma that darkens the mid-tones, a teal-grey tint into the deep shadows, an earthy warmth in
+  1.25 about a low pivot and a gamma that darkens the mid-tones (both on luminance only, so the curve never adds
+  saturation), a teal-grey tint into the deep shadows, an earthy warmth in
   the lower mid-tones (wood, stone, leaf litter), the sky and highlights left near neutral, a lifted black (never pure
   black).
 - **Fill by day:** the hemisphere and the HDR environment at half strength by day (`ambDay`), so shade under eaves and
