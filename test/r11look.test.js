@@ -67,7 +67,7 @@ const HELPERS = () => {
     Engine.cam.pitch = B.pitch || 0; Engine.cam.bob = 0; try { Weather.hold(B.weather || 'overcast'); } catch (e) { /* none */ } G.state = 'play';
     try { document.getElementById('msgs').innerHTML = ''; } catch (e) { /* none */ }
   });
-  S.frame = () => { S.pin(() => render()); S.pin(() => render()); try { R11HUD.update(); } catch (e) { /* none */ } try { document.getElementById('msgs').innerHTML = ''; } catch (e) { /* none */ } };
+  S.frame = () => { S.pin(() => render()); S.pin(() => render()); try { R11HUD.update(); } catch (e) { /* none */ } try { document.getElementById('msgs').innerHTML = ''; document.getElementById('msgs').style.visibility = 'hidden'; } catch (e) { /* none */ } };
   // the R11 canvas, read right after a frame: mean sRGB colour, mean luma, luma spread and mean saturation of a
   // region given in fractions of the 3D view (the top 150 of 200 logical rows)
   S.stats = (x0, y0, x1, y1) => {
@@ -119,8 +119,10 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
       ok(r.active && r.map === 'oakhaven', 'R11 active ' + r.active + ' map ' + r.map);
       console.log('  bench camera ' + JSON.stringify(B) + ', draws at Ultra ' + r.draws);
     });
+    await page.waitForTimeout(5000);   // KIT's glTF props and textures arrive after the first frame of a map
     await step('Ultra: the grade is the composer\'s output pass (no OutputPass), and the bench shot is written', async () => {
-      const r = await page.evaluate(() => { S.bench(); S.frame(); const P = R11.R.passes; return { grade: !!P.grade, names: R11.R.composer.passes.map((p) => p.constructor.name), reg: S.regions(), look: R11.look.get() }; });
+      const r = await page.evaluate(() => { if (R11.tier() !== 'ultra') R11.setTier('ultra'); S.bench(); S.frame(); const P = R11.R.passes; return { tier: R11.tier(), grade: !!P.grade, names: R11.R.composer.passes.map((p) => p.constructor.name), reg: S.regions(), look: R11.look.get() }; });
+      ok(r.tier === 'ultra', 'tier ' + r.tier);
       ok(r.grade && !r.names.includes('OutputPass'), 'passes ' + r.names.join(','));
       ultra = r.reg;
       await page.screenshot({ path: path.join(SHOT_DIR, 'r11look-ultra.png') });
@@ -158,11 +160,11 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
       ok(fs.statSync(path.join(SHOT_DIR, 'r11look-sbs-grey.png')).size > 10000, 'grey side-by-side not written');
     });
     await step('Phone: no composer (no extra full-screen pass), the grade rides in the tone mapping, and agrees with Ultra', async () => {
-      const r = await page.evaluate(() => { R11.setTier('phone'); S.bench(); S.frame(); return { composer: !!R11.R.composer, tm: R11.renderer.toneMapping === R11.THREE.CustomToneMapping, reg: S.regions(), draws: R11.stats.draws }; });
+      const r = await page.evaluate(() => { R11.setTier('phone'); S.bench(); S.frame(); return { tier: R11.tier(), composer: !!R11.R.composer, tm: R11.renderer.toneMapping === R11.THREE.CustomToneMapping, reg: S.regions(), draws: R11.stats.draws }; });
       phone = r.reg;
       await page.screenshot({ path: path.join(SHOT_DIR, 'r11look-phone.png') });
       await sideBySide(page, path.join(SHOT_DIR, 'r11look-phone.png'), path.join(SHOT_DIR, 'r11look-sbs-phone.png'), path.join(SHOT_DIR, 'r11look-sbs-phone-grey.png'));
-      ok(!r.composer && r.tm, 'composer ' + r.composer + ' custom tone mapping ' + r.tm);
+      ok(r.tier === 'phone' && !r.composer && r.tm, 'tier ' + r.tier + ' composer ' + r.composer + ' custom tone mapping ' + r.tm);
       ok(Math.abs(phone.all.L - ultra.all.L) < Math.max(14, ultra.all.L * 0.22), 'phone ' + phone.all.L + ' ultra ' + ultra.all.L);
       console.log('  Phone ' + JSON.stringify(phone) + ', draws at Phone ' + r.draws);
     });

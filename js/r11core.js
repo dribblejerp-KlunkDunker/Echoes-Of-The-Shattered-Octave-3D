@@ -62,7 +62,7 @@ const R11 = (() => {
   };
   // game texture -> [base, tint]. Unknown names go through KEYWORDS, then fall back to 'flat' in the texture's mean colour.
   const TEX = {
-    t_cobble: ['cobble', 0x958c80], t_flag: ['blocks', 0xa8a39b], t_stone: ['stone', 0xd8d2c8], t_stone_p20b_1: ['stone', 0xc8c2b8], t_stone_p20b_2: ['stone', 0xb8b4ac],
+    t_cobble: ['cobble', 0x857a6c], t_flag: ['blocks', 0xa8a39b], t_stone: ['stone', 0xd8d2c8], t_stone_p20b_1: ['stone', 0xc8c2b8], t_stone_p20b_2: ['stone', 0xb8b4ac],
     t_house: ['plaster', 0xe0d6c4], t_house_p20b_1: ['plaster', 0xdccfb8], t_house_p20b_2: ['plaster', 0xcfc4ae], t_house_p20b_3: ['plaster', 0xd4c9b0],
     t_roof: ['slate', 0x9aa0a6], t_wood: ['wood', 0x8a7a68], t_door: ['planks', 0xa08a70], t_hedge: ['hedge', 0xffffff], t_grass: ['grass', 0xffffff],
     t_grass_p20b_a: ['grass', 0xf2f4ea], t_grass_p20b_b: ['grass', 0xe4e8d8], t_grass_p20b_c: ['grass', 0xfaf2e0], t_grass_p20b_d: ['grass', 0xe8eee0],
@@ -872,7 +872,7 @@ void main() {
     windowGlow: [1.0, 0.46, 0.13], windowI: 3.4,   // lit window panes (emissive), warm, bright enough for a little bloom
     bloomStrength: 0.5, bloomRadius: 0.4, bloomThreshold: 1.35,
   };
-  const GRADE = { sat: 0.88, warmSat: 1.08, contrast: 1.2, pivot: 0.38, gamma: 1.08, lift: 0.008,
+  const GRADE = { sat: 0.88, warmSat: 1.08, contrast: 1.25, pivot: 0.38, gamma: 1.12, lift: 0.005,
     shadow: [-0.018, 0.004, 0.012], mid: [0.02, 0.006, -0.018], high: [0.006, 0.002, -0.008] };
   const WET = { value: 0.72 };             // 0 dry .. 1 soaked (weather 'wet' raises it; snow lowers it)
   const GRADE_SRC = `
@@ -939,7 +939,7 @@ vec3 NAME(vec3 c) {
   float r11h = 1.0 - r11j;
   r11Water = smoothstep(r11h - 0.08, r11h + 0.08, r11pud * 1.3 - 0.1);
   float r11wet = clamp(uR11Wet * (0.4 + 0.6 * r11j) + r11pud, 0.0, 1.0);
-  diffuseColor.rgb *= mix(1.0, mix(0.6, 0.32, r11j), r11wet) * (1.0 - 0.22 * r11Water);
+  diffuseColor.rgb *= mix(1.0, mix(0.55, 0.3, r11j), r11wet) * (1.0 - 0.22 * r11Water);
   roughnessFactor = mix(roughnessFactor, mix(0.26, 0.08, r11j), r11wet);
   roughnessFactor = mix(roughnessFactor, 0.035, r11Water);
 }`;
@@ -958,7 +958,7 @@ float r11Noise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0
         .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\nnormal = normalize(mix(normal, nonPerturbedNormal, max(r11Water, 0.0)));');
     };
     m.customProgramCacheKey = () => 'r11wet3';
-    m.envMapIntensity = 2.2;   // the sky in the wet: the day's thinner fill (LOOK.ambDay) must not take the reflections with it
+    m.envMapIntensity = 1.6;   // the sky in the wet: the day's thinner fill (LOOK.ambDay) must not take the reflections with it
     m.userData.r11wet = true;
   }
   function wetFrame(env) {
