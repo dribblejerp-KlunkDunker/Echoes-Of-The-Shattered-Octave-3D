@@ -46,16 +46,16 @@ const R11 = (() => {
     planks:  { scan: 'weathered_planks', rep: 1.4 },
     slate:   { scan: 'roof_slates_02', rep: 2.0, ns: 1.2 },
     bark:    { scan: 'bark_brown_02', rep: 1.4, ns: 1.6 },
-    grass:   { plain: 0x56603a, rough: 0.97, noise: 'grass', rep: 2.5 },
-    earth:   { plain: 0x5e5040, rough: 0.95, noise: 'earth', rep: 3 },
-    hedge:   { plain: 0x2c3422, rough: 0.98, noise: 'hedge', rep: 1.2 },          // thorn, with flecks of packed wool
-    thatch:  { plain: 0x8a7348, rough: 1, noise: 'thatch', rep: 1.5 },
-    snow:    { plain: 0xe6eaee, rough: 0.82, noise: 'earth', rep: 4 },
+    grass:   { plain: 0xffffff, rough: 0.97, noise: 'grass', rep: 2.5 },
+    earth:   { plain: 0xffffff, rough: 0.95, noise: 'earth', rep: 3 },
+    hedge:   { plain: 0xffffff, rough: 0.98, noise: 'hedge', rep: 1.2 },          // thorn, with flecks of packed wool (canon)
+    thatch:  { plain: 0xffffff, rough: 1, noise: 'thatch', rep: 1.5 },
+    snow:    { plain: 0xe6eaee, rough: 0.82, noise: 'grey', rep: 4 },
     glass:   { plain: 0x24505c, rough: 0.08, metal: 0.1, noise: null },             // Light-glass: the resonance hue
     metal:   { plain: 0x3a3b3d, rough: 0.5, metal: 0.85, noise: null },
     brass:   { plain: 0x9c7a3c, rough: 0.4, metal: 1, noise: null },
     dark:    { plain: 0x0e0d0c, rough: 1, noise: null },
-    flat:    { plain: 0xffffff, rough: 0.9, noise: 'earth', rep: 3 },              // any unmapped texture: its mean colour
+    flat:    { plain: 0xffffff, rough: 0.9, noise: 'grey', rep: 3 },              // any unmapped texture: its mean colour
   };
   // game texture -> [base, tint]. Unknown names go through KEYWORDS, then fall back to 'flat' in the texture's mean colour.
   const TEX = {
@@ -242,11 +242,14 @@ const R11 = (() => {
       const n = val(octs[0], 4, x, y) * 0.4 + val(octs[1], 8, x, y) * 0.3 + val(octs[2], 16, x, y) * 0.2 + val(octs[3], 32, x, y) * 0.1;
       const fine = rnd();
       let r, g, b;
-      if (kind === 'grass') { const v = 0.72 + 0.5 * n + 0.18 * (fine - 0.5); const dry = smooth(0.55, 0.8, n); r = v * (0.95 + dry * 0.35); g = v; b = v * (0.85 - dry * 0.2); }
-      else if (kind === 'hedge') { const v = 0.55 + 0.9 * n * n + 0.35 * (fine - 0.5); r = v; g = v; b = v; if (fine > 0.985 && n > 0.45) { r = g = 3.2; b = 2.9; } }   // pale wool caught in the thorn
-      else if (kind === 'thatch') { const str = 0.5 + 0.5 * Math.sin((x * 0.9 + n * 20)); const v = 0.7 + 0.35 * n + 0.15 * str; r = v; g = v * 0.97; b = v * 0.9; }
-      else { const v = 0.75 + 0.45 * n + 0.12 * (fine - 0.5); r = g = b = v; }
-      const o = (y * N + x) * 4; data[o] = clamp(r * 160, 0, 255); data[o + 1] = clamp(g * 160, 0, 255); data[o + 2] = clamp(b * 160, 0, 255); data[o + 3] = 255;
+      // colours in sRGB 0..1: late-autumn turf, earth, the Hedge's thorn (with flecks of packed wool), straw
+      const v = 0.8 + 0.4 * n + 0.14 * (fine - 0.5);
+      if (kind === 'grass') { const dry = smooth(0.5, 0.78, n); r = mix(0.24, 0.40, dry) * v; g = mix(0.30, 0.34, dry) * v; b = mix(0.14, 0.18, dry) * v; }
+      else if (kind === 'earth') { r = 0.34 * v; g = 0.27 * v; b = 0.19 * v; }
+      else if (kind === 'hedge') { const k = 0.55 + 0.9 * n * n + 0.35 * (fine - 0.5); r = 0.15 * k; g = 0.2 * k; b = 0.11 * k; if (fine > 0.985 && n > 0.45) { r = 0.82; g = 0.79; b = 0.72; } }
+      else if (kind === 'thatch') { const str = 0.5 + 0.5 * Math.sin((x * 0.9 + n * 20)); const k = 0.7 + 0.35 * n + 0.15 * str; r = 0.55 * k; g = 0.46 * k; b = 0.28 * k; }
+      else { r = g = b = 0.62 * v; }
+      const o = (y * N + x) * 4; data[o] = clamp(r * 255, 0, 255); data[o + 1] = clamp(g * 255, 0, 255); data[o + 2] = clamp(b * 255, 0, 255); data[o + 3] = 255;
     }
     t = new THREE.DataTexture(data, N, N, THREE.RGBAFormat, THREE.UnsignedByteType);
     t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.LinearFilter; t.minFilter = THREE.LinearMipmapLinearFilter; t.generateMipmaps = true; t.needsUpdate = true;
@@ -919,24 +922,24 @@ void main() {
     const fc = [srgbToLin((fp & 255) / 255), srgbToLin(((fp >>> 8) & 255) / 255), srgbToLin(((fp >>> 16) & 255) / 255)];
     const hor = P.hor;
     let fr = fc[0], fg = fc[1], fb = fc[2];
-    if (outdoor) { const k = 0.55 * day; fr = mix(fr, srgbToLin(clamp(hor[0], 0, 1)) * 1.4, k); fg = mix(fg, srgbToLin(clamp(hor[1], 0, 1)) * 1.4, k); fb = mix(fb, srgbToLin(clamp(hor[2], 0, 1)) * 1.4, k); }
-    const fogK = outdoor ? 1.0 : 1.15;
+    if (outdoor) { const k = 0.35 * day; fr = mix(fr, srgbToLin(clamp(hor[0], 0, 1)), k); fg = mix(fg, srgbToLin(clamp(hor[1], 0, 1)), k); fb = mix(fb, srgbToLin(clamp(hor[2], 0, 1)), k); }
+    const fogK = outdoor ? 0.8 : 1.0;
     R.scene.fog.color.setRGB(fr * fogK, fg * fogK, fb * fogK);
-    R.scene.fog.density = (outdoor ? 0.75 : 1.3) / Math.max(2, env.fogDist);
+    R.scene.fog.density = (outdoor ? 0.4 : 1.1) / Math.max(2, env.fogDist);
     // sun or moon
     const sun = R.sun;
     const sd = P.sun;                     // light21: z-up GL
     sun.position.set(sd[0], sd[2], sd[1]).multiplyScalar(40);
     const sc = P.sunC, sm = Math.max(sc[0], sc[1], sc[2], 1e-4);
-    if (outdoor) { sun.color.setRGB(sc[0] / sm, sc[1] / sm, sc[2] / sm); sun.intensity = sm * (day > 0.05 ? 1.9 : 0.9); }
+    if (outdoor) { sun.color.setRGB(sc[0] / sm, sc[1] / sm, sc[2] / sm); sun.intensity = sm * (day > 0.05 ? 1.6 : 0.9); }
     else sun.intensity = 0;
     sun.castShadow = outdoor && sun.intensity > 0.02;
     // the sky's light: hemisphere (tinted by the hour) + the HDR environment (scaled by the hour)
     const aS = P.ambS, aG = P.ambG;
     const indoorAmb = outdoor ? 0 : 0.18 + 0.9 * (env.ambient || 0);
-    if (outdoor) { R.hemi.color.setRGB(aS[0], aS[1], aS[2]); R.hemi.groundColor.setRGB(aG[0], aG[1], aG[2]); R.hemi.intensity = 0.9 + 0.5 * night; }
+    if (outdoor) { R.hemi.color.setRGB(aS[0], aS[1], aS[2]); R.hemi.groundColor.setRGB(aG[0], aG[1], aG[2]); R.hemi.intensity = 0.55 + 0.6 * night; }
     else { R.hemi.color.setRGB(0.62, 0.55, 0.47); R.hemi.groundColor.setRGB(0.3, 0.26, 0.22); R.hemi.intensity = indoorAmb * (env.flick || 1); }
-    R.scene.environmentIntensity = outdoor ? (0.03 + 0.95 * day) * (1 - dark * 0.6) : 0.12 + 0.25 * (env.ambient || 0);
+    R.scene.environmentIntensity = outdoor ? (0.03 + 0.8 * day) * (1 - dark * 0.6) : 0.12 + 0.25 * (env.ambient || 0);
     // the sky dome
     const U = R.sky.material.uniforms;
     R.sky.visible = outdoor;
@@ -991,7 +994,7 @@ void main() {
       const L = Ls[i], br = Math.max(L.cr || 0, L.cg || 0, L.cb || 0);
       if (br <= 1 || !(L.r > 0)) continue;
       const dx = L.x - cx, dy = L.y - cy;
-      candidates.push({ d: Math.sqrt(dx * dx + dy * dy) - L.r * 0.3, x: L.x, y: (L.z != null ? L.z : (ground(env.map, L.x, L.y) + 0.62)) * ZK, z: L.y, r: (L.cr || 0) / br, g: (L.cg || 0) / br, b: (L.cb || 0) / br, I: 0.9 * Math.min(2, br / 70), dist: L.r * 1.25 });
+      candidates.push({ d: Math.sqrt(dx * dx + dy * dy) - L.r * 0.3, x: L.x, y: (L.z != null ? L.z : (ground(env.map, L.x, L.y) + 0.55)) * ZK, z: L.y, r: (L.cr || 0) / br, g: (L.cg || 0) / br, b: (L.cb || 0) / br, I: 0.9 * Math.min(2, br / 70), dist: L.r * 1.25 });
     }
     if (!_wp) _wp = new THREE.Vector3();
     for (const k of kitLights) {
