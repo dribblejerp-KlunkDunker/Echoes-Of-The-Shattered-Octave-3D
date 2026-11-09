@@ -1,0 +1,7 @@
+# R11 phase 1, team CORE: english<TAB>french. The "Art style" row in Graphics & access.
+Art style	Style graphique
+Realistic	Réaliste
+Pixel	Pixel
+Realistic: the new 3D look; Pixel: the pixel-art look	Réaliste : le nouveau rendu 3D ; Pixel : le rendu en pixel art
+needs hardware WebGL 2: this device shows the pixel look	il faut WebGL 2 accéléré : cet appareil garde le rendu pixel
+the Original preset always shows the pixel look	le préréglage Original garde toujours le rendu pixel

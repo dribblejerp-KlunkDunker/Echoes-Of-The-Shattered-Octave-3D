@@ -1233,10 +1233,12 @@ void main() {
     const S = vcam.S || 1, ry = y * S, m = vcam.map;
     if (d >= 1e8) return (m && m.outdoor && ry < vcam.horizon) ? MAT.sky : MAT.other;
     const camX = 2 * x / 320 - 1, rdx = vcam.dirX + vcam.planeX * camX, rdy = vcam.dirY + vcam.planeY * camX;
-    const wx = vcam.x + rdx * d, wy = vcam.y + rdy * d, wz = vcam.z - (ry - vcam.horizon) * d / vcam.h;
+    // the walk's surfaces carry its depth bias (Engine.SURF_BIAS); a riser's depth does not
+    const SB = (typeof Engine !== 'undefined' && Engine.SURF_BIAS) || 0.45, t = Math.max(0.03, d - SB);
+    const wx = vcam.x + rdx * t, wy = vcam.y + rdy * t, wz = vcam.z - (ry - vcam.horizon) * t / vcam.h;
     if (m.ceil && wz >= (m.ceilZ || 1) - 0.05) return MAT.ceiling;
     const g = m ? ground(m, wx, wy) : 0;
-    if (Math.abs(wz - g) < 0.08 + 0.02 * d) {
+    if (Math.abs(wz - g) < 0.08 + 0.02 * t) {
       const cx = clamp(wx | 0, 0, m.w - 1), cy = clamp(wy | 0, 0, m.h - 1);
       const idx = m.floorCells && m.floorTextures ? m.floorCells[cy * m.w + cx] : 0, n = (idx && m.floorTextures[idx]) || m.floor;
       return n === 't_water' ? MAT.water : n === 't_shallows' ? MAT.shallows : MAT.ground;
