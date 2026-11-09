@@ -27,10 +27,11 @@
 const R11WATER = (() => {
   // the look (linear colours; picture 3's water: near ~ sRGB (44,60,49), mid ~ (64,81,72), far reflects the sky)
   const P = {
-    deep: [0.0105, 0.0205, 0.0175],      // the body of deep water (green-grey), before light
-    shal: [0.045, 0.052, 0.034],         // shallows and the shore band (the bottom showing through, brown-green)
+    deep: [0.04, 0.075, 0.05],         // the body of deep water (green-grey), before light
+    shal: [0.08, 0.09, 0.06],            // shallows and the shore band (the bottom showing through, brown-green)
     shoreW: 1.6,                         // cells of the shore band (lighter, then deep)
-    f0: 0.02,                            // water's reflectance straight down
+    f0: 0.01,                            // reflectance straight down (picture 3 is darker near than physics: an artist's fresnel)
+    fpow: 10,                            // fresnel power (Schlick's 5 lets too much sky into the near water under AgX)
     refl: 1.0,                           // sky / scene reflection strength
     horizon: 0.72,                       // High/Phone: the reflection near the horizon is the town and the air, not the sky
     lamp: 5.0,                           // the lamps' images in the water (all tiers; Ultra adds them on top of its planar image at half)
@@ -40,6 +41,7 @@ const R11WATER = (() => {
     edge: 0.4,                           // the dark contact line where water meets stone
     rain: 1.0,                           // rain rings
     reflScale: 0.5,                      // Ultra: planar reflection resolution (of the drawing buffer)
+    reflTint: [0.78, 0.95, 0.82],         // picture 3's water carries its green into what it reflects
   };
   const stats = { builds: 0, passes: 0, mode: null, plane: null, shore: null, lastPassFrame: -1 };
   let THREE = null, mat = null, tier = 'high', mode = 0;
@@ -60,7 +62,7 @@ uniform float uTime; uniform float uWind; uniform float uRain; uniform float uOu
 uniform sampler2D uShore; uniform vec4 uShoreMap; uniform vec3 uDeep; uniform vec3 uShal; uniform float uShoreW;
 uniform vec3 uSkyTint; uniform vec3 uZen; uniform vec3 uHor; uniform float uDay; uniform float uCap; uniform vec3 uAir;
 uniform float uF0; uniform float uReflK; uniform float uHorizon; uniform float uLampK; uniform float uSpec; uniform float uRipple;
-uniform float uEdge; uniform float uRainK; uniform float uDistort;
+uniform float uEdge; uniform float uRainK; uniform float uDistort; uniform vec3 uReflTint; uniform float uDbg; uniform float uFPow;
 #if R11W_MODE == 2
 uniform sampler2D uRefl; uniform mat4 uReflMat; uniform float uReflOn; uniform float uPlaneY;
 #endif
@@ -87,12 +89,13 @@ vec2 r11wRainLayer(vec2 p, float t, float seed, float dens) {
 `;
   // the body colour: deep / shallow from core's vertex colours and the shore map (cells to the nearest land)
   const FRAG_COLOR = `#include <color_fragment>
-  float r11wD = uShoreMap.z > 0.5 ? texture2D(uShore, vR11W.xz * uShoreMap.xy).r * 8.0 : 8.0;
+  vec2 r11wSM = uShoreMap.z > 0.5 ? texture2D(uShore, vR11W.xz * uShoreMap.xy).rg * 8.0 : vec2(8.0);
+  float r11wD = r11wSM.x, r11wB = r11wSM.y;
   float r11wSh = 0.0;
   #ifdef USE_COLOR
     r11wSh = smoothstep(1.1, 1.19, dot(vColor.rgb, vec3(0.33333)));
   #endif
-  float r11wDeep = smoothstep(0.1, uShoreW, r11wD) * (1.0 - r11wSh);
+  float r11wDeep = smoothstep(0.1, uShoreW, r11wB) * (1.0 - r11wSh);
   diffuseColor.rgb = mix(uShal, uDeep, r11wDeep);
 `;
   // the ripples: the normal (world, then view space for three's lights)
@@ -122,7 +125,7 @@ vec2 r11wRainLayer(vec2 p, float t, float seed, float dens) {
   {
     vec3 R = reflect(-r11wV, r11wN); R.y = abs(R.y);
     float NdV = clamp(dot(r11wN, r11wV), 0.0, 1.0);
-    float Fr = uF0 + (1.0 - uF0) * pow(1.0 - NdV, 5.0);
+    float Fr = uF0 + (1.0 - uF0) * pow(1.0 - NdV, uFPow);
     // the sky the dome draws: the hour's gradient by night, the overcast HDR (tinted, capped) by day
     vec3 grad = mix(uHor, uZen, smoothstep(0.0, 0.55, R.y));
     vec3 hdr = grad;
@@ -160,10 +163,11 @@ vec2 r11wRainLayer(vec2 p, float t, float seed, float dens) {
     #endif
     // the dark contact line where the water meets stone
     float edgeK = 1.0 - uEdge * (1.0 - smoothstep(0.12, 0.42, r11wD)) * uShoreMap.z;
-    reflectedLight.indirectSpecular = (refl * uReflK + lamp * uLampK * lampW) * Fr * edgeK;
+    reflectedLight.indirectSpecular = (refl * uReflTint * uReflK + lamp * uLampK * lampW) * Fr * edgeK;
     reflectedLight.directDiffuse *= (1.0 - Fr) * edgeK;
     reflectedLight.indirectDiffuse *= (1.0 - Fr) * edgeK;
     reflectedLight.directSpecular *= uSpec;
+    if (uDbg > 0.5) { reflectedLight.indirectSpecular = uDbg < 1.5 ? vec3(Fr) : uDbg < 2.5 ? refl : uDbg < 3.5 ? lamp : vec3(r11wD / 8.0); reflectedLight.directDiffuse = vec3(0.0); reflectedLight.indirectDiffuse = vec3(0.0); reflectedLight.directSpecular = vec3(0.0); }
   }
 `;
 
@@ -177,7 +181,7 @@ vec2 r11wRainLayer(vec2 p, float t, float seed, float dens) {
       uSkyTint: { value: new T.Color(1, 1, 1) }, uZen: { value: new T.Color(0.3, 0.33, 0.36) }, uHor: { value: new T.Color(0.4, 0.42, 0.44) },
       uDay: { value: 1 }, uCap: { value: 1.15 }, uAir: { value: new T.Color(0.3, 0.32, 0.33) },
       uF0: { value: P.f0 }, uReflK: { value: P.refl }, uHorizon: { value: P.horizon }, uLampK: { value: P.lamp }, uSpec: { value: P.spec },
-      uRipple: { value: P.ripple }, uEdge: { value: P.edge }, uRainK: { value: P.rain }, uDistort: { value: P.distort },
+      uRipple: { value: P.ripple }, uDbg: { value: 0 }, uFPow: { value: P.fpow }, uReflTint: { value: new T.Color(P.reflTint[0], P.reflTint[1], P.reflTint[2]) }, uEdge: { value: P.edge }, uRainK: { value: P.rain }, uDistort: { value: P.distort },
       uRefl: { value: null }, uReflMat: { value: new T.Matrix4() }, uReflOn: { value: 0 }, uPlaneY: { value: 0 },
     });
   }
@@ -235,23 +239,36 @@ vec2 r11wRainLayer(vec2 p, float t, float seed, float dens) {
     }
     stats.shore = any ? { w: W, h: H, water: any } : null;
     if (!any) { U.uShoreMap && U.uShoreMap.value.set(1, 1, 0, 0); return; }
-    const BIG = 1e4, d = new Float32Array(N);
-    for (let i = 0; i < N; i++) d[i] = water[i] ? BIG : 0;
-    const D1 = 1, D2 = Math.SQRT2;
-    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-      const i = y * W + x; let v = d[i]; if (!v) continue;
-      if (x > 0) v = Math.min(v, d[i - 1] + D1);
-      if (y > 0) { v = Math.min(v, d[i - W] + D1); if (x > 0) v = Math.min(v, d[i - W - 1] + D2); if (x < W - 1) v = Math.min(v, d[i - W + 1] + D2); }
-      d[i] = v;
-    }
-    for (let y = H - 1; y >= 0; y--) for (let x = W - 1; x >= 0; x--) {
-      const i = y * W + x; let v = d[i]; if (!v) continue;
-      if (x < W - 1) v = Math.min(v, d[i + 1] + D1);
-      if (y < H - 1) { v = Math.min(v, d[i + W] + D1); if (x < W - 1) v = Math.min(v, d[i + W + 1] + D2); if (x > 0) v = Math.min(v, d[i + W - 1] + D2); }
-      d[i] = v;
-    }
+    // two fields: to any land (the contact line) and to a natural bank only (the shallows): a quay wall or a floor
+    // standing well above the water (the Mole, the Yard) has deep water right up to it
+    const lv = m.lvls || null, wl = [];
+    if (lv) for (let i = 0; i < N; i++) if (water[i]) wl.push(lv[i]);
+    wl.sort((a, b) => a - b);
+    const wLvl = wl.length ? wl[wl.length >> 1] : 0;
+    const bank = new Uint8Array(N);
+    for (let i = 0; i < N; i++) { if (water[i]) continue; const c = m.cells[i]; if (c && !c.door) continue; if ((lv ? lv[i] : 0) - wLvl < 0.25) bank[i] = 1; }
+    const dist = (src) => {
+      const BIG = 1e4, d = new Float32Array(N);
+      for (let i = 0; i < N; i++) d[i] = src(i) ? 0 : BIG;
+      const D1 = 1, D2 = Math.SQRT2;
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const i = y * W + x; let v = d[i]; if (!v) continue;
+        if (x > 0) v = Math.min(v, d[i - 1] + D1);
+        if (y > 0) { v = Math.min(v, d[i - W] + D1); if (x > 0) v = Math.min(v, d[i - W - 1] + D2); if (x < W - 1) v = Math.min(v, d[i - W + 1] + D2); }
+        d[i] = v;
+      }
+      for (let y = H - 1; y >= 0; y--) for (let x = W - 1; x >= 0; x--) {
+        const i = y * W + x; let v = d[i]; if (!v) continue;
+        if (x < W - 1) v = Math.min(v, d[i + 1] + D1);
+        if (y < H - 1) { v = Math.min(v, d[i + W] + D1); if (x < W - 1) v = Math.min(v, d[i + W + 1] + D2); if (x > 0) v = Math.min(v, d[i + W - 1] + D2); }
+        d[i] = v;
+      }
+      return d;
+    };
+    const dAll = dist((i) => !water[i]), dBank = dist((i) => bank[i]);
+    const enc = (v) => clamp(Math.round((v >= 1e4 ? 8 : Math.max(0, v - 0.5)) / 8 * 255), 0, 255);
     const data = new Uint8Array(N * 4);
-    for (let i = 0; i < N; i++) { const v = d[i] >= BIG ? 8 : Math.max(0, d[i] - 0.5); const b = clamp(Math.round(v / 8 * 255), 0, 255); data[i * 4] = b; data[i * 4 + 1] = b; data[i * 4 + 2] = b; data[i * 4 + 3] = 255; }
+    for (let i = 0; i < N; i++) { data[i * 4] = enc(dAll[i]); data[i * 4 + 1] = water[i] || bank[i] ? enc(dBank[i]) : 0; data[i * 4 + 2] = 0; data[i * 4 + 3] = 255; }
     if (shoreTex && shoreTex.image && shoreTex.image.width === W && shoreTex.image.height === H) { shoreTex.image.data.set(data); }
     else { if (shoreTex) shoreTex.dispose(); shoreTex = new THREE.DataTexture(data, W, H, THREE.RGBAFormat, THREE.UnsignedByteType); }
     shoreTex.magFilter = THREE.LinearFilter; shoreTex.minFilter = THREE.LinearFilter; shoreTex.generateMipmaps = false;
@@ -343,7 +360,7 @@ vec2 r11wRainLayer(vec2 p, float t, float seed, float dens) {
     for (const k in p) if (k in P) P[k] = p[k];
     if (!U.uDeep) return get();
     U.uDeep.value.setRGB(P.deep[0], P.deep[1], P.deep[2]); U.uShal.value.setRGB(P.shal[0], P.shal[1], P.shal[2]);
-    U.uShoreW.value = P.shoreW; U.uF0.value = P.f0; U.uReflK.value = P.refl; U.uHorizon.value = mode === 2 ? 0 : P.horizon;
+    U.uShoreW.value = P.shoreW; U.uReflTint.value.setRGB(P.reflTint[0], P.reflTint[1], P.reflTint[2]); U.uF0.value = P.f0; U.uFPow.value = P.fpow; U.uReflK.value = P.refl; U.uHorizon.value = mode === 2 ? 0 : P.horizon;
     U.uLampK.value = P.lamp; U.uSpec.value = P.spec; U.uRipple.value = P.ripple; U.uEdge.value = P.edge; U.uRainK.value = P.rain; U.uDistort.value = P.distort;
     return get();
   }
