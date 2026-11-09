@@ -21,6 +21,17 @@ The game now has a second renderer: Three.js 0.186.1 (vendored, MIT) drawing the
 </tr>
 </table>
 
+**Phase 2, the hero square:** the light and colour of picture 1 (darker and earthier, wet cobble joints, warm lamps and windows), the iron-oaks in the square big and old with their rust-pink autumn leaves (Book One), ivy, the inn board on its iron bracket, lanterns, clutter, the Chapel's eleven steps, and new hands: a steel sword in a leather glove and the glass hand with its green vein.
+
+<p align="center"><img src="screenshots/r11/p2-vs-picture1.jpg" alt="Side by side: the game's square at the bench camera (left) and the owner's picture 1 (right)" width="880"></p>
+
+<table>
+<tr>
+<td width="50%"><img src="screenshots/r11/p2-square-ultra.jpg" alt="The square at Ultra quality: the big iron-oaks, the well-house, wet cobbles, the glass hand and the sword"></td>
+<td width="50%"><img src="screenshots/r11/p2-square-phone.jpg" alt="The same view at Phone quality"></td>
+</tr>
+</table>
+
 Built so far: Oakhaven's 32 buildings (the Greenhall, the Boar & Dulcimer, the Chapel with its empty belfry, the mooring mast), the well-house, iron-bark oaks, hush-lamps, stalls, casks and carts, the far ring (the Grey Teeth, the downs, Greenroot's spire), 13 first-person weapon kinds and the glass arm, and the bronze HUD with a phone layout. Still to come (ROADMAP R11): the Hedge gate and Port Cantabile's mole, 3D townsfolk (they and the bunting are still pixel sprites), every other map, and frame-time checks on real devices. Other maps draw in the realistic renderer with the base materials (scanned stone, timber, turf) until their own kits exist.
 
 # Echoes of the Shattered Octave · Book One
