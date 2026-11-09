@@ -62,7 +62,7 @@ const R11 = (() => {
   };
   // game texture -> [base, tint]. Unknown names go through KEYWORDS, then fall back to 'flat' in the texture's mean colour.
   const TEX = {
-    t_cobble: ['cobble', 0xb9b4ad], t_flag: ['blocks', 0xa8a39b], t_stone: ['stone', 0xd8d2c8], t_stone_p20b_1: ['stone', 0xc8c2b8], t_stone_p20b_2: ['stone', 0xb8b4ac],
+    t_cobble: ['cobble', 0x958c80], t_flag: ['blocks', 0xa8a39b], t_stone: ['stone', 0xd8d2c8], t_stone_p20b_1: ['stone', 0xc8c2b8], t_stone_p20b_2: ['stone', 0xb8b4ac],
     t_house: ['plaster', 0xe0d6c4], t_house_p20b_1: ['plaster', 0xdccfb8], t_house_p20b_2: ['plaster', 0xcfc4ae], t_house_p20b_3: ['plaster', 0xd4c9b0],
     t_roof: ['slate', 0x9aa0a6], t_wood: ['wood', 0x8a7a68], t_door: ['planks', 0xa08a70], t_hedge: ['hedge', 0xffffff], t_grass: ['grass', 0xffffff],
     t_grass_p20b_a: ['grass', 0xf2f4ea], t_grass_p20b_b: ['grass', 0xe4e8d8], t_grass_p20b_c: ['grass', 0xfaf2e0], t_grass_p20b_d: ['grass', 0xe8eee0],
@@ -863,15 +863,16 @@ void main() {
   //   GRADE: after AgX, in display (gamma) space: saturation (kept on warm bright notes), contrast about a pivot, a gamma,
   //   a teal-grey tint into the shadows, a little warmth into the highlights, a lifted black
   const LOOK = {
-    expDay: 0.74, expNight: 1.3, expDusk: 0.12, expIn: 1.0,
-    skyDay: 0.66, skyCap: 1.15,            // the overcast dome's strength by day, and its ceiling (bloom never takes the sky)
+    expDay: 0.66, expNight: 1.3, expDusk: 0.12, expIn: 1.0,
+    ambDay: 0.7,                            // the sky's fill (hemisphere and HDR environment) by day: deeper shade
+    skyDay: 0.85, skyCap: 1.15,            // the overcast dome's strength by day, and its ceiling (bloom never takes the sky)
     fogDay: [0.20, 0.215, 0.235], fogMix: 0.55, fogDensity: 0.4,   // the overcast air (linear), how far the day leans to it
     lampWarm: [1.0, 0.62, 0.3],             // practical lights pulled toward candle/tallow (multiplied, then renormalised)
     windowGlow: [1.0, 0.46, 0.13], windowI: 3.4,   // lit window panes (emissive), warm, bright enough for a little bloom
     bloomStrength: 0.5, bloomRadius: 0.4, bloomThreshold: 1.35,
   };
-  const GRADE = { sat: 0.84, warmSat: 1.08, contrast: 1.1, pivot: 0.4, gamma: 1.12, lift: 0.012,
-    shadow: [-0.02, 0.006, 0.016], high: [0.014, 0.004, -0.014] };
+  const GRADE = { sat: 0.88, warmSat: 1.08, contrast: 1.1, pivot: 0.4, gamma: 1.1, lift: 0.012,
+    shadow: [-0.018, 0.004, 0.012], mid: [0.026, 0.008, -0.024], high: [0.02, 0.006, -0.02] };
   const WET = { value: 0.72 };             // 0 dry .. 1 soaked (weather 'wet' raises it; snow lowers it)
   const GRADE_SRC = `
 vec3 NAME(vec3 c) {
@@ -883,15 +884,15 @@ vec3 NAME(vec3 c) {
   g = max($PIV + (g - $PIV) * $CON, vec3(0.0));
   g = pow(g, vec3($GAM));
   float Y2 = dot(g, LW);
-  g += $SH * (1.0 - smoothstep(0.04, 0.42, Y2)) * smoothstep(0.0, 0.05, Y2) + $HI * smoothstep(0.5, 0.95, Y2);
+  g += $SH * (1.0 - smoothstep(0.03, 0.22, Y2)) * smoothstep(0.0, 0.04, Y2) + $MID * smoothstep(0.12, 0.3, Y2) * (1.0 - smoothstep(0.45, 0.75, Y2)) + $HI * smoothstep(0.5, 0.95, Y2);
   g = $LIFT + clamp(g, 0.0, 1.0) * (1.0 - $LIFT);
   return pow(g, vec3(2.2));
 }`;
   const f3 = (v) => 'vec3(' + v.map((x) => (+x).toFixed(5)).join(', ') + ')', f1 = (x) => (+x).toFixed(5);
   function gradeGLSL(name, uniforms) {
     const G = GRADE, rep = uniforms
-      ? { $SAT: 'uGrA.x', $WSAT: 'uGrA.y', $CON: 'uGrA.z', $PIV: 'uGrA.w', $GAM: 'uGrB.x', $LIFT: 'uGrB.y', $SH: 'uGrS', $HI: 'uGrH' }
-      : { $SAT: f1(G.sat), $WSAT: f1(G.warmSat), $CON: f1(G.contrast), $PIV: f1(G.pivot), $GAM: f1(G.gamma), $LIFT: f1(G.lift), $SH: f3(G.shadow), $HI: f3(G.high) };
+      ? { $SAT: 'uGrA.x', $WSAT: 'uGrA.y', $CON: 'uGrA.z', $PIV: 'uGrA.w', $GAM: 'uGrB.x', $LIFT: 'uGrB.y', $SH: 'uGrS', $MID: 'uGrM', $HI: 'uGrH' }
+      : { $SAT: f1(G.sat), $WSAT: f1(G.warmSat), $CON: f1(G.contrast), $PIV: f1(G.pivot), $GAM: f1(G.gamma), $LIFT: f1(G.lift), $SH: f3(G.shadow), $MID: f3(G.mid), $HI: f3(G.high) };
     return GRADE_SRC.replace('NAME', name).replace(/\$[A-Z]+/g, (k) => rep[k]);
   }
   // Phone (no composer): the grade rides in the materials' own tone mapping (CustomToneMapping = AgX, then the grade)
@@ -903,12 +904,12 @@ vec3 NAME(vec3 c) {
   // Ultra/High: the composer's output pass is ours (it replaces OutputPass: exposure, AgX, the grade, sRGB in one pass)
   let gradeMat = null;
   function gradePass() {
-    const U = { tDiffuse: { value: null }, toneMappingExposure: { value: 1 }, uGrA: { value: new THREE.Vector4() }, uGrB: { value: new THREE.Vector4() }, uGrS: { value: new THREE.Vector3() }, uGrH: { value: new THREE.Vector3() } };
+    const U = { tDiffuse: { value: null }, toneMappingExposure: { value: 1 }, uGrA: { value: new THREE.Vector4() }, uGrB: { value: new THREE.Vector4() }, uGrS: { value: new THREE.Vector3() }, uGrM: { value: new THREE.Vector3() }, uGrH: { value: new THREE.Vector3() } };
     gradeMat = new THREE.ShaderMaterial({
-      name: 'R11GradeOutput', uniforms: U, depthTest: false, depthWrite: false,
+      name: 'R11GradeOutput', uniforms: U, depthTest: false, depthWrite: false, toneMapped: false,   // (Three's prefix brings the sRGB functions)
       vertexShader: 'varying vec2 vUv;\nvoid main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-      fragmentShader: 'uniform sampler2D tDiffuse; uniform vec4 uGrA; uniform vec4 uGrB; uniform vec3 uGrS; uniform vec3 uGrH;\nvarying vec2 vUv;\n' +
-        '#include <tonemapping_pars_fragment>\n#include <colorspace_pars_fragment>\n' + gradeGLSL('r11GradeU', true) +
+      fragmentShader: 'uniform sampler2D tDiffuse; uniform vec4 uGrA; uniform vec4 uGrB; uniform vec3 uGrS; uniform vec3 uGrM; uniform vec3 uGrH;\nvarying vec2 vUv;\n' +
+        '#include <tonemapping_pars_fragment>\n' + gradeGLSL('r11GradeU', true) +
         '\nvoid main() { vec4 c = texture2D(tDiffuse, vUv); c.rgb = r11GradeU(AgXToneMapping(c.rgb)); gl_FragColor = sRGBTransferOETF(vec4(c.rgb, 1.0)); }',
     });
     gradeUniforms();
@@ -918,7 +919,7 @@ vec3 NAME(vec3 c) {
     if (!gradeMat) return;
     const U = gradeMat.uniforms, G = GRADE;
     U.uGrA.value.set(G.sat, G.warmSat, G.contrast, G.pivot); U.uGrB.value.set(G.gamma, G.lift, 0, 0);
-    U.uGrS.value.set(G.shadow[0], G.shadow[1], G.shadow[2]); U.uGrH.value.set(G.high[0], G.high[1], G.high[2]);
+    U.uGrS.value.set(G.shadow[0], G.shadow[1], G.shadow[2]); U.uGrM.value.set(G.mid[0], G.mid[1], G.mid[2]); U.uGrH.value.set(G.high[0], G.high[1], G.high[2]);
   }
   // wet cobbles: the scan's joints (rough, low AO in its ARM map) hold water: darker, low roughness, the bumps drowned;
   // puddle cells (a world-space noise) fill the joints first, then go over the stones as still water. The sky (the HDR
@@ -1086,9 +1087,10 @@ void main() {
     // the sky's light: hemisphere (tinted by the hour) + the HDR environment (scaled by the hour)
     const aS = P.ambS, aG = P.ambG;
     const indoorAmb = outdoor ? 0 : 0.18 + 0.9 * (env.ambient || 0);
-    if (outdoor) { R.hemi.color.setRGB(aS[0], aS[1], aS[2]); R.hemi.groundColor.setRGB(aG[0], aG[1], aG[2]); R.hemi.intensity = 0.55 + 0.6 * night; }
+    const ambK = outdoor ? mix(1, LOOK.ambDay, day) : 1;
+    if (outdoor) { R.hemi.color.setRGB(aS[0], aS[1], aS[2]); R.hemi.groundColor.setRGB(aG[0], aG[1], aG[2]); R.hemi.intensity = (0.55 + 0.6 * night) * ambK; }
     else { R.hemi.color.setRGB(0.62, 0.55, 0.47); R.hemi.groundColor.setRGB(0.3, 0.26, 0.22); R.hemi.intensity = indoorAmb * (env.flick || 1); }
-    R.scene.environmentIntensity = outdoor ? (0.03 + 0.8 * day) * (1 - dark * 0.6) : 0.12 + 0.25 * (env.ambient || 0);
+    R.scene.environmentIntensity = outdoor ? (0.03 + 0.8 * day) * (1 - dark * 0.6) * ambK : 0.12 + 0.25 * (env.ambient || 0);
     // the sky dome
     const U = R.sky.material.uniforms;
     R.sky.visible = outdoor;

@@ -32,7 +32,7 @@ async function bootPage(browser, tier) {
   const errors = [];
   page.on('pageerror', e => errors.push('pageerror: ' + e.message));
   page.on('console', m => { if (m.type() === 'error' || (m.type() === 'warning' && /r11core/.test(m.text()))) errors.push('console: ' + m.text()); });
-  await page.addInitScript(([o]) => { window.__r11 = o; try { localStorage.setItem('octave.r11.v1', JSON.stringify({ bench: { keep: 1 } })); } catch (e) { /* none */ } }, [{ automation: true, force: true, tier }]);
+  await page.addInitScript(([o]) => { window.__r11 = o; try { localStorage.setItem('octave.r11.v1', JSON.stringify({ bench: { keep: 1 }, tier: o.tier, tierManual: true })); } catch (e) { /* none */ } }, [{ automation: true, force: true, tier }]);
   await page.addInitScript(() => { let s = 424242; Math.random = () => (s = (s * 16807) % 2147483647) / 2147483647; });
   await page.goto(URL + '/?nosw=1', { timeout: 900000 });
   await page.waitForFunction(() => typeof Engine !== 'undefined' && Engine.sprites.proctor && G.state === 'title', null, { timeout: 900000 });
@@ -48,6 +48,7 @@ async function bootPage(browser, tier) {
   await page.waitForTimeout(500);
   await page.waitForFunction(() => window.R11 && (R11.ready || R11.failed()), null, { timeout: 900000 });
   await page.evaluate(HELPERS);
+  await page.evaluate((t) => { if (window.R11BENCH) R11BENCH.renderScale = () => 1; if (R11.tier() !== t) R11.setTier(t); }, tier);   // a fixed tier, full resolution
   return { page, errors };
 }
 
@@ -80,7 +81,7 @@ const HELPERS = () => {
   };
   S.regions = () => ({ all: S.stats(0, 0, 1, 1), sky: S.stats(0.3, 0.02, 0.6, 0.16), ground: S.stats(0.32, 0.7, 0.68, 0.98), mid: S.stats(0.3, 0.42, 0.75, 0.6) });
   // the neutral look: AgX alone at phase 1's exposure, no grade, a dry floor (for comparisons)
-  S.NEUTRAL = { expDay: 1.0, expNight: 1.6, expDusk: 0, skyDay: 1, fogMix: 0, wetForce: 0, grade: { sat: 1, warmSat: 1, contrast: 1, gamma: 1, lift: 0, shadow: [0, 0, 0], high: [0, 0, 0] } };
+  S.NEUTRAL = { expDay: 1.0, expNight: 1.6, expDusk: 0, ambDay: 1, skyDay: 1, fogMix: 0, wetForce: 0, grade: { sat: 1, warmSat: 1, contrast: 1, gamma: 1, lift: 0, shadow: [0, 0, 0], mid: [0, 0, 0], high: [0, 0, 0] } };
 };
 
 // side-by-side in the page: ours (the 3D view part of the screenshot) | picture 1 (its picture above the HUD), colour
