@@ -177,8 +177,8 @@ async function bootGame(browser) {
       const names = R11.vm && R11.vm.scene ? R11.vm.scene.children.map((o) => o.name) : [];
       const p = G.player, id = p.weapons ? p.weapons[p.weapon] : 'hands';
       out.names = names; out.weapon = id; out.kind = R11VM.kindFor(id); out.active = R11.active();
-      // equip the sword and draw again: the weapon group follows
-      if (WEAPONS.sword) { if (!p.weapons.includes('sword')) p.weapons.push('sword'); p.weapon = p.weapons.indexOf('sword'); R11.renderOnce(); render(); out.names2 = R11.vm.scene.children.map((o) => o.name); }
+      // equip the Boarding Axe and draw again: CORE swaps the weapon group for R11VM's axe
+      if (WEAPONS.axe) { if (!p.weapons.includes('axe')) p.weapons.push('axe'); p.weapon = p.weapons.indexOf('axe'); R11.renderOnce(); render(); out.names2 = R11.vm.scene.children.map((o) => o.name); }
       return out;
     });
     if (SHOTS) await g.page.screenshot({ path: path.join(SHOTS, 'r11vm-game.png') });
@@ -186,7 +186,7 @@ async function bootGame(browser) {
     const kindName = r.kind === 'fists' ? 'R11VM:fists' : 'R11VM:' + r.kind;
     check(r.names.includes('R11VM:glass-arm') && (r.names.includes(kindName) || r.weapon === 'hands'), 'CORE draws R11VM\'s glass arm and the equipped weapon (' + r.weapon + ' -> ' + r.kind + '; vm scene: ' + r.names.filter(Boolean).join(', ') + ')');
     check(!r.names.some((n) => /^R11KIT:/.test(n)), 'R11VM is preferred: no R11KIT viewmodel in the first-person scene');
-    check(!r.names2 || r.names2.includes('R11VM:sword'), 'equipping the Short Sword swaps in R11VM\'s sword (' + (r.names2 || []).filter(Boolean).join(', ') + ')');
+    check(r.names2 && r.names2.includes('R11VM:axe') && !r.names2.includes('R11VM:' + r.kind) || (r.names2 && r.kind === 'axe' && r.names2.includes('R11VM:axe')), 'equipping the Boarding Axe swaps in R11VM\'s axe, the old weapon gone (' + (r.names2 || []).filter(Boolean).join(', ') + ')');
     check(!g.errors.length, 'no page errors in the game' + (g.errors.length ? ' (' + g.errors.slice(0, 3).join(' | ') + ')' : ''));
   } catch (e) {
     fails++; console.log('FAIL the test ran to the end -- ' + (e && e.message ? e.message.split('\n')[0] : e));
