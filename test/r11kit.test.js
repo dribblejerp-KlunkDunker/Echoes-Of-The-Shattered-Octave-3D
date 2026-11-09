@@ -118,12 +118,14 @@ async function harness() {
       for (const i of res.hiddenCells) { const c = m.cells[i]; if (!c || c.door) out.bad.push(i); }
       out.kinds = R11KIT._internal.findBuildings(m).filter((b) => b.doors.length).map((b) => R11KIT._internal.kindOf(b));
       out.replaced = res.replaced.size; out.lights = res.lights.length; out.well = res.wellHouse;
+      out.decHidden = [...res.hiddenCells].filter((i) => m.decals && m.decals[i] && Engine.textures[m.decals[i]]).length; out.decals = res.decals;
       out.draws = R11KIT.countDraws(res.group);
       return out;
     });
     check(r.group, 'dressMap(oakhaven) returns a group with children (' + r.s.ms.toFixed(0) + ' ms, ' + r.s.stats.buildings + ' buildings, ' + r.s.stats.lots + ' lots, ' + r.s.stats.oaks + ' oaks, ' + r.s.stats.lamps + ' hush-lamps)');
     check(r.s.hidden > 300 && !r.bad.length, 'hiddenCells are wall cells only, never doors or open ground (' + r.s.hidden + ' hidden, ' + r.bad.length + ' bad)');
-    check(['chapel', 'greenhall', 'inn'].every((k) => r.kinds.includes(k)), 'the Chapel, the Greenhall and the Boar & Dulcimer are found by their doors (' + r.kinds.filter((k) => k !== 'house' && k !== 'shed').join(', ') + ')');
+    check(r.decHidden === 0 || r.decals >= r.decHidden, 'the game\'s decals (Synod posters) on hidden cells are redrawn on the kit walls (' + r.decHidden + ' cells, ' + r.decals + ' faces)');
+        check(['chapel', 'greenhall', 'inn'].every((k) => r.kinds.includes(k)), 'the Chapel, the Greenhall and the Boar & Dulcimer are found by their doors (' + r.kinds.filter((k) => k !== 'house' && k !== 'shed').join(', ') + ')');
     check(r.lights >= 2 && r.lights < 10 && r.replaced >= 100, 'the inn door\'s lanterns light through ctx.addLight (the street hush-lamps keep the engine\'s own lights, not doubled); the map\'s oaks, lamps, tables, crates, casks and carts are replaced (' + r.lights + ' lights, ' + r.replaced + ' decos)');
 
     // ---- what you see is what blocks you: sample every kit part's box against walkable ground

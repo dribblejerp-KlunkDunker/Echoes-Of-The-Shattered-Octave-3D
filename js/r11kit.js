@@ -818,13 +818,6 @@ const R11KIT = (function () {
     f.part('seal', new THREE.CylinderGeometry(0.19, 0.19, 0.05, 20).rotateX(PI / 2), 0.62, 0.55, s / 2 + 0.03);
     f.ibox('ashlarTrim', 0.46, 0.46, 0.03, 0.62, 0.55, s / 2 + 0.005);
   }
-  function plinth(B, f, size) {   // the empty bell-plinth in front of the Chapel: knee-high stone, nothing on it
-    const THREE = B.THREE;
-    f.part('stone', worldUV(THREE, new THREE.BoxGeometry(size, 0.3, size), 1.8), 0, 0.15, 0);
-    f.part('stone', worldUV(THREE, new THREE.BoxGeometry(size * 0.72, 0.26, size * 0.72), 1.8), 0, 0.43, 0);
-    f.part('stone', worldUV(THREE, new THREE.BoxGeometry(size * 0.5, 0.26, size * 0.5), 1.8), 0, 0.69, 0);
-    for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) f.ibox('iron', 0.08, 0.12, 0.08, a * size * 0.18, 1.08, b * size * 0.18);   // the stubs where the cradle was cut away
-  }
   function stall(B, f, kind, r) {   // a market table under an awning (at the map's market tables)
     const THREE = B.THREE, W = 2.6, D = 1.6;
     for (const [a, b, h] of [[-1, 1, 2.1], [1, 1, 2.1], [-1, -1, 2.55], [1, -1, 2.55]]) f.ibox('timber', 0.11, h, 0.11, a * W / 2, h / 2, b * D / 2);
@@ -1071,14 +1064,27 @@ const R11KIT = (function () {
         }
       }
     }
-    // ---- the bell-plinth in front of the Chapel, the bridge parapets left to CORE
-    for (let i = 0; i < map.cells.length; i++) {
-      const c = map.cells[i]; if (!c || c.door || c.tex !== 't_stone' || c.top == null || c.top > 0.4) continue;
-      const x = i % W, y = (i / W) | 0;
-      const near = blds.some((b) => kindOf(b) === 'chapel' && x >= b.x0 - 1 && x <= b.x1 + 1 && y > b.y1 && y <= b.y1 + 3);
-      if (!near) continue;
-      hidden.add(i); B.cat = 'bldg';
-      plinth(B, B.frame((x + 0.5) * C, (y + 0.5) * C, 0, gAt(x + 0.5, y + 0.5)), C - 0.02);
+    // ---- the game's own decals on the cells KIT hides (Synod posters and the like): redrawn on the kit's wall at that face,
+    // a wall's height (the map's) from the ground, as the raycaster shows them. The bell-plinth (49,11) and the bridge
+    // parapets stay CORE's, with their decals.
+    out.decals = 0;
+    if (map.decals && typeof Engine !== 'undefined' && Engine.textures) {
+      for (const i of hidden) {
+        const dn = map.decals[i], data = dn && Engine.textures[dn]; if (!data || data.length !== 4096) continue;
+        const key = 'decal:' + dn;
+        if (!M[key]) {
+          const src = new Uint8Array(data.buffer, data.byteOffset, data.byteLength), px = new Uint8Array(64 * 64 * 4);
+          for (let yy = 0; yy < 64; yy++) px.set(src.subarray((63 - yy) * 256, (64 - yy) * 256), yy * 256);   // row 0 is the top
+          const t = new THREE.DataTexture(px, 64, 64, THREE.RGBAFormat); t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.LinearFilter; t.needsUpdate = true;
+          M[key] = new THREE.MeshStandardMaterial({ map: t, alphaTest: 0.5, roughness: 0.92, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+        }
+        const x = i % W, y = (i / W) | 0, hw = WALLM();
+        for (const [dx, dy, ry] of [[1, 0, PI / 2], [-1, 0, -PI / 2], [0, 1, 0], [0, -1, PI]]) {
+          const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= W || ny >= map.h || map.cells[ny * W + nx]) continue;
+          const px2 = (x + 0.5 + dx * 0.5) * C + dx * 0.07, pz2 = (y + 0.5 + dy * 0.5) * C + dy * 0.07;
+          B.cat = 'bldg'; B.put(key, new THREE.PlaneGeometry(C, hw), px2, gAt(x + 0.5, y + 0.5) + hw / 2, pz2, ry); out.decals++;
+        }
+      }
     }
     // ---- the well-house in the square (Book One; church55: Kaelen "at the corner of the well-house", rite43: a woman by it)
     if (map.cells[22 * W + 27] === null && map.cells[22 * W + 28] === null) {
@@ -1178,6 +1184,7 @@ const R11KIT = (function () {
     try { farRing(B, metres, map, { T, far: ctx.far }); } catch (e) { warnOnce('far ring', e); }
     // ---- into meshes
     const noShadow = new Set(['glassLit', 'glassDark', 'puddle', 'grime', 'notices', 'seal', 'flame']);
+    for (const k of Object.keys(M)) if (k.startsWith('decal:')) noShadow.add(k);
     const small = new Set(['iron', 'goods', 'shutter', 'flame', 'reed', 'rope']);
     if (!T.shadowSmall) for (const k of ['iron', 'goods', 'shutter', 'reed', 'rope', 'canvasCream', 'canvasStripe', 'canvasGreen']) noShadow.add(k);
     B.finish(metres, { noShadow, small });
