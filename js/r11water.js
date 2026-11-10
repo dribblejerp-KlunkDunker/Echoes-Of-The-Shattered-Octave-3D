@@ -36,7 +36,7 @@ const R11WATER = (() => {
     horizon: 0.72,                       // High/Phone: the reflection near the horizon is the town and the air, not the sky
     lamp: 5.0,                           // the lamps' images in the water (all tiers; Ultra adds them on top of its planar image at half)
     spec: 0.5,                           // three's direct specular (the sun through cloud, the lamps' GGX glints)
-    ripple: 1.0,                         // ripple slope (scaled by the wind)
+    ripple: 1.8,                         // ripple slope (scaled by the wind)
     distort: 0.05,                       // the planar reflection's distortion by the ripples
     edge: 0.4,                           // the dark contact line where water meets stone
     rain: 1.0,                           // rain rings
@@ -339,7 +339,10 @@ vec2 r11wRainLayer(vec2 p, float t, float seed, float dens) {
     const dt = clamp(F.dt || 0.016, 0, 0.1);
     U.uTime.value = F.t || 0;
     let wind = 0.3, rain = 0;
-    try { if (typeof Weather !== 'undefined' && Weather && Weather.STATES) { const s = Weather.STATES[Weather.state]; if (s) wind = s.wind || 0; rain = Weather.state === 'storm' ? 1.4 : Weather.state === 'rain' ? 1 : 0; } } catch (e) { /* none */ }
+    let storm = false;
+    try { if (typeof Weather !== 'undefined' && Weather && Weather.STATES) { const s = Weather.STATES[Weather.state]; if (s) wind = s.wind || 0; storm = Weather.state === 'storm'; } } catch (e) { /* none */ }
+    // rain dimples: core's own wetness (R11.wet(): 0..1, rain or storm only, outdoors), harder in a storm
+    try { rain = typeof R11.wet === 'function' ? clamp(+R11.wet() || 0, 0, 1) * (storm ? 1.4 : 1) : 0; } catch (e) { rain = 0; }
     const out = !!(F.env && F.env.outdoor);
     if (!out) { wind = 0.05; rain = 0; }
     const k = Math.min(1, dt * 1.5);
