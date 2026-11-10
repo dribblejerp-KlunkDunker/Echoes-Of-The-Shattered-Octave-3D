@@ -847,6 +847,14 @@ const R11GATE = (function () {
     }
     return { sheaf, fig };
   }
+  // a reload of the same map (no rebuild, no dress) can bring a fresh sheaf entity (festivals12 on loadMap): claim it
+  // right after loadMap, before the first frame draws its billboard
+  function claimSheaf() {
+    const live = S0.live;
+    if (!live || typeof G === 'undefined' || !G || G.map !== live.map) return;
+    const { sheaf, fig } = findSheaf(live.map, live.S), rep = window.R11 && R11.replaced && R11.replaced();
+    if (rep) { if (sheaf) rep.add(sheaf); if (fig) rep.add(fig); }
+  }
   function syncSheaf(live) {
     if (!live.G0 || !live.S.gate || !live.S.gate.town) return;
     const { sheaf, fig } = findSheaf(live.map, live.S);
@@ -885,6 +893,12 @@ const R11GATE = (function () {
     if (typeof window === 'undefined') return;
     window.R11DRESSERS = window.R11DRESSERS || [];
     if (!window.R11DRESSERS.some((d) => d && d.id === 'gate')) window.R11DRESSERS.push({ id: 'gate', maps, dress });
+    if (typeof loadMap === 'function' && !loadMap.__r11gate) {
+      const lm0 = loadMap;
+      const lm = function () { const r = lm0.apply(this, arguments); try { claimSheaf(); } catch (e) { warnOnce('claim', e); } return r; };
+      lm.__r11gate = true;
+      loadMap = lm;
+    }
     const hook = () => {
       const R = window.R11; if (!R || R.__gateWired) return !!R;
       R.__gateWired = true;
