@@ -344,13 +344,14 @@ const R11GATE = (function () {
     if (!map || !map.cells) return null;
     const W = map.w, H = map.h;
     const ring = (x, y) => Math.min(x, y, W - 1 - x, H - 1 - y);
-    const hedge = new Set(), outer = new Set();
+    const hedge = new Set(), outer = new Set(), arch = [];
     let gate = null;
     if (map.id === 'oakhaven') {
       for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
         const ci = y * W + x, c = map.cells[ci], r = ring(x, y);
         if (r === 0) { if (c) outer.add(ci); continue; }
         if (c && c.tex === 't_hedge' && !c.door) hedge.add(ci);
+        if (c && c.door && r === 1) arch.push(ci);   // the tannery culvert: a low way under the thorn
         if (c && c.door && c.portal && c.portal.map === 'clearing' && r === 0) outer.add(ci);
       }
       // the North Gate: its door in the outer ring, the gap through the Hedge the cell inside it
@@ -365,7 +366,7 @@ const R11GATE = (function () {
     // lyra51's stone (Book One ch. 1): behind the old cooperage the thorn is thinner and the wadding rotted
     let thin = null;
     if (map.id === 'oakhaven') { try { const st = (typeof LYRA51 !== 'undefined' && LYRA51.STONE) || { x: 67.25, y: 40.5 }; thin = { x: st.x, y: st.y }; } catch (e) { thin = { x: 67.25, y: 40.5 }; } }
-    return { W, H, hedge, outer, gate, greening, thin, ring };
+    return { W, H, hedge, outer, gate, greening, thin, ring, arch };
   }
   function maps(map) { return !!spec(map); }
 
@@ -584,6 +585,31 @@ const R11GATE = (function () {
         const x = (cx + rnd()) * C, z = (cy + rnd()) * C, g = sh.gAt((cx + 0.5) * C, (cy + 0.5) * C), w = R(0.7, 1.3), yaw = rnd() * PI, kk = R(0.7, 1);
         accCard(card, [x, g + sh.top(x, z) + w * 0.25, z], [Math.cos(yaw) * w / 2, 0, Math.sin(yaw) * w / 2], [0, w * 0.5, 0], rnd() < 0.5 ? RT.thornA : RT.thornB, [kk, kk, kk * 0.95], false); nCard++;
       }
+    }
+    // ---- the thorn carried over a door through the Hedge (the tannery culvert): CORE keeps the door, the Hedge goes on above
+    for (const ci of S.arch) {
+      const cx = ci % S.W, cy = (ci / S.W) | 0, g = sh.gAt((cx + 0.5) * C, (cy + 0.5) * C), y0 = 2.0;
+      for (const [dx, dy] of [[0, -1], [0, 1], [-1, 0], [1, 0]]) {
+        const nx = cx + dx, ny = cy + dy; if (nx < 0 || ny < 0 || nx >= S.W || ny >= S.H) continue;
+        const nc = map.cells[ny * S.W + nx]; if (nc && !nc.door) continue;
+        const N = [dx, dy], Tt = [dy, -dx], mx = (cx + 0.5 + dx * 0.5) * C, mz = (cy + 0.5 + dy * 0.5) * C, n = 6, Pg = [], Cg = [], Ug = [];
+        for (let j = 0; j <= 4; j++) { Pg.push([]); Cg.push([]); Ug.push([]); for (let i = 0; i <= n; i++) {
+          const s = (i / n - 0.5) * (C + 0.3), x = mx + Tt[0] * s, z = mz + Tt[1] * s, tp = sh.top(x, z), h = lerp(y0, tp, j / 4), f = fbm(x * 1.3, h, z * 1.3);
+          Pg[j].push([x + N[0] * (0.05 + 0.15 * f), g + h, z + N[1] * (0.05 + 0.15 * f)]); const k = 0.34 + 0.2 * f; Cg[j].push([k, k * 0.97, k * 0.9]); Ug[j].push([s / 0.8, h / 0.8]);
+        } }
+        accGrid(bark, Pg, Cg, Ug, false);
+        for (let k = 0; k < Math.round(16 * T.spray); k++) {
+          const s = R(-0.5, 0.5) * C, x = mx + Tt[0] * s, z = mz + Tt[1] * s, tp = sh.top(x, z), w = R(0.6, 1.1), yaw = R(-0.8, 0.8), ca = Math.cos(yaw), sa = Math.sin(yaw), d = R(0.05, 0.3), kk = R(1.15, 1.6);
+          accCard(card, [x + N[0] * d, g + R(y0 + 0.2, tp), z + N[1] * d], [(Tt[0] * ca - N[0] * sa) * w / 2, 0, (Tt[1] * ca - N[1] * sa) * w / 2], [0, w * 0.45, 0], rnd() < 0.5 ? RT.thornA : RT.thornB, [kk, kk, kk * 0.95], false); nCard++;
+        }
+      }
+      const n = 3, Pg = [], Cg = [], Ug = [];
+      for (let j = 0; j <= n; j++) { Pg.push([]); Cg.push([]); Ug.push([]); for (let i = 0; i <= n; i++) { const x = (cx + i / n) * C, z = (cy + j / n) * C; Pg[j].push([x, g + sh.top(x, z) - 0.1, z]); Cg[j].push([0.3, 0.29, 0.27]); Ug[j].push([x / 1.4, z / 1.4]); } }
+      accGrid(bark, Pg, Cg, Ug, true);
+      // and its underside, over the culvert
+      const Pu = [], Cu = [], Uu = [];
+      for (let j = 0; j <= 1; j++) { Pu.push([]); Cu.push([]); Uu.push([]); for (let i = 0; i <= 1; i++) { const x = (cx + i) * C, z = (cy + j) * C; Pu[j].push([x, g + y0, z]); Cu[j].push([0.18, 0.17, 0.15]); Uu[j].push([x, z]); } }
+      accGrid(bark, Pu, Cu, Uu, false);
     }
     out.stats = { runs: runs.length, tufts: nTuft, cards: nCard, stems: nStem, posts: nPost };
     return { bark, wool, card, cloth, wood, iron, stone, sh, C, WALLM, M };
