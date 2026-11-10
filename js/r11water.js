@@ -335,7 +335,7 @@ vec2 r11wRainLayer(vec2 p, float t, float seed, float dens) {
   }
 
   // ---------------------------------------------------------------------------------------------- per frame
-  let windS = 0.5, rainS = 0;
+  let windS = 0.5, rainS = 0, snap = true;
   function frame(F) {
     if (!mat || !THREE) return;
     const dt = clamp(F.dt || 0.016, 0, 0.1);
@@ -347,8 +347,10 @@ vec2 r11wRainLayer(vec2 p, float t, float seed, float dens) {
     try { rain = typeof R11.wet === 'function' ? clamp(+R11.wet() || 0, 0, 1) * (storm ? 1.4 : 1) : 0; } catch (e) { rain = 0; }
     const out = !!(F.env && F.env.outdoor);
     if (!out) { wind = 0.05; rain = 0; }
-    const k = Math.min(1, dt * 1.5);
-    windS += (wind - windS) * (R11.paused ? 1 : k); rainS += (rain - rainS) * (R11.paused ? 1 : k);
+    // a weather change eases in (core's cobbles snap; the rings take about a second); a new map or a paused shot starts
+    // with the weather as it is
+    const k = (R11.paused || snap) ? 1 : Math.min(1, dt * 1.5); snap = false;
+    windS += (wind - windS) * k; rainS += (rain - rainS) * k;
     U.uWind.value = 0.3 + 0.55 * windS; U.uRain.value = rainS; U.uOut.value = out ? 1 : 0;
     // the sky as the dome draws it (core's sky uniforms, read each frame)
     const R = R11.R, sky = R && R.sky && R.sky.material && R.sky.material.uniforms;
@@ -372,7 +374,7 @@ vec2 r11wRainLayer(vec2 p, float t, float seed, float dens) {
   function wire() {
     if (typeof R11 === 'undefined' || !R11 || typeof R11.on !== 'function') return;
     R11.on('frame', frame);   // r11core catches and logs a hook's throw once
-    R11.on('mapbuilt', (m) => { if (THREE) buildShore(m); RF.geo = null; if (U.uReflOn) U.uReflOn.value = 0; });
+    R11.on('mapbuilt', (m) => { if (THREE) buildShore(m); RF.geo = null; snap = true; if (U.uReflOn) U.uReflOn.value = 0; });
     R11.on('tier', (t) => setTier(t));
   }
   wire();

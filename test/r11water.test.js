@@ -212,14 +212,17 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
         S.stage(pv); S.frame();
         const deepMask = (() => { const wm = S.waterMesh(); return !!wm; })();
         // the deep cells against the shallows: the same view with the shallows' tint forced to the deep's (pixels that
-        // change are the shallows)
+        // change are the shallows). The body only (reflections off): with them on, the far water (the deep middle of a
+        // pool) catches more sky at a glance than the near shallows, whatever the body does
         const P0 = R11WATER.get();
+        R11WATER.set({ refl: 0, lamp: 0, spec: 0 });
         S.frame(); const A = S.grab();
         R11WATER.set({ shal: P0.deep }); const u = R11WATER.uniforms; const sh = u.uShal.value.clone();
         S.frame(); const B = S.grab(); R11WATER.set(P0);
+        R11WATER.set({ refl: 0, lamp: 0, spec: 0 });
         const lum = (p, i) => 0.2126 * p[i] + 0.7152 * p[i + 1] + 0.0722 * p[i + 2];
         let ns = 0, ls = 0, nd = 0, ld = 0;
-        const wm = S.waterMesh(); wm.visible = false; S.frame(); const C = S.grab(); wm.visible = true;
+        const wm = S.waterMesh(); wm.visible = false; S.frame(); const C = S.grab(); wm.visible = true; R11WATER.set(P0);
         for (let i = 0; i < A.b.length; i += 4) {
           const water = Math.abs(A.b[i] - C.b[i]) + Math.abs(A.b[i + 1] - C.b[i + 1]) + Math.abs(A.b[i + 2] - C.b[i + 2]) >= 12;
           if (!water) continue;
