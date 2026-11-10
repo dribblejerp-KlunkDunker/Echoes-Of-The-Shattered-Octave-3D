@@ -27,7 +27,7 @@
 const R11WATER = (() => {
   // the look (linear colours; picture 3's water: near ~ sRGB (44,60,49), mid ~ (64,81,72), far reflects the sky)
   const P = {
-    deep: [0.04, 0.075, 0.05],         // the body of deep water (green-grey), before light
+    deep: [0.034, 0.064, 0.044],       // the body of deep water (green-grey), before light
     shal: [0.08, 0.09, 0.06],            // shallows and the shore band (the bottom showing through, brown-green)
     shoreW: 1.6,                         // cells of the shore band (lighter, then deep)
     f0: 0.01,                            // reflectance straight down (picture 3 is darker near than physics: an artist's fresnel)
@@ -135,7 +135,7 @@ vec2 r11wRainLayer(vec2 p, float t, float seed, float dens) {
     vec3 sky = mix(grad, hdr, uDay);
     sky *= min(1.0, uCap / max(max(sky.r, max(sky.g, sky.b)), 1e-4));
     sky = mix(uAir, sky, uOut);
-    // near the horizon the reflection is the far shore, the town and the air (High, Phone; Ultra sees the real thing)
+    // near the horizon the reflection is the far shore, the town and the air (Ultra's planar image replaces this below)
     vec3 far = min(uAir, mix(uHor, uAir, uDay)) * mix(0.35, 0.72, uDay);
     sky = mix(far, sky, mix(1.0, smoothstep(0.0, 0.24, R.y), uHorizon));
     vec3 refl = sky;
@@ -307,7 +307,9 @@ vec2 r11wRainLayer(vec2 p, float t, float seed, float dens) {
     v.rot.extractRotation(camera.matrixWorld);
     v.look.set(0, 0, -1).applyMatrix4(v.rot).add(v.cw);
     v.tgt.subVectors(v.pw, v.look).reflect(v.n).negate().add(v.pw);
-    vc.position.copy(v.view); vc.up.set(0, 1, 0).applyMatrix4(v.rot).reflect(v.n); vc.lookAt(v.tgt);
+    // up: the reflected up turned half a turn about the view axis (a roll, not a mirror: the texture matrix below
+    // follows any roll), so camera-facing billboards stand upright in the reflection instead of hanging under the water
+    vc.position.copy(v.view); vc.up.set(0, 1, 0).applyMatrix4(v.rot).reflect(v.n).negate(); vc.lookAt(v.tgt);
     vc.far = camera.far; vc.near = camera.near; vc.updateMatrixWorld();
     vc.projectionMatrix.copy(camera.projectionMatrix);
     U.uReflMat.value.set(0.5, 0, 0, 0.5, 0, 0.5, 0, 0.5, 0, 0, 0.5, 0.5, 0, 0, 0, 1).multiply(vc.projectionMatrix).multiply(vc.matrixWorldInverse);
@@ -363,13 +365,13 @@ vec2 r11wRainLayer(vec2 p, float t, float seed, float dens) {
     for (const k in p) if (k in P) P[k] = p[k];
     if (!U.uDeep) return get();
     U.uDeep.value.setRGB(P.deep[0], P.deep[1], P.deep[2]); U.uShal.value.setRGB(P.shal[0], P.shal[1], P.shal[2]);
-    U.uShoreW.value = P.shoreW; U.uReflTint.value.setRGB(P.reflTint[0], P.reflTint[1], P.reflTint[2]); U.uF0.value = P.f0; U.uFPow.value = P.fpow; U.uReflK.value = P.refl; U.uHorizon.value = mode === 2 ? 0 : P.horizon;
+    U.uShoreW.value = P.shoreW; U.uReflTint.value.setRGB(P.reflTint[0], P.reflTint[1], P.reflTint[2]); U.uF0.value = P.f0; U.uFPow.value = P.fpow; U.uReflK.value = P.refl; U.uHorizon.value = P.horizon;
     U.uLampK.value = P.lamp; U.uSpec.value = P.spec; U.uRipple.value = P.ripple; U.uEdge.value = P.edge; U.uRainK.value = P.rain; U.uDistort.value = P.distort;
     return get();
   }
   function wire() {
     if (typeof R11 === 'undefined' || !R11 || typeof R11.on !== 'function') return;
-    R11.on('frame', (F) => { try { frame(F); U.uHorizon && (U.uHorizon.value = mode === 2 && U.uReflOn.value > 0 ? 0 : P.horizon); } catch (e) { /* r11core logs hook errors */ throw e; } });
+    R11.on('frame', frame);   // r11core catches and logs a hook's throw once
     R11.on('mapbuilt', (m) => { if (THREE) buildShore(m); RF.geo = null; if (U.uReflOn) U.uReflOn.value = 0; });
     R11.on('tier', (t) => setTier(t));
   }
