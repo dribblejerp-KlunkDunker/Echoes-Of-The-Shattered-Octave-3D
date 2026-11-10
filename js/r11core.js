@@ -143,7 +143,7 @@ const R11 = (() => {
     if (TIERS[opts0.tier]) st.tier = opts0.tier;
     if (!st.tier) {
       let t = null;
-      try { if (typeof R11BENCH !== 'undefined' && R11BENCH && typeof R11BENCH.autoTier === 'function') t = R11BENCH.autoTier(); } catch (e) { t = null; }
+      try { if (allowed && typeof R11BENCH !== 'undefined' && R11BENCH && typeof R11BENCH.autoTier === 'function') t = R11BENCH.autoTier(); } catch (e) { t = null; }   // automation without the opt-in writes nothing
       if (!TIERS[t]) { let coarse = false; try { coarse = matchMedia('(pointer: coarse)').matches; } catch (e) { /* fine */ } t = automation ? 'phone' : coarse ? 'phone' : 'ultra'; }
       st.tier = t;
     }
@@ -1167,7 +1167,7 @@ void main() {
       const L = Ls[i], br = Math.max(L.cr || 0, L.cg || 0, L.cb || 0);
       if (br <= 1 || !(L.r > 0)) continue;
       const dx = L.x - cx, dy = L.y - cy;
-      candidates.push({ d: Math.sqrt(dx * dx + dy * dy) - L.r * 0.3, x: L.x, y: (L.z != null ? L.z : (ground(env.map, L.x, L.y) + 0.55)) * ZK, z: L.y, r: (L.cr || 0) / br, g: (L.cg || 0) / br, b: (L.cb || 0) / br, I: 0.9 * Math.min(2, br / 70), dist: L.r * 1.25, warm: true });
+      candidates.push({ d: Math.sqrt(dx * dx + dy * dy) - L.r * 0.3, x: L.x, y: (L.z != null ? L.z : (ground(env.map, L.x, L.y) + 0.55)) * ZK, z: L.y, r: (L.cr || 0) / br, g: (L.cg || 0) / br, b: (L.cb || 0) / br, I: 0.9 * Math.min(2, br / 70), dist: L.r * 1.25, warm: (L.cr || 0) >= (L.cb || 0) });
     }
     if (!_wp) _wp = new THREE.Vector3();
     for (const k of kitLights) {
@@ -1262,6 +1262,7 @@ void main() {
   const allArr = (m) => arrSig(m.lvls) ^ arrSig(m.verts) * 3 ^ arrSig(m.floorCells) * 5 ^ arrSig(m.ceilCells) * 7 ^ (Array.isArray(m.decals) ? arrSig(m.decals) : objSig(m.decals)) * 11 ^ arrSig(m.sideTex) * 13;
   function disposeTree(o) {
     o.traverse((x) => {
+      if (x.isInstancedMesh && x.dispose) x.dispose();   // frees instanceMatrix / instanceColor and the mesh's binding state
       if (x.geometry && x.geometry.dispose) x.geometry.dispose();
       const ms = x.material ? [].concat(x.material) : [];
       for (const mm of ms) {
@@ -1373,7 +1374,7 @@ void main() {
     if (t.bloom) { const b = new T3.UnrealBloomPass(new THREE.Vector2(size.x, size.y), LOOK.bloomStrength, LOOK.bloomRadius, LOOK.bloomThreshold); C.addPass(b); R.passes.bloom = b; }
     // the output pass is the grade (exposure, AgX, the LOOK grade, sRGB): no extra full-screen pass
     const gp = gradePass(); C.addPass(gp); R.passes.grade = gp;
-    if (t.smaa) { C.addPass(new T3.SMAAPass()); }
+    if (t.smaa) { const sp = new T3.SMAAPass(); C.addPass(sp); R.passes.smaa = sp; }
     R.composer = C;
   }
   function applyTier() {
@@ -1404,13 +1405,20 @@ void main() {
       : typeof R11KIT !== 'undefined' && R11KIT && typeof R11KIT.viewmodel === 'function' ? R11KIT : null;
     if (!K) return;
     const kind = weaponKind();
-    if (!VM.arm) { try { VM.arm = K.viewmodel('glass-arm'); if (VM.arm && VM.arm.group) R.vmScene.add(VM.arm.group); } catch (e) { warnOnce('kit viewmodel arm', e); VM.arm = { group: null }; } }
+    if (!VM.arm) {
+      let a = null;
+      try { a = K.viewmodel('glass-arm'); } catch (e) { warnOnce('viewmodel arm', e); }
+      if (!(a && a.group) && typeof R11KIT !== 'undefined' && R11KIT && K !== R11KIT && typeof R11KIT.viewmodel === 'function') { try { a = R11KIT.viewmodel('glass-arm'); } catch (e) { warnOnce('kit viewmodel arm', e); } }
+      VM.arm = (a && a.group) ? a : { group: null };   // a stand-in when neither gives an arm, so it is not asked for again every frame
+      if (VM.arm.group) R.vmScene.add(VM.arm.group);
+    }
     if (kind !== VM.kind) {
       if (VM.weapon && VM.weapon.group) { R.vmScene.remove(VM.weapon.group); disposeTree(VM.weapon.group); }
       VM.weapon = null; VM.kind = kind;
       if (kind !== 'hands') { try { VM.weapon = K.viewmodel(kind); if (VM.weapon && VM.weapon.group) R.vmScene.add(VM.weapon.group); } catch (e) { warnOnce('kit viewmodel', e); } }
     }
-    for (const v of [VM.arm, VM.weapon]) if (v && typeof v.update === 'function') { try { v.update(t, walk); } catch (e) { warnOnce('kit vm update', e); } }
+    const vmUp = (v) => { if (v && typeof v.update === 'function') { try { v.update(t, walk, F); } catch (e) { warnOnce('kit vm update', e); } } };
+    vmUp(VM.arm); vmUp(VM.weapon);
     // the hands take the world's light (the same sky and ground colours, the same environment strength), so at night and
     // indoors they are as dim as the street they are held in, not lit like noon
     if (R.vmHemi && R.hemi) {
@@ -1643,12 +1651,14 @@ void main() {
     // Crosshair, names, messages and the panel draw as before. Pixel style never enters here.
     if (typeof drawHUD === 'function') {
       const _hud = drawHUD, NONE = { img: '__r11_none__', name: '', type: 'iron', speed: 0.4 };
-      const fpSet = () => { const s = new Set(); try { for (const k in Engine.images) if (k.slice(0, 3) === 'fp_') s.add(Engine.images[k]); } catch (e) { /* none */ } return s; };
+      const fpKeys = [];   // the fp_ keys, listed once per HUD draw; body21 swaps its tinted copies into these same keys, so the
+      const isFp = (img) => { for (let i = 0; i < fpKeys.length; i++) if (Engine.images[fpKeys[i]] === img) return true; return false; };   // compare live
       drawHUD = function () {
         if (!(st.inFrame && st.drew && VM.arm && VM.arm.group) || typeof Engine === 'undefined' || !Engine.ctx) return _hud.apply(this, arguments);
         const ctx = Engine.ctx, own = Object.prototype.hasOwnProperty.call(ctx, 'drawImage'), prev = ctx.drawImage;
         const g0 = typeof GFX !== 'undefined' ? GFX.body21 : undefined, cw = typeof currentWeapon === 'function' ? currentWeapon : null;
-        ctx.drawImage = function (img) { if (fpSet().has(img)) return; return prev.apply(this, arguments); };
+        fpKeys.length = 0; try { for (const k in Engine.images) if (k.slice(0, 3) === 'fp_') fpKeys.push(k); } catch (e) { /* none */ }
+        ctx.drawImage = function (img) { if (isFp(img)) return; return prev.apply(this, arguments); };
         if (typeof GFX !== 'undefined') GFX.body21 = false;
         if (cw) currentWeapon = () => NONE;
         try { return _hud.apply(this, arguments); } finally {
@@ -1703,6 +1713,8 @@ void main() {
     memory: () => (renderer ? Object.assign({}, renderer.info.memory) : null),
     pickFrameCam: () => vcam, replaced: () => replacedNow,
     benchCam, look: { get: lookGet, set: lookSet, gradeGLSL: (u) => gradeGLSL('r11Grade', !!u) },
+    originalPreset: originalish,   // true under the Original/plain preset, where the game keeps its original look (HUD included)
+    wet: () => WET.value,   // 0 dry .. 1 soaked: the cobbles' wetness (rain or storm only); KIT fades its puddles by it
   };
   function boot() {
     load();
