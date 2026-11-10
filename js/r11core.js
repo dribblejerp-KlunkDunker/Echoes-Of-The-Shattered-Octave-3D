@@ -1171,7 +1171,7 @@ void main() {
     }
     if (!_wp) _wp = new THREE.Vector3();
     for (const k of kitLights) {
-      const l = k.light; if (!l) continue;
+      const l = k.light; if (!l || !(l.intensity > 0)) continue;   // a dresser's lamp put out by day takes no pool slot
       l.getWorldPosition(_wp);
       const dx = _wp.x - cx, dy = _wp.z - cy;
       candidates.push({ d: Math.sqrt(dx * dx + dy * dy) - (k.priority || 0), x: _wp.x, y: _wp.y, z: _wp.z, r: l.color.r, g: l.color.g, b: l.color.b, I: l.intensity, dist: l.distance || 3, decay: l.decay, warm: l.color.r > l.color.b });

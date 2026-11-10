@@ -22,7 +22,7 @@
 //    'p12_sheaf' / 'p12_sheaf_fig' entities at the gate: R11 draws the sheaf in 3D and skips their billboards).
 //    [PROPOSED] (army/R11-P4/GATE/TEXT.md): the leaves' form (plank leaves with ledges and a brace, iron strap hinges with
 //    arrow ends, a bar in staples, a lock plate), the lintel and knee braces over the gateway, the gate standing at the
-//    town end of the gap and opening outward into it, the coin ledge on the gatepost, the stone of the mounting-block,
+//    town end of the gap and opening inward, toward the town, the coin ledge on the gatepost, the stone of the mounting-block,
 //    Harrow's stool. The leaves stand open once the game's flag gate_open is set (Harrow opened it on Lyra's word),
 //    barred and shut before.
 //  SCALE. Built in metres inside a group scaled by R11.M (0.33 units per metre; a cell is 3.03 m; a game height unit is
@@ -362,7 +362,7 @@ const R11GATE = (function () {
       if (gate && map.cells[gate.py * W + gate.px]) gate = null;   // the Greening's hedge has closed over the gap
     } else if (map.id === 'clearing') {
       const y = H - 1;
-      for (let x = 0; x < W; x++) { const ci = y * W + x, c = map.cells[ci]; if (c && c.tex === 't_hedge' && !c.door) hedge.add(ci); if (c && c.door && c.portal && c.portal.map === 'oakhaven') gate = { px: x, py: y, door: ci, town: false, canOpen: false }; }
+      for (let x = 0; x < W; x++) { const ci = y * W + x, c = map.cells[ci]; if (c && c.tex === 't_hedge' && !c.door) hedge.add(ci); if (c && c.door && c.portal && c.portal.map === 'oakhaven') gate = { px: x, py: y, door: ci, town: false, canOpen: true }; }
     } else return null;
     if (!hedge.size) return null;
     const greening = /Greening/i.test(map.name || '');
@@ -695,7 +695,7 @@ const R11GATE = (function () {
   }
 
   // ======================================================================== the North Gate
-  // gate frame on the town edge of the gap; leaves opening outward into the gap. Static parts go into `st`, the leaves
+  // gate frame on the town edge of the gap; the leaf opens inward, toward the town. Static parts go into `st`, the leaves
   // and their iron into `dy` (rebuilt when the flag changes).
   function buildGate(THREE, S, H, open, st, dy, map) {
     const gate = S.gate; if (!gate) return null;
@@ -728,7 +728,7 @@ const R11GATE = (function () {
         const bx = gx1 - 0.62, bz = gz - 0.95;
         accBox(st.stone, THREE, 0.62, 0.38, 1.05, m4(bx, g0 + 0.19, bz, 0.03), [0.62, 0.6, 0.56], 2.6);
         accBox(st.stone, THREE, 0.34, 0.36, 1.0, m4(bx + 0.13, g0 + 0.38 + 0.18, bz + 0.02, 0.03), [0.66, 0.63, 0.58], 2.6);
-        // Harrow's stool by the other post [PROPOSED]
+        // Harrow's stool by the east post, on the town side [PROPOSED]
         const sx = gx1 + 0.78, sz = tz + 0.62;
         accGeo(st.wood, THREE, new THREE.CylinderGeometry(0.18, 0.17, 0.05, 12), m4(sx, g0 + 0.45, sz, 0.4), OAK);
         for (let k = 0; k < 3; k++) { const a = k / 3 * TAU + 0.4; accBox(st.wood, THREE, 0.035, 0.46, 0.035, m4(sx + Math.cos(a) * 0.11, g0 + 0.22, sz + Math.sin(a) * 0.11, 0, Math.cos(a) * 0.14, -Math.sin(a) * 0.14), OAKD, 1.2); }
@@ -823,7 +823,7 @@ const R11GATE = (function () {
     for (const ci of S.outer) out.hiddenCells.add(ci);
     if (S.gate) out.hiddenCells.add(S.gate.door);
     const tierName = tierOf(ctx.tier || (window.R11 && window.R11.tier && window.R11.tier()) || 'high');
-    const live = { map, S, ctx, THREE, group, tier: tierName, open: null, sheaf: null, fig: null, tick: 0, out };
+    const live = { map, S, ctx, THREE, group, tier: tierName, open: null, sheaf: null, fig: null, out };
     try { fill(live); } catch (e) { warnOnce('dress', e); }
     // the sheaf already hung when the map is built: no billboard of it on the first frame (core draws billboards
     // before its 'frame' event, where syncSheaf claims later ones)
@@ -872,15 +872,18 @@ const R11GATE = (function () {
     live.open = open; live.out.stats.open = open;
   }
   // the festival's sheaf at the gate: its entities say whether it hangs (festivals12), R11 draws it in 3D
+  const FOUND = { sheaf: null, fig: null };   // reused: findSheaf runs every frame on Oakhaven
   function findSheaf(map, S) {
     let sheaf = null, fig = null;
-    if (!S || !S.gate || !S.gate.town) return { sheaf, fig };
+    FOUND.sheaf = null; FOUND.fig = null;
+    if (!S || !S.gate || !S.gate.town) return FOUND;
     for (const e of (map && map.entities) || []) {
       if (!e || e.hidden || e.dead || (e.sprite !== 'p12_sheaf' && e.sprite !== 'p12_sheaf_fig')) continue;
       if (Math.abs(e.x - (S.gate.px + 0.5)) > 1 || Math.abs(e.y - (S.gate.py + 0.55)) > 0.8) continue;   // the gate's, not the lamp-posts'
       if (e.sprite === 'p12_sheaf') sheaf = e; else fig = e;
     }
-    return { sheaf, fig };
+    FOUND.sheaf = sheaf; FOUND.fig = fig;
+    return FOUND;
   }
   // a reload of the same map (no rebuild, no dress) can bring a fresh sheaf entity (festivals12 on loadMap): claim it
   // right after loadMap, before the first frame draws its billboard
@@ -893,7 +896,10 @@ const R11GATE = (function () {
   function syncSheaf(live) {
     if (!live.G0 || !live.S.gate || !live.S.gate.town) return;
     const { sheaf, fig } = findSheaf(live.map, live.S);
-    try { const rep = window.R11 && R11.replaced && R11.replaced(); if (rep) { if (sheaf) rep.add(sheaf); if (fig) rep.add(fig); } } catch (e) { /* none */ }
+    if (sheaf !== live.claimedSheaf || fig !== live.claimedFig) {   // claim new entities once, not every frame
+      try { const rep = window.R11 && R11.replaced && R11.replaced(); if (rep) { if (sheaf) rep.add(sheaf); if (fig) rep.add(fig); } } catch (e) { /* none */ }
+      live.claimedSheaf = sheaf; live.claimedFig = fig;
+    }
     const want = (sheaf ? 1 : 0) + (fig ? 2 : 0);
     if (want === (live.sheafWant || 0) && (live.sheafMesh || !want)) return;
     live.sheafWant = want;
@@ -912,12 +918,12 @@ const R11GATE = (function () {
     try {
       const open = !!(live.S.gate && live.S.gate.canOpen && G.flags && G.flags.gate_open);
       if (live.G0 && open !== live.open) setOpen(live, open);
-      live.tick++; syncSheaf(live);
+      syncSheaf(live);
     } catch (e) { warnOnce('frame', e); }
   }
   function onTier(t) {
     const live = S0.live; if (!live || tierOf(t) === live.tier) return;
-    try { live.tier = tierOf(t); live.sheafWant = 0; fill(live); live.tick = 0; } catch (e) { warnOnce('tier', e); }
+    try { live.tier = tierOf(t); live.sheafWant = 0; fill(live); } catch (e) { warnOnce('tier', e); }
   }
   function onMap(m) { if (S0.live && S0.live.map !== m) S0.live = null; }
 
