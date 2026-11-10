@@ -62,12 +62,19 @@
       g.fillStyle = gr; g.globalCompositeOperation = 'source-over'; g.fillRect(0, h * 0.45, w, h * 0.55);
     });
   }
+  function turfTex(THREE) {   // thin salt turf over rock: grey-green, bare patches
+    const r = mulberry(5);
+    return canvasTex(THREE, 256, 256, (g, w, h) => {
+      g.fillStyle = '#58604a'; g.fillRect(0, 0, w, h);
+      for (let i = 0; i < 5000; i++) { const c = r() < 0.7 ? [70 + r() * 30, 78 + r() * 26, 56 + r() * 18] : [92 + r() * 30, 88 + r() * 24, 76 + r() * 20]; g.fillStyle = `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},0.6)`; g.fillRect(r() * w, r() * h, 1 + r() * 4, 1 + r() * 4); }
+    });
+  }
   function articlesTex(THREE) {   // the Articles of the Free Captains: white on black board, in numbered lines; "and above" in chalk under them
     const r = mulberry(16);
     return canvasTex(THREE, 256, 384, (g, w, h) => {
       g.fillStyle = '#121212'; g.fillRect(0, 0, w, h);
       for (let i = 0; i < 900; i++) { g.fillStyle = `rgba(${r() < 0.5 ? '0,0,0' : '90,80,70'},${0.15 * r()})`; g.fillRect(r() * w, r() * h, 2, 2); }
-      g.fillStyle = '#d8d4c8'; g.font = 'bold 16px serif'; g.textAlign = 'center'; g.fillText('ARTICLES', w / 2, 24);
+      g.fillStyle = '#d8d4c8'; g.font = 'bold 16px serif'; g.textAlign = 'center'; g.fillText(tr('ARTICLES'), w / 2, 24);
       const ROM = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI'];
       g.textAlign = 'left'; g.font = '11px serif';
       ROM.forEach((n, i) => {
@@ -106,13 +113,14 @@
       const m = base ? base.clone() : new THREE.MeshStandardMaterial({ roughness: 0.9 });
       m.vertexColors = true; m.color.setHex(color); return m;
     };
-    M.flag = scan(SAND, 0xd2d0c8);                     // the Mole's dressed flags (granite-grey)
+    M.flag = scan(SAND, 0xe8e6de);                     // the Mole's dressed flags (granite-grey)
     M.quay = scan(SAND, 0x8f8e88);                     // the Mole's faces: granite blocks, green at the water
     M.grout = new THREE.MeshStandardMaterial({ color: 0x1e211a, roughness: 0.92, vertexColors: true });
     M.weed = new THREE.MeshStandardMaterial({ map: weedTex(THREE), alphaTest: 0.35, roughness: 0.55, side: THREE.DoubleSide, vertexColors: true });
     M.stone = scan('rustic_stone_wall', 0xb4aca0);     // plinths, chimneys, foundations
     M.ashlar = scan(SAND, 0xb8b2a6);
-    M.rock = scan('rustic_stone_wall', 0x8c8a84);    // the sea's edge: wet rock, boulders and stacks
+    M.rock = scan('harbour_cliff_side', 0x8e9aa2);   // Poly Haven cliff_side (CC0), cooled toward wet grey
+    M.turf = new THREE.MeshStandardMaterial({ map: turfTex(THREE), roughness: 0.97, vertexColors: true });    // the sea's edge: wet rock, boulders and stacks
     M.far = farFog(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));   // the coast across the bight, in the haze
     M.plaster = scan('grey_plaster_02', 0xffffff);          // lime-wash (white_plaster_rough_02 is a mossy green scan)
     M.slate = scan('roof_slates_02', 0x8a9096, { ns: 1.2 });
@@ -151,7 +159,7 @@
 
   // ======================================================================== geometry accumulator: one mesh per material
   function Acc(THREE) {
-    const B = new Map(), REP = { rock: 3.0, flag: 3.6, quay: 3.2, stone: 2.4, ashlar: 3.4, plaster: 2.0, slate: 2.0, timber: 1.2, planks: 1.4, hull: 1.4, bWood: 1.2, grout: 2, weed: 1.5 };
+    const B = new Map(), REP = { turf: 3.0, rock: 4.5, flag: 3.6, quay: 3.2, stone: 2.4, ashlar: 3.4, plaster: 2.0, slate: 2.0, timber: 1.2, planks: 1.4, hull: 1.4, bWood: 1.2, grout: 2, weed: 1.5 };
     const get = (k) => { let o = B.get(k); if (!o) { o = { p: [], n: [], uv: [], c: [], a: [] }; B.set(k, o); } return o; };
     const _m3 = new THREE.Matrix3(), _p = new THREE.Vector3(), _n = new THREE.Vector3();
     const geoCache = new Map();
@@ -426,6 +434,64 @@
     const m = new THREE.Matrix4().compose(new THREE.Vector3(x, cy, z), new THREE.Quaternion().setFromEuler(new THREE.Euler((r() - 0.5) * 0.5, r() * 6.3, (r() - 0.5) * 0.5)), new THREE.Vector3(w * (0.8 + r() * 0.4), h, w * (0.8 + r() * 0.4)));
     const k = 0.8 + r() * 0.3;
     A.geo('rock', R, m, (px, py) => { const wy = cy + py * h; return wy < WY + 0.5 ? [0.42 * k, 0.48 * k, 0.38 * k] : wy < WY + 1.2 ? [0.62 * k, 0.65 * k, 0.56 * k] : [0.9 * k, 0.88 * k, 0.84 * k]; }, 'world');
+  }
+
+  // ---- the cliff the town is built on: core's stepped rock boxes become one rock surface. Each corner takes the highest
+  // rock cell around it, so the terraces run up as slopes between the house rows; faces drop at the edges to the Yard, the
+  // Stair and the water; flat ground carries thin turf, the rest is wet grey rock (game text: "Wet, grey, furred with weed
+  // at the foot"). Cells already hidden (houses, shore rocks) are left alone.
+  function cliffRock(A, R, hidden, WY) {
+    const W = R.W, H = R.H, C = R.C;
+    const isC = (x, y) => x >= 0 && y >= 0 && x < W && y < H && R.blk(R.cell(x, y)) && R.tex(x, y) === 'p17c_cliff' && !hidden.has(R.idx(x, y));
+    const cells = []; for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (isC(x, y)) cells.push([x, y]);
+    const V = new Float32Array((W + 1) * (H + 1)).fill(-1e9);
+    for (const [x, y] of cells) { const t = R.cell(x, y).top; for (const [vx, vy] of [[x, y], [x + 1, y], [x, y + 1], [x + 1, y + 1]]) { const i = vy * (W + 1) + vx; if (t > V[i]) V[i] = t; } }
+    const allC = (fx, fy) => { const xs = fx & 1 ? [fx >> 1] : [(fx >> 1) - 1, fx >> 1], ys = fy & 1 ? [fy >> 1] : [(fy >> 1) - 1, fy >> 1]; for (const x of xs) for (const y of ys) if (!isC(x, y)) return false; return true; };
+    const cache = new Map();
+    const hF = (fx, fy) => {   // height (metres) at a half-cell vertex
+      const k = fy * (2 * W + 2) + fx; let v = cache.get(k); if (v !== undefined) return v;
+      const x0 = fx >> 1, y0 = fy >> 1, tx = (fx & 1) * 0.5, ty = (fy & 1) * 0.5;
+      const g = (x, y) => { const q = V[Math.min(H, y) * (W + 1) + Math.min(W, x)]; return q > -1e8 ? q : null; };
+      const a = g(x0, y0), b = tx ? g(x0 + 1, y0) : a, c = ty ? g(x0, y0 + 1) : a, d = tx && ty ? g(x0 + 1, y0 + 1) : (tx ? b : c);
+      const vals = [a, b, c, d].filter((q) => q != null), mean = vals.reduce((s, q) => s + q, 0) / Math.max(1, vals.length);
+      const f = (q) => (q == null ? mean : q);
+      let h = (f(a) * (1 - tx) + f(b) * tx) * (1 - ty) + (f(c) * (1 - tx) + f(d) * tx) * ty;
+      v = R.Y(h);
+      if (allC(fx, fy)) v += (hash2(fx, fy, 41) - 0.5) * 0.9 + (hash2(fx >> 2, fy >> 2, 42) - 0.5) * 0.8;
+      cache.set(k, v); return v;
+    };
+    const P = (fx, fy) => [fx * C / 2, hF(fx, fy), fy * C / 2];
+    let quads = 0;
+    for (const [x, y] of cells) {
+      hidden.add(R.idx(x, y));
+      for (let j = 0; j < 2; j++) for (let i = 0; i < 2; i++) {
+        const fx = x * 2 + i, fy = y * 2 + j, a = P(fx, fy), b = P(fx, fy + 1), c = P(fx + 1, fy + 1), d = P(fx + 1, fy);
+        const ux = c[0] - a[0], uy = c[1] - a[1], uz = c[2] - a[2], vx = d[0] - b[0], vy = d[1] - b[1], vz = d[2] - b[2];
+        let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx; const l = Math.hypot(nx, ny, nz) || 1; ny = Math.abs(ny / l);
+        const k = 0.85 + 0.25 * hash2(fx, fy, 43);
+        if (ny > 0.8) A.quad('turf', a, b, c, d, [k, k, k], null, [0, 1, 0]);
+        else A.quad('rock', a, b, c, d, [0.95 * k, 0.94 * k, 0.9 * k], null, [0, 1, 0]);
+        quads++;
+      }
+      // the faces where the rock meets the Yard, the Stair, a landing or the water
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = x + dx, ny = y + dy;
+        if (nx < 0 || ny < 0 || nx >= W || ny >= H || isC(nx, ny) || hidden.has(R.idx(nx, ny))) continue;
+        const nc = R.cell(nx, ny), wat = R.water(nx, ny), base = R.Y(R.blk(nc) ? R.lvl(nx, ny) : R.lvl(nx, ny)) - (wat ? 1.6 : 0.15);
+        for (let s = 0; s < 2; s++) {
+          let p, q;
+          if (dx === 1) { p = [x * 2 + 2, y * 2 + s]; q = [x * 2 + 2, y * 2 + s + 1]; }
+          else if (dx === -1) { p = [x * 2, y * 2 + s]; q = [x * 2, y * 2 + s + 1]; }
+          else if (dy === 1) { p = [x * 2 + s, y * 2 + 2]; q = [x * 2 + s + 1, y * 2 + 2]; }
+          else { p = [x * 2 + s, y * 2]; q = [x * 2 + s + 1, y * 2]; }
+          const tp = P(p[0], p[1]), tq = P(q[0], q[1]);
+          if (tp[1] <= base + 0.02 && tq[1] <= base + 0.02) continue;
+          const lo = wat ? [0.45, 0.5, 0.38] : [0.75, 0.74, 0.7], hi = [0.95, 0.94, 0.9];
+          A.quad('rock', [tp[0], base, tp[2]], [tq[0], base, tq[2]], tq, tp, [lo, lo, hi, hi], null, [dx, 0, dy]);
+        }
+      }
+    }
+    return cells.length;
   }
 
   // ---- a lime-washed house: footprint [x0, z0]-[x1, z1] (metres), front facing +z (or as `front`), standing on g
@@ -799,7 +865,8 @@
     }
     groupAt(37.4, 51.45, 'cask', 3, 0.05);        // by the Harbour office door: the dues come in casks as often as coin
     groupAt(42.0, 51.5, 'crate', 5, -0.04);
-    groupAt(55.2, 50.45, 'cask', 3, 0.1);         // at the Mole's root, north edge: the Mole's own salt fish
+    groupAt(55.2, 50.45, 'cask', 3, 0.1);
+    groupAt(59.4, 50.42, 'crate', 5, 0.02);       // the Mole's own: fish boxes and salvage waiting on the Harbour's fifth         // at the Mole's root, north edge: the Mole's own salt fish
     groupAt(73.0, 48.55, 'crate', 3, 0.5);        // salvage under the derrick (Article the Sixteenth)
     groupAt(72.7, 49.5, 'cask', 1, 0);
     groupAt(60.7, 53.45, 'cask', 1, 0);           // the ferry's water cask at the Mole steps
@@ -841,6 +908,15 @@
         for (const q of ringsAndPosts) { const d = Math.hypot(q[0] - end[0], q[2] - end[2]); if (d < bd) { bd = d; tgt = q; } }
         if (tgt && bd > 0.5) A.rope('rope', end, tgt, Math.min(0.9, 0.12 + bd * 0.08), 0.022, [0.85, 0.82, 0.78], 10);
         if (end === ends.bow && bd > 6) break;
+      }
+    }
+    // one more boat of the Harbour's own [PROPOSED], alongside the Mole by the steps, its painter to a ring
+    {
+      const x = 62.55 * C, z = 54.05 * C, id = boats.length + 1;
+      if (R.water(62, 54) && id < 16) {
+        const ends = boat(A, THREE, { x, y: WY - 0.34, z, ry: PI + 0.06, L: 6.4, Bm: 2.0, v: 2 }, id, r, MT);
+        boats.push({ e: null, id, ph: 1.7 });
+        for (const end of [ends.bow, ends.stern]) { let tgt = null, bd = 12; for (const q of ringsAndPosts) { const d = Math.hypot(q[0] - end[0], q[2] - end[2]); if (d < bd) { bd = d; tgt = q; } } if (tgt) A.rope('rope', end, tgt, Math.min(0.9, 0.12 + bd * 0.08), 0.022, [0.85, 0.82, 0.78], 10); }
       }
     }
     st.boats = boats.length;
@@ -931,6 +1007,7 @@
       }
     }
     st.houses = houses;
+    st.cliffCells = cliffRock(A, R, hidden, WY);
     // the Stair: the parapets' dressed coping; the east rail's iron stanchions in lead pockets and two strung cables
     let cop = 0, stan = 0;
     for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) {
@@ -1011,7 +1088,8 @@
       syncLamps(L, G.tod || 0, false);
       const M = S.mats; if (!M) return;
       const k = ZK / (+(window.R11 && R11.M) || 0.33);
-      for (const b of L.boats) M.U.lift.value[b.id] = (+b.e.animLift || 0) * k;
+      const still = typeof GFX !== 'undefined' && GFX.reduceMotion;
+      for (const b of L.boats) M.U.lift.value[b.id] = b.e ? (+b.e.animLift || 0) * k : (still ? 0 : 0.02 * Math.sin((F && F.t || 0) * 1.4 + b.ph));
     } catch (e) { warnOnce('frame', e); }
   }
   function hook() {
@@ -1040,7 +1118,7 @@
   // On the Long Mole a little out from the Yard, looking back toward the town: the Mole's flags and bollards running in,
   // boats moored on the left, the Harbour office and Hesper's houses at the Mole's root, the terraces stacked up the cliff
   // with the Stair cut up the middle, and the counting-house at the top against the sky (no castle: the owner's rule).
-  const benchCam = { map: MAPID, x: 65.0, y: 52.65, dir: Math.PI + 0.08, pitch: 4, tod: 0.62, day: 3, weather: 'overcast' };
+  const benchCam = { map: MAPID, x: 65.5, y: 52.7, dir: Math.PI - 0.05, pitch: 4, tod: 0.62, day: 3, weather: 'overcast' };
 
   const api = { id: ID, MAPID, maps: (m) => !!m && m.id === MAPID, dress, lit, benchCam, get last() { return S.last; }, _internal: { mats, Acc, reader } };
   window.R11HARBOUR = api;
