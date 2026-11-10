@@ -6,23 +6,27 @@
 // change). Exports window.R11HARBOUR = { dress, last, MAPID, lit(tod) } and R11.benchCams.harbour (picture 3's camera).
 //
 // WHAT IT DRAWS (map 'cantabile_harbour', js/cantabile17.js buildHarbour; every piece answers "who uses this?"):
-//   the Long Mole and the Mole-head: big dressed flags (geometry: real joints, each flag its own tone, tide-worn and greener
-//     toward the water), granite faces "green at the water" with weed at the waterline, "an iron ring every few paces to
-//     make fast to" (game text), iron ladder-rungs let into the harbour face (Book Two, Part One ch. 7), iron bollards,
-//     "mushroom-topped, waist-high", down the middle (ibid.), the Mole steps going down to the water;
-//   the Mole-head: the mast-tower (sixty feet of iron rungs, a cradle at the top), the Mole-light (the tower-lantern, ibid.),
-//     the derrick with the board of the Free Captains' Articles ("painted white on black board, in numbered lines") and
-//     "and above" chalked under them, the rope from the cradle to the derrick (Library: Going Up), the Mole-bell in its iron
-//     frame with its rope to the stones, the lifebuoy on its bracket by the bell (Book Two);
+//   the Long Mole as Book Two, Part One ch. 7 has it (owner's ruling 9 Nov 2026; the map follows, js/cantabile17.js): twenty
+//     feet of big dressed flags (real joints, each flag its own tone, tide-worn toward the water); on the left walking out
+//     the harbour, a kerb of big blocks over a face dark and weeded with the tide, "an iron ring every few paces to make fast
+//     to" (game text), iron ladder-rungs let into the harbour face, the Mole steps' landing and its steps; on the right the
+//     sea "behind a parapet wall of granite blocks the height of a man's chest" (the map's wall cells, drawn in courses with
+//     a coping, the rough apron going down to the sea); iron bollards, "mushroom-topped, waist-high", down the middle;
+//   the Mole-head, "a round stone platform thirty yards across, with the mast-tower standing up out of the middle of it":
+//     courses of flags in rings, a kerb ring, a round face; the mast-tower (sixty feet of iron rungs, a cradle at the top),
+//     the Mole-light (the tower-lantern), the derrick with the board of the Free Captains' Articles ("painted white on black
+//     board, in numbered lines") and "and above" chalked under them, the rope from the cradle to the derrick (Library: Going
+//     Up), the Mole-bell on its iron bracket on the side of the tower at head height, the lifebuoy on its bracket by it;
 //   the moored boats (the map's own, now hulls with a stubby mast, a furled sail and the carillon bar of bronze tubes at the
-//     shroud-head; they bob with the game's own swing), ropes that sag to rings and posts, the mooring posts, rope coils,
-//     crates and casks in odd groups where people work (the Harbour office, the derrick's salvage, the Mole steps' ferry);
+//     shroud-head; they bob with the game's own swing), made fast fore and aft with thick laid rope (a tube on a catenary)
+//     to kerb bollards with rope turns, or to posts and rings; rope coils, crates and casks in odd groups where people work
+//     (the Harbour office, against the parapet, the derrick's salvage, the Mole steps' ferry);
 //   the houses: Hesper's four houses and the Harbour office in the Yard, and the terrace houses up the cliff, lime-washed
 //     with slate roofs, chimneys, shutters, windows lit at night, replacing core's plain blocks (hiddenCells; never doors);
 //     the counting-house at the top against the sky (square stone, slate roof, iron shutters); the Stair's parapets get
 //     their dressed coping and the east rail its iron stanchions and two strung cables (game text).
-//   [PROPOSED] (army/R11-P4/HARBOUR/TEXT.md): the timber jetty off the Mole's south face; the number of numbered lines on
-//     the Articles board; the hull colours; the bracket lanterns' places.
+//   [PROPOSED] (army/R11-P4/HARBOUR/TEXT.md): the kerb bollards; the number of numbered lines on the Articles board; the
+//     hull colours; the bracket lanterns' places. The timber jetty off the Mole steps' landing is APPROVED (owner).
 // Scale (art bible): R11.M units per metre; built in metres inside a group scaled by M; three.x = map x, three.z = map y,
 // three.y = game height x ZK. Draws: one mesh per material (merged), boats bob in the vertex shader (one draw per boat
 // material for all boats), lanterns and crates instanced.
@@ -117,7 +121,7 @@
     // 0.08 linear, cliff_side warm brown) are lifted and turned to picture 3's mid browns and wet greys instead of going black
     M.flag = scan(SAND, [1.1, 1.09, 1.07]);           // the Mole's dressed flags (granite-grey)
     M.quay = scan(SAND, 0x8f8e88);                     // the Mole's faces: granite blocks, green at the water
-    M.grout = new THREE.MeshStandardMaterial({ color: 0x3c3f33, roughness: 0.92, vertexColors: true });   // the joints: mossy, a shade under the stone, not black
+    M.grout = new THREE.MeshStandardMaterial({ color: 0x4e5043, roughness: 0.92, vertexColors: true });   // the joints: mossy, a shade under the stone, not black
     M.weed = new THREE.MeshStandardMaterial({ map: weedTex(THREE), alphaTest: 0.35, roughness: 0.55, side: THREE.DoubleSide, vertexColors: true });
     M.stone = scan('rustic_stone_wall', 0xb4aca0);     // plinths, chimneys, foundations
     M.ashlar = scan(SAND, 0xb8b2a6);
@@ -1355,9 +1359,11 @@
   }
 
   // ======================================================================== the bench camera for picture 3
-  // On the Long Mole just short of the Mole-head, looking back toward the town: a bollard and a cask close on the left, the
-  // Mole's flags running in with water and moored boats on both sides, the Harbour office and Hesper's houses at the Mole's root, the terraces stacked up the cliff
-  // with the Stair cut up the middle, and the counting-house at the top against the sky (no castle: the owner's rule).
+  // On the Long Mole near its root, walking out (Book Two's left and right): the harbour on the left with a boat lying close
+  // alongside, made fast with a thick rope sagging to a kerb bollard; the Mole's flags running out past the middle bollards
+  // and the townsfolk to the round Mole-head, the mast-tower standing out of the middle of it with the Mole-light, the
+  // derrick and its Articles board, the bell on the tower; on the right the parapet with casks and crates at its foot and
+  // the sea beyond. No castle anywhere (owner's rule): turned toward the town, the cliff and the counting-house are the skyline.
   const benchCam = { map: MAPID, x: 58.6, y: 50.6, dir: 0.0, pitch: -14, tod: 0.62, day: 3, weather: 'overcast' };
 
   const api = { id: ID, MAPID, maps: (m) => !!m && m.id === MAPID, dress, lit, benchCam, get last() { return S.last; }, _internal: { mats, Acc, reader } };
