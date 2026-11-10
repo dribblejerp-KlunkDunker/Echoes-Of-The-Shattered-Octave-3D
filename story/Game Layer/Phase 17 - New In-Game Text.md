@@ -278,7 +278,7 @@ act, q (0..2 dues), valve, btl (0 none, 1 carrying, 2 rung, 3 sold), bell, salv,
 
 12. The derrick on the Mole-head. The Articles of the Free Captains are kept from here, and everyone on the Mole knows how.  
 
-13. The Mole-bell, in its iron frame, with a rope hanging to the stones. It is rung once for each soul that goes into the water. Then nobody speaks, so the harbour can count.  
+13. The Mole-bell, on its iron bracket on the side of the tower, at head height, with a rope hanging down. It is rung once for each soul that goes into the water. Then nobody speaks, so the harbour can count.  
 
 14. You do not touch the rope. It is the Harbour's, and it is rung for the dead, and nobody has asked you to ring it.  
 
