@@ -4,7 +4,7 @@ The reference is the owner's picture 1, Oakhaven's square (`docs/graphics/bench1
 and Port Cantabile's mole (picture 3) follow the same rules. This bible covers the Realistic art style (R11). Pixel
 style and the Original preset keep their own look and are never changed by anything here.
 
-Anything below that a player could read as lore is marked **[PROPOSED]** until the owner rules on it.
+Anything below that a player could read as lore was marked **[PROPOSED]** until the owner ruled on it; the owner approved every such item on 9 Nov 2026.
 
 ## 1. The look in one paragraph
 
@@ -152,4 +152,4 @@ other day, in snow, and indoors. No falling rain unless the weather says rain.
 - Ivy and creeper on stone ground storeys and the Chapel, never on plaster or timber.
 - Signs hang from wrought-iron brackets; lanterns hang from wall arms by doors. The map's own hush-lamps stay where the
   map puts them.
-- Window boxes **[PROPOSED]**: on upper storeys of lived-in houses only, never on the shuttered or empty houses.
+- Window boxes **[APPROVED]**: on upper storeys of lived-in houses only, never on the shuttered or empty houses.
