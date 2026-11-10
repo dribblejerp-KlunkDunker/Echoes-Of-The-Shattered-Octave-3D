@@ -111,21 +111,23 @@
       let base = null;
       try { base = ctx && typeof ctx.mat === 'function' ? ctx.mat(name, o || {}) : (window.R11 && R11.mat ? R11.mat(name, o || {}) : null); } catch (e) { warnOnce('mat ' + name, e); }
       const m = base ? base.clone() : new THREE.MeshStandardMaterial({ roughness: 0.9 });
-      m.vertexColors = true; m.color.setHex(color); return m;
+      m.vertexColors = true; if (Array.isArray(color)) m.color.setRGB(color[0], color[1], color[2], THREE.LinearSRGBColorSpace); else m.color.setHex(color); return m;
     };
-    M.flag = scan(SAND, 0xe8e6de);                     // the Mole's dressed flags (granite-grey)
+    // tints given as [r, g, b] are linear multipliers on the scan (may exceed 1): the dark scans (weathered_planks is about
+    // 0.08 linear, cliff_side warm brown) are lifted and turned to picture 3's mid browns and wet greys instead of going black
+    M.flag = scan(SAND, [0.95, 0.94, 0.93]);           // the Mole's dressed flags (granite-grey)
     M.quay = scan(SAND, 0x8f8e88);                     // the Mole's faces: granite blocks, green at the water
-    M.grout = new THREE.MeshStandardMaterial({ color: 0x1e211a, roughness: 0.92, vertexColors: true });
+    M.grout = new THREE.MeshStandardMaterial({ color: 0x3c3f33, roughness: 0.92, vertexColors: true });   // the joints: mossy, a shade under the stone, not black
     M.weed = new THREE.MeshStandardMaterial({ map: weedTex(THREE), alphaTest: 0.35, roughness: 0.55, side: THREE.DoubleSide, vertexColors: true });
     M.stone = scan('rustic_stone_wall', 0xb4aca0);     // plinths, chimneys, foundations
     M.ashlar = scan(SAND, 0xb8b2a6);
-    M.rock = scan('harbour_cliff_side', 0x8e9aa2);   // Poly Haven cliff_side (CC0), cooled toward wet grey
+    M.rock = scan('harbour_cliff_side', [0.62, 1.2, 2.6]);   // Poly Haven cliff_side (CC0), its warm brown turned to wet grey
     M.turf = new THREE.MeshStandardMaterial({ map: turfTex(THREE), roughness: 0.97, vertexColors: true });    // the sea's edge: wet rock, boulders and stacks
     M.far = farFog(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));   // the coast across the bight, in the haze
     M.plaster = scan('grey_plaster_02', 0xffffff);          // lime-wash (white_plaster_rough_02 is a mossy green scan)
     M.slate = scan('roof_slates_02', 0x8a9096, { ns: 1.2 });
-    M.timber = scan('medieval_wood', 0xc4a684);
-    M.planks = scan('weathered_planks', 0xb4a48c);
+    M.timber = scan('medieval_wood', [1.05, 0.84, 0.6]);
+    M.planks = scan('weathered_planks', [1.9, 1.6, 1.3]);
     M.iron = new THREE.MeshStandardMaterial({ color: 0x3a3836, roughness: 0.62, metalness: 0.7, vertexColors: true });
     M.rope = new THREE.MeshStandardMaterial({ color: 0x74644a, roughness: 0.95, vertexColors: true });
     M.bronze = new THREE.MeshStandardMaterial({ color: 0x9a7440, roughness: 0.38, metalness: 1, vertexColors: true });
@@ -145,8 +147,8 @@
       m.customProgramCacheKey = () => 'r11harbour-bob-' + tag;
       return m;
     };
-    M.hull = bob(scan('weathered_planks', 0xffffff), 'hull');
-    M.bWood = bob(scan('medieval_wood', 0xc8aa88), 'wood');
+    M.hull = bob(scan('weathered_planks', [2.0, 1.75, 1.5]), 'hull');
+    M.bWood = bob(scan('medieval_wood', [1.1, 0.86, 0.6]), 'wood');
     M.bRope = bob(new THREE.MeshStandardMaterial({ color: 0x74644a, roughness: 0.95, vertexColors: true }), 'rope');
     M.bBronze = bob(new THREE.MeshStandardMaterial({ color: 0xa47c44, roughness: 0.35, metalness: 1, vertexColors: true }), 'bronze');
     M.bCloth = bob(new THREE.MeshStandardMaterial({ color: 0xb2a68c, roughness: 0.96, vertexColors: true, side: THREE.DoubleSide }), 'cloth');
@@ -286,7 +288,7 @@
     for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) if (R.mole(x, y)) { cells.push([x, y]); hidden.add(R.idx(x, y)); }
     out.moleCells = cells.length;
     const WY = R.Y(-0.05);
-    const ROWS = 4, band = C / ROWS, g = 0.016, ch = 0.018;
+    const ROWS = 3, band = C / ROWS, g = 0.007, ch = 0.012;   // flags about a metre across, tight joints (picture 3)
     const nearWater = (x, y) => R.water(x, y);
     for (let y = 0; y < R.H; y++) {
       for (let b = 0; b < ROWS; b++) {
@@ -299,7 +301,7 @@
           const xe = x, X0 = xs * C, X1 = xe * C;
           let px = X0, first = true;
           while (px < X1 - 0.02) {
-            let L = 0.75 + r() * 0.85; if (first) { L *= 0.3 + r() * 0.7; first = false; }
+            let L = 0.85 + r() * 1.05; if (first) { L *= 0.3 + r() * 0.7; first = false; }
             let qx = Math.min(X1, px + L); if (X1 - qx < 0.4) qx = X1;
             const cx = clamp(Math.floor((px + qx) / 2 / C), xs, xe - 1);
             const top = R.Y(R.lvl(cx, y));
@@ -355,7 +357,7 @@
     // the scan sampled inside one of its blocks, a different place for every flag
     const s = 1 / 4.2, u0 = r(), v0 = r(), du = (x1 - x0) * s, dv = (z1 - z0) * s;
     A.quad('flag', T[0], T[1], T[2], T[3], col, [u0, v0, u0, v0 + dv, u0 + du, v0 + dv, u0 + du, v0], [0, 1, 0]);
-    const dk = shade(col, 0.7);
+    const dk = shade(col, 0.84);
     A.quad('flag', Bt[0], Bt[3], T[3], T[0], dk, null, [0, 0.3, -1]);
     A.quad('flag', Bt[1], Bt[2], T[2], T[1], dk, null, [0, 0.3, 1]);
     A.quad('flag', Bt[0], Bt[1], T[1], T[0], dk, null, [-1, 0.3, 0]);
@@ -726,8 +728,12 @@
           V.push(row);
         }
         for (let i = 0; i < NA; i++) for (let j = 0; j < NR; j++) {
-          const n0 = hash2(i, j, 3), c0 = (j <= 1) ? [0.2, 0.22, 0.22] : [0.24 + 0.06 * n0, 0.27 + 0.05 * n0, 0.26], c1 = [0.27 + 0.05 * n0, 0.3 + 0.04 * n0, 0.28];
-          A.quad('far', V[i][j], V[i + 1][j], V[i + 1][j + 1], V[i][j + 1], [c0, c0, c1, c1], [0, 0, 1, 0, 1, 1, 0, 1], [0, 1, 0]);
+          // dark wet rock at the sea, scrub and turf (grey-green, patchy) on the slopes, paler bare stone on the high ridges
+          const cc = (ii, jj) => { const h = V[ii][jj][1], n = hash2(ii >> 1, jj, 3 + side), m = hash2(ii >> 3, jj >> 1, 11 + side), hi = clamp((h - 34) / 40, 0, 1);
+            if (jj <= 1) return [0.075, 0.085, 0.08];
+            const g = [0.085 + 0.05 * n, 0.105 + 0.05 * n + 0.03 * m, 0.075 + 0.03 * n], st2 = [0.17 + 0.04 * n, 0.175 + 0.04 * n, 0.17 + 0.035 * n];
+            return [g[0] + (st2[0] - g[0]) * hi, g[1] + (st2[1] - g[1]) * hi, g[2] + (st2[2] - g[2]) * hi]; };
+          A.quad('far', V[i][j], V[i + 1][j], V[i + 1][j + 1], V[i][j + 1], [cc(i, j), cc(i + 1, j), cc(i + 1, j + 1), cc(i, j + 1)], [0, 0, 1, 0, 1, 1, 0, 1], [0, 1, 0]);
         }
       }
     }
@@ -1117,10 +1123,10 @@
   }
 
   // ======================================================================== the bench camera for picture 3
-  // On the Long Mole a little out from the Yard, looking back toward the town: the Mole's flags and bollards running in,
-  // boats moored on the left, the Harbour office and Hesper's houses at the Mole's root, the terraces stacked up the cliff
+  // On the Long Mole just short of the Mole-head, looking back toward the town: a bollard and a cask close on the left, the
+  // Mole's flags running in with water and moored boats on both sides, the Harbour office and Hesper's houses at the Mole's root, the terraces stacked up the cliff
   // with the Stair cut up the middle, and the counting-house at the top against the sky (no castle: the owner's rule).
-  const benchCam = { map: MAPID, x: 67.0, y: 52.75, dir: Math.PI - 0.1, pitch: 4, tod: 0.62, day: 3, weather: 'overcast' };
+  const benchCam = { map: MAPID, x: 72.2, y: 51.0, dir: Math.PI - 0.04, pitch: 4, tod: 0.62, day: 3, weather: 'overcast' };
 
   const api = { id: ID, MAPID, maps: (m) => !!m && m.id === MAPID, dress, lit, benchCam, get last() { return S.last; }, _internal: { mats, Acc, reader } };
   window.R11HARBOUR = api;

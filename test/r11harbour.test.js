@@ -112,6 +112,10 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
       const B = r.B; ok(B && B.map === 'cantabile_harbour' && ['x', 'y', 'dir', 'pitch', 'tod'].every((k) => typeof B[k] === 'number'), 'shape ' + JSON.stringify(B));
       ok(r.mole === 'p17c_mole', 'the camera stands on ' + r.mole);
       ok(Math.cos(B.dir) < -0.9, 'looks west, toward the town: dir ' + B.dir);
+      // nobody stands in the camera's face (a billboard a pace away fills picture 3's frame)
+      const close = await page.evaluate(() => { const B = R11.benchCams.harbour, m = G.maps[B.map], c = Math.cos(B.dir), s = Math.sin(B.dir);
+        return (m.entities || []).filter((e) => { const dx = e.x - B.x, dy = e.y - B.y, d = Math.hypot(dx, dy); return d < 1.6 && (dx * c + dy * s) / (d || 1) > 0.3 && !/post|ring|coil|barrel|crate|gull|lamp/.test(e.sprite || ''); }).map((e) => e.sprite); });
+      ok(!close.length, 'in the camera\'s face: ' + close.join(', '));
     });
     await step('the dress: the Mole, the Mole-head, the boats, the houses, the counting-house, the cliff, the shore', async () => {
       dress = await page.evaluate(() => {
