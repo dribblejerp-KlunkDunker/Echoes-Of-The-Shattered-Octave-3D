@@ -123,7 +123,7 @@ const CANTABILE17 = (function () {
       mast: S('The mast-tower: sixty feet of iron rungs, and the Drift-Kestrel on her mooring at the head of it, murmuring.'),
       rungs: S('The foot of the mast-tower. Iron rungs, wet, going up into the Kestrel\'s shadow.'),
       derrick: S('The derrick on the Mole-head. The Articles of the Free Captains are kept from here, and everyone on the Mole knows how.'),
-      bell: S('The Mole-bell, in its iron frame, with a rope hanging to the stones. It is rung once for each soul that goes into the water. Then nobody speaks, so the harbour can count.'),
+      bell: S('The Mole-bell, on its iron bracket on the side of the tower, at head height, with a rope hanging down. It is rung once for each soul that goes into the water. Then nobody speaks, so the harbour can count.'),
       bellRope: S('You do not touch the rope. It is the Harbour\'s, and it is rung for the dead, and nobody has asked you to ring it.'),
       boat: S('A moored boat. At her shroud-head hangs a bar of small bronze tubes, and the wind plays it.'),
       coil: S('A coil of tarred rope, laid down the Harbour\'s way, left hand over right.'),
@@ -773,10 +773,11 @@ const CANTABILE17 = (function () {
       L(x, 96, 56, 96, 96, '#c9b890', 1.1); P(x, [[92, 96], [100, 96], [96, 106]], '#34363a'); E(x, 96, 56, 4, 4, '#34363a'); E(x, 96, 56, 1.8, 1.8, '#8a8c88');
       R(x, 8, 112, 40, 6, '#34363a'); L(x, 23, 24, 50, 30, '#9a8a6a', 1.1); E(x, 23, 22, 3.4, 3.4, '#34363a');
     });
-    // the Mole-bell: an iron frame, a great bronze bell, a rope to the stones
+    // the Mole-bell: on its iron bracket on the side of the mast-tower (Book Two), a great bronze bell, a rope hanging down
+    // (R11 phase 4, owner's ruling 9 Nov 2026: Book Two hangs the bell on an iron bracket on the side of the mast-tower, at
+    // head height, so the frame is gone: a strap on the tower, the bracket arm and its brace)
     addSprite('p17c_molebell', 64, 96, (x) => {
-      E(x, 32, 93, 20, 2.6, 'rgba(0,0,0,0.35)'); R(x, 8, 12, 5, 80, VG(x, 12, 92, '#4a4c50', '#26282c')); R(x, 51, 12, 5, 80, VG(x, 12, 92, '#4a4c50', '#26282c')); R(x, 6, 8, 52, 6, '#34363a');
-      L(x, 10, 90, 20, 50, '#34363a', 2); L(x, 54, 90, 44, 50, '#34363a', 2);
+      R(x, 0, 4, 5, 46, VG(x, 4, 50, '#4a4c50', '#26282c')); R(x, 0, 6, 36, 5, '#34363a'); L(x, 3, 40, 30, 10, '#34363a', 2.2);
       x.beginPath(); x.moveTo(20, 24); x.quadraticCurveTo(20, 48, 14, 58); x.lineTo(50, 58); x.quadraticCurveTo(44, 48, 44, 24); x.closePath(); x.fillStyle = VG(x, 24, 58, '#d8a85a', '#8a6030'); x.fill();
       L(x, 25, 28, 22, 56, 'rgba(255,240,190,0.5)', 2); E(x, 32, 58, 18, 3, '#6a4820'); E(x, 32, 24, 12, 4, '#a07a40'); R(x, 29, 12, 6, 12, '#34363a');
       L(x, 32, 58, 32, 94, '#cdb890', 1.6); E(x, 32, 63, 3.6, 3, '#4a3a22');
@@ -945,6 +946,8 @@ const CANTABILE17 = (function () {
     [TERR.E, 52, 55, 0], [TERR.E, 51, 54, 1], [TERR.E, 56, 58, 1], [TERR.E, 52, 56, 2], [TERR.E, 51, 54, 3], [TERR.E, 56, 58, 3],
     [TERR.E, 60, 63, 1], [TERR.E, 61, 65, 2], [TERR.E, 59, 62, 3],
   ];
+  // the Mole-head (Book Two): a round stone platform thirty yards across (about nine cells), centred on the Long Mole's line
+  const MOLE_HEAD = { x: 77.0, y: 51.0, r: 4.6 };
   function buildHarbour() {
     const W = 96, H = 68, S_ = STAIR, YL = S_.L[0];
     const m = new GameMap(HARBOUR, 'Port Cantabile', W, H, { outdoor: true, floor: 'p17c_flags', floorTextures: FLOORS, fogDist: 52, fogColor: [150, 158, 156], ambient: 0.2, music: 'town', danger: 0, spawn: { x: 79.5, y: 53.4, dir: Math.PI } });
@@ -955,8 +958,15 @@ const CANTABILE17 = (function () {
     // ---- the Yard (the Lantern Yard is the lower town), the Long Mole, the Mole-head and the Mole steps
     fill(4, 44, 52, 57, F.flag, YL);
     fill(20, 58, 22, 58, F.shal, 0.2);                                                       // the Yard steps, going down to the water
-    fill(53, 50, 81, 52, F.mole, YL); fill(72, 47, 81, 55, F.mole, YL); fill(54, 53, 61, 54, F.mole, YL);
-    m.setSide(4, 44, 81, 58, TEXN.quay);
+    // R11 phase 4 (owner's ruling 9 Nov 2026: the Long Mole follows Book Two, Part One ch. 7): "twenty feet wide" (two cells);
+    // "on the left as you walked out, the harbour" (north: the moorings, the Mole steps, the boats, the ladder-rungs); "on the
+    // right, the sea, behind a parapet wall of granite blocks the height of a man's chest" (south: real wall cells); "and at
+    // the end, the Mole-head: a round stone platform thirty yards across, with the mast-tower standing up out of the middle"
+    fill(53, 50, 71, 51, F.mole, YL);
+    for (let y = MOLE_HEAD.y - 6; y <= MOLE_HEAD.y + 6; y++) for (let x = MOLE_HEAD.x - 6; x <= MOLE_HEAD.x + 6; x++) if (Math.hypot(x + 0.5 - MOLE_HEAD.x, y + 0.5 - MOLE_HEAD.y) <= MOLE_HEAD.r) fill(x, y, x, y, F.mole, YL);
+    fill(54, 49, 58, 49, F.mole, YL);                                                        // the Mole steps' landing, harbour side
+    m.setSide(4, 44, 83, 58, TEXN.quay);
+    for (let x = 53; x <= 72; x++) { m.block(x, 52, TEXN.para, YL + 0.7, { capTex: 'p17c_mole', moleParapet: true }); m.setLvl(x, 52, YL); }
     // ---- the Stair: flights, landings, the foot, the top yard
     for (let k = 1; k <= 6; k++) {
       const r0 = S_.ROWS[k - 1], west = k % 2 === 1;
@@ -1084,33 +1094,37 @@ const CANTABILE17 = (function () {
     for (const [x, y] of [[34.4, 51.4], [44.8, 44.6], [50.4, 48.0]]) lamp(x, y, 0.95);
     J(m, 'p17c_net', 11.0, 54.4, { solid: false, scale: 1.0, label: TX.harbour.net }); J(m, 'p17c_wash', 24.0, 53.6, { solid: false, scale: 1.0, label: TX.harbour.wash });
     J(m, 'p17c_coil', 33.2, 55.0, { solid: false, scale: 0.6, label: TX.harbour.coil }); J(m, 'p17c_coil', 49.8, 55.6, { solid: false, scale: 0.55, label: TX.harbour.coil });
-    for (const [x, y] of [[8.0, 56.2], [27.4, 56.6], [43.4, 56.4], [58.0, 53.7], [70.0, 53.1], [66.0, 49.4]]) J(m, 'p12r_post', x, y, { solid: true, radius: 0.12, scale: 0.55 });
+    for (const [x, y] of [[8.0, 56.2], [27.4, 56.6], [43.4, 56.4], [59.4, 48.6], [71.2, 49.3], [66.0, 49.4]]) J(m, 'p12r_post', x, y, { solid: true, radius: 0.12, scale: 0.55 });
     for (const [x, y] of [[17.5, 55.4], [38.0, 53.8], [26.4, 57.0]]) { J(m, 'p_barrel', x, y, { radius: 0.3, scale: 0.6 }); }
     J(m, 'p_crate', 36.0, 54.2, { radius: 0.3, scale: 0.55, label: TX.harbour.coil }); J(m, 'p_crate', 51.0, 52.0, { radius: 0.3, scale: 0.55 });
     J(m, 'p17c_gull', 8.0, 55.8, { solid: false, scale: 0.28, label: TX.harbour.gull }); J(m, 'p17c_gull', 43.6, 55.9, { solid: false, scale: 0.28, label: TX.harbour.gull }); J(m, 'p17c_gull', 66.0, 50.5, { solid: false, scale: 0.28, label: TX.harbour.gull });
-    J(m, 'table', 46.2, 53.0, { radius: 0.5, scale: 0.7 }); J(m, 'p17c_ring', 56.5, 52.8, { solid: false, scale: 0.3 });
+    J(m, 'table', 46.2, 53.0, { radius: 0.5, scale: 0.7 }); J(m, 'p17c_ring', 55.6, 49.7, { solid: false, scale: 0.3 });
     J(m, 'sign', 40.8, 51.4, { solid: false, scale: 0.7, label: TX.harbour.sign });
     // moored boats with carillon bars at the shroud-head (they hang slack at the slack: see swing())
     const boats = [];
-    for (const [x, y, s, v] of [[14.5, 60.5, 1.9, 1], [29.0, 61.5, 2.0, 2], [44.0, 60.6, 1.9, 1], [60.5, 56.4, 2.0, 2], [67.0, 55.6, 2.1, 1], [58.0, 46.6, 1.9, 2], [68.0, 46.8, 2.0, 1], [52.0, 63.0, 2.0, 2], [85.0, 52.0, 1.8, 1], [63.5, 48.75, 2.1, 2], [69.5, 53.75, 2.1, 1]]) {   // POLISH17: bigger, and two lying along the Mole
+    // (R11 phase 4: the Mole's moorings are all on the harbour side now, Book Two; three lie along the Mole)
+    for (const [x, y, s, v] of [[14.5, 60.5, 1.9, 1], [29.0, 61.5, 2.0, 2], [44.0, 60.6, 1.9, 1], [61.0, 44.6, 2.0, 2], [65.6, 45.8, 2.1, 1], [56.6, 46.9, 1.9, 2], [69.0, 46.4, 2.0, 1], [52.0, 63.0, 2.0, 2], [85.0, 52.0, 1.8, 1], [63.8, 48.2, 2.0, 2], [68.6, 48.75, 2.1, 1]]) {   // POLISH17: bigger, and two lying along the Mole
       const e = J(m, 'p17c_boat' + v, x, y, { solid: false, scale: s, yOff: -0.02, label: TX.harbour.boat, use: 'p17c_listen', p17cBoat: true, _ph: x * 0.37 + y });
       boats.push(e);
     }
     // ---- the Mole-head: the derrick, the Mole-bell, the mast-tower, and the Kestrel on her mooring
     J(m, 'p17c_derrick', 74.4, 47.8, { radius: 0.4, scale: 3.0, label: TX.harbour.derrick });
-    J(m, 'p17c_molebell', 74.4, 51.0, { radius: 0.4, scale: 1.7, use: 'p17c_bellrope', label: TX.harbour.bell, glow: 0.2 });
-    J(m, 'p17c_mast', 80.2, 48.6, { radius: 0.5, scale: 9.0, use: 'p17c_mast', label: TX.harbour.mast });
-    J(m, 'kestrel', 79.0, 49.2, { solid: false, scale: 3.4, yOff: -7.2, label: TX.harbour.mast, nopick: true, _p17cKestrel: true });
-    J(m, 'ladder', 79.75, 49.25, { solid: false, scale: 3.4, use: 'p17c_mast', label: TX.harbour.rungs });   // POLISH17: the rungs to the height of a house, not a step-ladder
-    lamp(77.0, 53.2, 0.95); lamp(72.8, 54.2, 0.9); lamp(56.6, 53.4, 0.9); lamp(61.0, 50.4, 0.9); lamp(68.0, 50.4, 0.9);
+    // (R11 phase 4: the mast-tower stands in the middle of the round Mole-head, and the Mole-bell hangs on its iron bracket on
+    // the side of the tower at head height, Book Two; the lamps of the Mole stand against the parapet, the harbour side open)
+    const MH = MOLE_HEAD;
+    J(m, 'p17c_molebell', MH.x, MH.y + 0.66, { solid: false, radius: 0.3, scale: 1.3, use: 'p17c_bellrope', label: TX.harbour.bell, glow: 0.2 });
+    J(m, 'p17c_mast', MH.x, MH.y, { radius: 0.5, scale: 9.0, use: 'p17c_mast', label: TX.harbour.mast });
+    J(m, 'kestrel', MH.x - 1.2, MH.y + 0.6, { solid: false, scale: 3.4, yOff: -7.2, label: TX.harbour.mast, nopick: true, _p17cKestrel: true });
+    J(m, 'ladder', MH.x - 0.62, MH.y, { solid: false, scale: 3.4, use: 'p17c_mast', label: TX.harbour.rungs });   // POLISH17: the rungs to the height of a house, not a step-ladder
+    lamp(78.6, 53.6, 0.95); lamp(74.6, 54.3, 0.9); lamp(54.6, 51.72, 0.9); lamp(61.0, 51.72, 0.9); lamp(68.0, 51.72, 0.9);
     J(m, 'p17c_coil', 76.8, 54.4, { solid: false, scale: 0.6, label: TX.harbour.coil });
     // ---- the crate off the Yard steps (Article the Sixteenth)
     J(m, 'p17c_floatcrate', 21.4, 59.6, { solid: false, scale: 0.55, use: 'p17c_crate', label: TX.harbour.crate, radius: 0.5, _crate: true });
     // ---- people
     NPCAT(m, 'p17c_mags', 'mags', 79.2, 50.3, Math.PI / 2);
     NPCAT(m, 'p17c_oona', 'p17c_oona', 75.8, 52.2, Math.PI);
-    NPCAT(m, 'p17c_bessa', 'p17c_bessa', 57.2, 52.4, 0);
-    NPCAT(m, 'p17c_quain', 'p17c_quain', 59.4, 54.1, Math.PI / 2);
+    NPCAT(m, 'p17c_bessa', 'p17c_bessa', 55.2, 49.45, -Math.PI / 2);
+    NPCAT(m, 'p17c_quain', 'p17c_quain', 57.9, 49.4, -Math.PI / 2);
     NPCAT(m, 'p17c_teel', 'p17c_teel', 49.6, 54.2, Math.PI);
     NPCAT(m, 'p17c_dunmore', 'p17c_dunmore', 46.0, 54.3, Math.PI);
     NPCAT(m, 'p17c_hesper', 'p17c_hesper', 13.8, 51.4, 0);
@@ -1418,7 +1432,7 @@ const CANTABILE17 = (function () {
     try {
       if (G.state === 'dialogue') { closeModal(); G.state = 'play'; }
       if (to === CAY) loadMap(CAY, { x: 5.2, y: 14.6, dir: 0 });
-      else loadMap(HARBOUR, { x: 59.8, y: 53.0, dir: -Math.PI / 2 });
+      else loadMap(HARBOUR, { x: 57.2, y: 50.6, dir: 0 });
     } catch (e) { console.warn('cantabile17 ferry failed', e); }
   }
   // ---- Hesper (the Yard and the Cay)
@@ -1684,7 +1698,7 @@ const CANTABILE17 = (function () {
   }
 
   // ---------------------------------------------------------------- per-frame
-  const MAST = { x: 80.2, y: 48.6 };
+  const MAST = MOLE_HEAD;   // the mast-tower stands in the middle of the Mole-head
   function tick(dt) {
     if (!G || !G.player || !G.map) return;
     const mine = inMine(G.mapId);
@@ -1887,7 +1901,7 @@ const CANTABILE17 = (function () {
   init();
 
   return {
-    FP, ID, MAPS, B, T, TX, LIST, FLAGS, STAIR, TEXN, FLOORS, F, ITEM_DEFS, NPC_DEFS, CAY_GRAVES, CAY_BARE, HOUSE_X, COATS,
+    FP, ID, MAPS, B, T, TX, LIST, FLAGS, STAIR, MOLE_HEAD, TEXN, FLOORS, F, ITEM_DEFS, NPC_DEFS, CAY_GRAVES, CAY_BARE, HOUSE_X, COATS,
     fint, setf, validate, start, finishExtra, resultText, answerReef, payDues, ringBottle, strikeBell, useCrate, useHook, useMast, useBoard, useListen, onUse,
     stairLevel, buildHarbour, buildOffice, buildChandler, buildWidow, buildCay, applyMapState, arrive, reefTick, setKey, resetRun, tick, slackNow, ambience, chime, graveChime, gull, bellSound,
     teagueQuest, oonaQuest, bessaQuest, teelQuest, sloeQuest, taceQuest, dunmoreQuest, quainQuest, hesperQuest, magsQuest, ferry, placeList, paintCards, capLine, AU,
