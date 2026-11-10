@@ -790,6 +790,9 @@ const R11GATE = (function () {
     const tierName = tierOf(ctx.tier || (window.R11 && window.R11.tier && window.R11.tier()) || 'high');
     const live = { map, S, ctx, THREE, group, tier: tierName, open: null, sheaf: null, fig: null, tick: 0, out };
     try { fill(live); } catch (e) { warnOnce('dress', e); }
+    // the sheaf already hung when the map is built: no billboard of it on the first frame (core draws billboards
+    // before its 'frame' event, where syncSheaf claims later ones)
+    if (S.gate) { const f = findSheaf(map, S); if (f.sheaf) out.replaced.add(f.sheaf); if (f.fig) out.replaced.add(f.fig); }
     S0.last = out; S0.live = live;
     return out;
   }
@@ -834,15 +837,19 @@ const R11GATE = (function () {
     live.open = open; live.out.stats.open = open;
   }
   // the festival's sheaf at the gate: its entities say whether it hangs (festivals12), R11 draws it in 3D
-  function syncSheaf(live) {
-    if (!live.G0 || !live.S.gate || !live.S.gate.town) return;
-    const ents = (live.map && live.map.entities) || [];
+  function findSheaf(map, S) {
     let sheaf = null, fig = null;
-    for (const e of ents) {
+    if (!S || !S.gate || !S.gate.town) return { sheaf, fig };
+    for (const e of (map && map.entities) || []) {
       if (!e || e.hidden || e.dead || (e.sprite !== 'p12_sheaf' && e.sprite !== 'p12_sheaf_fig')) continue;
-      if (Math.abs(e.x - (live.S.gate.px + 0.5)) > 1 || Math.abs(e.y - (live.S.gate.py + 0.55)) > 0.8) continue;   // the gate's, not the lamp-posts'
+      if (Math.abs(e.x - (S.gate.px + 0.5)) > 1 || Math.abs(e.y - (S.gate.py + 0.55)) > 0.8) continue;   // the gate's, not the lamp-posts'
       if (e.sprite === 'p12_sheaf') sheaf = e; else fig = e;
     }
+    return { sheaf, fig };
+  }
+  function syncSheaf(live) {
+    if (!live.G0 || !live.S.gate || !live.S.gate.town) return;
+    const { sheaf, fig } = findSheaf(live.map, live.S);
     try { const rep = window.R11 && R11.replaced && R11.replaced(); if (rep) { if (sheaf) rep.add(sheaf); if (fig) rep.add(fig); } } catch (e) { /* none */ }
     const want = (sheaf ? 1 : 0) + (fig ? 2 : 0);
     if (want === (live.sheafWant || 0) && (live.sheafMesh || !want)) return;
