@@ -115,7 +115,7 @@
     };
     // tints given as [r, g, b] are linear multipliers on the scan (may exceed 1): the dark scans (weathered_planks is about
     // 0.08 linear, cliff_side warm brown) are lifted and turned to picture 3's mid browns and wet greys instead of going black
-    M.flag = scan(SAND, [0.95, 0.94, 0.93]);           // the Mole's dressed flags (granite-grey)
+    M.flag = scan(SAND, [1.1, 1.09, 1.07]);           // the Mole's dressed flags (granite-grey)
     M.quay = scan(SAND, 0x8f8e88);                     // the Mole's faces: granite blocks, green at the water
     M.grout = new THREE.MeshStandardMaterial({ color: 0x3c3f33, roughness: 0.92, vertexColors: true });   // the joints: mossy, a shade under the stone, not black
     M.weed = new THREE.MeshStandardMaterial({ map: weedTex(THREE), alphaTest: 0.35, roughness: 0.55, side: THREE.DoubleSide, vertexColors: true });
@@ -505,8 +505,8 @@
           while (px < X1 - 0.05) {
             let L = 0.9 + r() * 0.75; const a = Math.max(px, X0), b = Math.min(X1, px + L);
             if (b - a > 0.08) {
-              const kk = (0.74 + r() * 0.24) * 1.8, warm = r() < 0.2 ? 1.05 : 1, out2 = (r() - 0.5) * 0.02;
-              dblock(A, 'ashlar', (a + b) / 2, Z0 + T2 / 2 + out2, 0, b - a - 0.014, T2, y0, y1, [0.92 * kk * warm, 0.9 * kk, 0.86 * kk / warm], 0.025, c === 0 ? [0.5 * kk, 0.5 * kk, 0.45 * kk] : shade([0.92 * kk, 0.9 * kk, 0.86 * kk], 0.88));
+              const kk = (0.78 + r() * 0.24) * 1.45, warm = r() < 0.2 ? 1.05 : 1, out2 = (r() - 0.5) * 0.02;
+              dblock(A, 'flag', (a + b) / 2, Z0 + T2 / 2 + out2, 0, b - a - 0.014, T2, y0, y1, [0.92 * kk * warm, 0.9 * kk, 0.86 * kk / warm], 0.025, c === 0 ? [0.5 * kk, 0.5 * kk, 0.45 * kk] : shade([0.92 * kk, 0.9 * kk, 0.86 * kk], 0.88));
             }
             px += L;
           }
@@ -515,8 +515,8 @@
         A.box('grout', X1 - X0, top - ch - walk, T2 - 0.08, (X0 + X1) / 2, (top - ch + walk) / 2, Z0 + T2 / 2, 0, [0.9, 0.92, 0.85]);
         let px = X0;
         while (px < X1 - 0.05) {
-          const L = Math.min(X1 - px, 1.4 + r() * 0.8), kk = (0.86 + r() * 0.16) * 1.6;
-          dblock(A, 'ashlar', px + L / 2, Z0 + T2 / 2, 0, L - 0.012, T2 + 0.12, top - ch, top, [1.02 * kk, 1.0 * kk, 0.96 * kk], 0.03, shade([1.02 * kk, kk, 0.96 * kk], 0.8));
+          const L = Math.min(X1 - px, 1.4 + r() * 0.8), kk = (0.86 + r() * 0.16) * 1.3;
+          dblock(A, 'flag', px + L / 2, Z0 + T2 / 2, 0, L - 0.012, T2 + 0.12, top - ch, top, [1.02 * kk, 1.0 * kk, 0.96 * kk], 0.03, shade([1.02 * kk, kk, 0.96 * kk], 0.8));
           px += L;
         }
         // the foot of the wall on the Mole side: damp and dark, where the sluicing runs off

@@ -108,7 +108,7 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
   try {
     ({ page, errors } = await bootPage(browser, 'phone'));
     let dress = null;
-    await step('the dresser is registered and R11.benchCams.harbour is a camera on the Long Mole looking toward the town', async () => {
+    await step('the dresser is registered and R11.benchCams.harbour is a camera on the Long Mole looking out to the Mole-head', async () => {
       const r = await page.evaluate(() => ({ B: R11.benchCams && R11.benchCams.harbour, reg: (window.R11DRESSERS || []).some((d) => d.id === 'harbour'),
         mole: (() => { const B = R11.benchCams.harbour, m = G.maps[B.map]; if (!m) return null; const i = Math.floor(B.y) * m.w + Math.floor(B.x); return m.floorTextures[m.floorCells[i]]; })() }));
       ok(r.reg, 'not on R11DRESSERS');
@@ -155,13 +155,13 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
         const L = R11HARBOUR.last, m = G.map, T = R11.THREE, M = R11.M, B = R11.benchCams.harbour, ZK = 0.61875, v = new T.Vector3();
         const pr = (x, y, h) => { v.set(x, h * ZK, y).project(R11.camera); return { x: Math.round(v.x * 100) / 100, y: Math.round(v.y * 100) / 100, in: Math.abs(v.x) < 1 && Math.abs(v.y) < 1 && v.z < 1 }; };
         const g = m.groundAt ? m.groundAt(B.x, B.y) : 0.4;
-        const near = L.boats.filter((b) => b.e).map((b) => ({ b, d: Math.hypot(b.e.x - B.x, b.e.y - B.y) })).sort((a, c) => a.d - c.d)[0];
+        const near = L.boats.filter((b) => b.e && (b.e.x - B.x) * Math.cos(B.dir) + (b.e.y - B.y) * Math.sin(B.dir) > 1).map((b) => ({ b, d: Math.hypot(b.e.x - B.x, b.e.y - B.y) })).sort((a, c) => a.d - c.d)[0];
         const ent = (sp) => m.entities.find((e) => e.sprite === sp);
         return { boat: near && Object.assign(pr(near.b.e.x, near.b.e.y, 0.2), { d: Math.round(near.d * 100) / 100 }), mast: pr(ent('p17c_mast').x, ent('p17c_mast').y, g + 4), light: pr(ent('p17c_mast').x - 0.5, ent('p17c_mast').y, g + 3.4),
           derrick: pr(ent('p17c_derrick').x, ent('p17c_derrick').y, g + 1.8), bell: pr(ent('p17c_molebell').x, ent('p17c_molebell').y, g + 1.2), cables: L.stats.cables };
       });
       console.log('  ' + JSON.stringify(r));
-      ok(r.boat && r.boat.in && r.boat.x < -0.2 && r.boat.d < 4, 'the nearest moored boat sits on the left of the frame: ' + JSON.stringify(r.boat));
+      ok(r.boat && r.boat.in && r.boat.x < -0.2 && r.boat.d < 7, 'the nearest moored boat ahead sits on the left of the frame: ' + JSON.stringify(r.boat));
       ok(r.mast.in && r.light.in && r.derrick.in && r.bell.in, 'the Mole-head in view');
     });
     await step('the skyline (no castle): the counting-house\'s roof stands over the cliff seen from the Mole', async () => {
@@ -174,7 +174,7 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
         for (let y = 20; y < 44; y++) for (let x = 2; x < 26; x++) { const c = G.map.cells[y * G.map.w + x]; if (!c || !/^p17c_front/.test(c.tex || '')) continue; v.set(x + 0.5, (c.top + 1.5) * 0.61875, y + 0.5).project(R11.camera); if (Math.abs(v.x) < 1 && Math.abs(v.y) < 1 && v.z < 1) town++; }
         // turned toward the counting-house from the same spot on the Mole
         const dx = (ch.x0 + ch.x1 + 1) / 2 - B.x, dy = (ch.y0 + ch.y1 + 1) / 2 - B.y;
-        S.pin(() => { Engine.cam.dir = Math.atan2(dy, dx); if (G.player) G.player.dir = Engine.cam.dir; }); S.frame();
+        S.pin(() => { Engine.cam.dir = Math.atan2(dy, dx); Engine.cam.pitch = 0; if (G.player) G.player.dir = Engine.cam.dir; }); S.frame();
         const p = proj(); let maxTop = 0; L.metres.traverse((o) => { if (o.isMesh && o.name === 'harbour:slate') { o.geometry.computeBoundingBox(); maxTop = Math.max(maxTop, o.geometry.boundingBox.max.y); } });
         S.bench(); S.frame();
         return { town, p: { x: p.x, y: p.y, z: p.z }, top: ch.top, maxTop };
