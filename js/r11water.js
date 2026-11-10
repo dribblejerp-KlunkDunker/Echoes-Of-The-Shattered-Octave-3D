@@ -137,7 +137,13 @@ vec2 r11wRainLayer(vec2 p, float t, float seed, float dens) {
     sky = mix(uAir, sky, uOut);
     // near the horizon the reflection is the far shore, the town and the air (Ultra's planar image replaces this below)
     vec3 far = min(uAir, mix(uHor, uAir, uDay)) * mix(0.35, 0.72, uDay);
-    sky = mix(far, sky, mix(1.0, smoothstep(0.0, 0.24, R.y), uHorizon));
+    // Phone has one ripple layer fewer, so more of its grazing reflection lands on the bright sky: a wider band of the far
+    // shore there keeps Phone's water as dark as Ultra's, whose planar image shows the real hills
+    #if R11W_MODE == 0
+      sky = mix(far * 0.7, sky, mix(1.0, smoothstep(0.0, 0.4, R.y), uHorizon));
+    #else
+      sky = mix(far, sky, mix(1.0, smoothstep(0.0, 0.24, R.y), uHorizon));
+    #endif
     vec3 refl = sky;
     float lampW = 1.0;
     #if R11W_MODE == 2
