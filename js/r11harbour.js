@@ -128,7 +128,7 @@
     M.slate = scan('roof_slates_02', 0x8a9096, { ns: 1.2 });
     M.timber = scan('medieval_wood', [1.05, 0.84, 0.6]);
     M.planks = scan('weathered_planks', [1.9, 1.6, 1.3]);
-    M.iron = new THREE.MeshStandardMaterial({ color: 0x3a3836, roughness: 0.62, metalness: 0.7, vertexColors: true });
+    M.iron = new THREE.MeshStandardMaterial({ color: 0x4a4641, roughness: 0.68, metalness: 0.4, vertexColors: true });
     M.rope = new THREE.MeshStandardMaterial({ color: 0x74644a, roughness: 0.95, vertexColors: true });
     M.bronze = new THREE.MeshStandardMaterial({ color: 0x9a7440, roughness: 0.38, metalness: 1, vertexColors: true });
     M.cloth = new THREE.MeshStandardMaterial({ color: 0xb2a68c, roughness: 0.96, vertexColors: true, side: THREE.DoubleSide });
@@ -228,10 +228,34 @@
         const m = new THREE.Matrix4().compose(_p.set((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2), q, new THREE.Vector3(r, L, r));
         A.geo(k, CYL(THREE, seg || 6), m, col, null, 1);
       },
-      // a sagging rope from a to b (a parabola dropping `sag` metres at the middle), radius r
-      rope(k, a, b, sag, r, col, n) {
-        n = n || 10; let prev = a;
-        for (let i = 1; i <= n; i++) { const t = i / n, p = [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t - sag * 4 * t * (1 - t), a[2] + (b[2] - a[2]) * t]; A.rod(k, r, prev, p, col, 5); prev = p; }
+      // a sagging rope from a to b (a catenary dropping `sag` metres at the middle), radius r: one smooth tube
+      rope(k, a, b, sag, r, col, n) { A.tube(k, catenary(a, b, sag, n || 10), r, col, 5, 0); },
+      // a thick laid rope (three strands: the lay shows as a helix of light and dark), a real tube along a catenary
+      cable(k, a, b, sag, r, col, n) { A.tube(k, catenary(a, b, sag, n || 18), r, col, 8, 3); },
+      // a tube through points (smooth normals, frames carried along by parallel transport); lay > 0 stripes the strands
+      tube(k, pts, r, col, seg, lay) {
+        seg = seg || 8; const o = get(k), n = pts.length, rings = []; let N = null, s = 0;
+        for (let i = 0; i < n; i++) {
+          const a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)];
+          let tx = b[0] - a[0], ty = b[1] - a[1], tz = b[2] - a[2]; const tl = Math.hypot(tx, ty, tz) || 1; tx /= tl; ty /= tl; tz /= tl;
+          let nx, ny, nz;
+          if (!N) { nx = 0; ny = 1; nz = 0; if (Math.abs(ty) > 0.9) { nx = 1; ny = 0; } } else { nx = N[0]; ny = N[1]; nz = N[2]; }
+          const d0 = nx * tx + ny * ty + nz * tz; nx -= tx * d0; ny -= ty * d0; nz -= tz * d0; const nl = Math.hypot(nx, ny, nz) || 1; N = [nx / nl, ny / nl, nz / nl];
+          const B2 = [ty * N[2] - tz * N[1], tz * N[0] - tx * N[2], tx * N[1] - ty * N[0]];
+          if (i) s += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1], pts[i][2] - pts[i - 1][2]);
+          const ring = [];
+          for (let j = 0; j <= seg; j++) {
+            const th = j / seg * PI * 2, c = Math.cos(th), sn = Math.sin(th);
+            const dx = N[0] * c + B2[0] * sn, dy = N[1] * c + B2[1] * sn, dz = N[2] * c + B2[2] * sn;
+            const st = lay ? 0.7 + 0.42 * Math.pow(0.5 + 0.5 * Math.sin(lay * (th + s * 0.85 / r)), 1.6) : 1;
+            ring.push([pts[i][0] + dx * r, pts[i][1] + dy * r, pts[i][2] + dz * r, dx, dy, dz, j / seg, s / (r * 6.3), col[0] * st, col[1] * st, col[2] * st]);
+          }
+          rings.push(ring);
+        }
+        for (let i = 0; i < n - 1; i++) for (let j = 0; j < seg; j++) {
+          const a = rings[i][j], b = rings[i + 1][j], c = rings[i + 1][j + 1], d = rings[i][j + 1];
+          for (const v of [a, c, b, a, d, c]) { o.p.push(v[0], v[1], v[2]); o.n.push(v[3], v[4], v[5]); o.uv.push(v[6], v[7]); o.c.push(v[8], v[9], v[10]); o.a.push(A.aux); }
+        }
       },
       finish(group, M, opts) {
         let meshes = 0;
@@ -252,6 +276,12 @@
       },
     };
     return A;
+  }
+  // a catenary from a to b dropping `sag` at the middle (n segments)
+  function catenary(a, b, sag, n) {
+    const k = 1.6, ck = Math.cosh(k), P = [];
+    for (let i = 0; i <= n; i++) { const t = i / n, f = (Math.cosh(k * (2 * t - 1)) - ck) / (ck - 1); P.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t + sag * f, a[2] + (b[2] - a[2]) * t]); }
+    return P;
   }
   let _unit = null, _cyl = {}, _unitT = null;
   function UNIT(THREE) { if (!_unit || _unitT !== THREE) { _unit = new THREE.BoxGeometry(1, 1, 1).toNonIndexed(); _cyl = {}; _unitT = THREE; } return _unit; }
@@ -282,36 +312,43 @@
   const GREY = [1, 1, 1];
   const shade = (c, k) => [c[0] * k, c[1] * k, c[2] * k];
 
-  // ---- the Long Mole, the Mole-head and the Mole steps: big flags with real joints, faces, weed, rings, ladders
-  function mole(A, R, hidden, r, out) {
+  // ---- the Long Mole and the Mole steps' landing: big flags with real joints, faces, weed. The Mole-head (round, Book Two) is
+  // drawn by roundHead; the parapet on the sea side by parapet. Book Two, Part One ch. 7: "four hundred and twelve yards of
+  // dressed stone, twenty feet wide"; on the harbour side "a sheer drop ... to black water slopping against the stones".
+  // The water's edge is a kerb of big dressed blocks, darker and weeded at the waterline (picture 3).
+  function mole(A, R, hidden, r, out, H) {
     const C = R.C, cells = [];
     for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) if (R.mole(x, y)) { cells.push([x, y]); hidden.add(R.idx(x, y)); }
     out.moleCells = cells.length;
+    const inHead = (x, y) => H.has(x, y);
     const WY = R.Y(-0.05);
     const ROWS = 3, band = C / ROWS, g = 0.007, ch = 0.012;   // flags about a metre across, tight joints (picture 3)
     const nearWater = (x, y) => R.water(x, y);
+    const isM = (x, y) => R.mole(x, y) && !inHead(x, y);
     for (let y = 0; y < R.H; y++) {
       for (let b = 0; b < ROWS; b++) {
         const z0 = y * C + b * band, z1 = z0 + band;
         const edgeN = b === 0, edgeS = b === ROWS - 1;
         let x = 0;
         while (x < R.W) {
-          if (!R.mole(x, y)) { x++; continue; }
-          const xs = x; while (x < R.W && R.mole(x, y)) x++;
-          const xe = x, X0 = xs * C, X1 = xe * C;
+          if (!isM(x, y)) { x++; continue; }
+          const xs = x; while (x < R.W && isM(x, y)) x++;
+          const xe = x, X0 = xs * C;
+          // a run that ends at the Mole-head stops at the head's rim (the round paving takes over)
+          let X1 = xe * C; if (inHead(xe, y)) X1 = Math.max(X0 + 0.5, H.rimX((z0 + z1) / 2));
           let px = X0, first = true;
           while (px < X1 - 0.02) {
             let L = 0.85 + r() * 1.05; if (first) { L *= 0.3 + r() * 0.7; first = false; }
             let qx = Math.min(X1, px + L); if (X1 - qx < 0.4) qx = X1;
             const cx = clamp(Math.floor((px + qx) / 2 / C), xs, xe - 1);
             const top = R.Y(R.lvl(cx, y));
-            // tide-wear: the flags at the water's edge are lower, darker and greener
+            // tide-wear: the flags by the water's edge are darker and greener
             const wet = (edgeN && nearWater(cx, y - 1)) || (edgeS && nearWater(cx, y + 1)) || (px <= X0 + 0.01 && nearWater(xs - 1, y)) || (qx >= X1 - 0.01 && nearWater(xe, y));
             const k = 0.86 + r() * 0.3, warm = r() < 0.25 ? 1.06 : 1;
             let col = [k * warm, k, k / warm];
-            if (wet) col = [col[0] * 0.8, col[1] * 0.86, col[2] * 0.76];
+            if (wet) col = [col[0] * 0.84, col[1] * 0.88, col[2] * 0.8];
             if (r() < 0.08) col = shade(col, 0.82);
-            slab(A, px + g, z0 + g, qx - g, z1 - g, top - (wet ? 0.012 : 0) + (r() - 0.5) * 0.01, ch, col, r);
+            slab(A, px + g, z0 + g, qx - g, z1 - g, top + (r() - 0.5) * 0.01, ch, col, r);
             px = qx;
           }
         }
@@ -319,35 +356,184 @@
     }
     // the joints: a dark, mossy bed under the flags
     for (const [x, y] of cells) {
+      if (inHead(x, y)) continue;
       const t = R.Y(R.lvl(x, y)) - 0.025, X0 = x * C, X1 = X0 + C, Z0 = y * C, Z1 = Z0 + C;
       A.quad('grout', [X0, t, Z0], [X0, t, Z1], [X1, t, Z1], [X1, t, Z0], [1, 1.05, 0.95], null, [0, 1, 0]);
     }
-    // the faces: granite blocks down into the water, green at the water; weed at the waterline
+    // the faces: granite down into the water, dark and green with the tide; weed at the waterline; a kerb of big blocks
     const faces = [];
     const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
     for (const [x, y] of cells) {
+      if (inHead(x, y)) continue;
       const top = R.Y(R.lvl(x, y));
       for (const [dx, dy] of DIRS) {
         const nx = x + dx, ny = y + dy;
-        if (!R.water(nx, ny) && (R.walk(nx, ny) || R.blk(R.cell(nx, ny)))) continue;
-        // the edge's two ends, outward normal
+        if (inHead(nx, ny) || !R.water(nx, ny)) continue;
         let a, b; const N = [dx, 0, dy];
         if (dx === 1) { a = [(x + 1) * C, y * C]; b = [(x + 1) * C, (y + 1) * C]; }
         else if (dx === -1) { a = [x * C, y * C]; b = [x * C, (y + 1) * C]; }
         else if (dy === 1) { a = [x * C, (y + 1) * C]; b = [(x + 1) * C, (y + 1) * C]; }
         else { a = [x * C, y * C]; b = [(x + 1) * C, y * C]; }
-        const yb = -1.8, ym = WY + 0.42;
-        A.quad('quay', [a[0], yb, a[1]], [b[0], yb, b[1]], [b[0], ym, b[1]], [a[0], ym, a[1]], [[0.46, 0.52, 0.4], [0.46, 0.52, 0.4], [0.6, 0.64, 0.54], [0.6, 0.64, 0.54]], null, N);
-        A.quad('quay', [a[0], ym, a[1]], [b[0], ym, b[1]], [b[0], top, b[1]], [a[0], top, a[1]], [[0.6, 0.64, 0.54], [0.6, 0.64, 0.54], [0.86, 0.86, 0.83], [0.86, 0.86, 0.83]], null, N);
-        // the coping: a dressed lip along the top of the face
-        const o = 0.05, L = Math.hypot(b[0] - a[0], b[1] - a[1]);
-        A.box('quay', dx ? 0.34 : L, 0.2, dy ? 0.34 : L, (a[0] + b[0]) / 2 + dx * (o + 0.17 - 0.3), top - 0.09, (a[1] + b[1]) / 2 + dy * (o + 0.17 - 0.3), 0, [0.8, 0.8, 0.77]);
-        const e = 0.03, u0 = (a[0] + a[1]) / 1.5, u1 = u0 + L / 1.5;
-        A.quad('weed', [a[0] + dx * e, WY - 0.45, a[1] + dy * e], [b[0] + dx * e, WY - 0.45, b[1] + dy * e], [b[0] + dx * e, WY + 0.38 + r() * 0.12, b[1] + dy * e], [a[0] + dx * e, WY + 0.38 + r() * 0.12, a[1] + dy * e], [1, 1, 1], [u0, 0, u1, 0, u1, 1, u0, 1], N);
+        quayFace(A, a, b, N, top, WY, r);
         faces.push({ a, b, dx, dy, top, x, y });
       }
     }
-    return faces;
+    // the kerb: big dressed blocks laid end to end along each straight run of face, proud of the flags
+    const runs = new Map();
+    for (const f of faces) {
+      const key = f.dx + ',' + f.dy + ',' + (f.dx ? f.a[0] : f.a[1]).toFixed(3);
+      if (!runs.has(key)) runs.set(key, []); runs.get(key).push(f);
+    }
+    const kerbs = [];
+    for (const list of runs.values()) {
+      list.sort((p, q) => (p.dx ? p.a[1] - q.a[1] : p.a[0] - q.a[0]));
+      let cur = null;
+      for (const f of list) {
+        const s0 = f.dx ? f.a[1] : f.a[0], s1 = f.dx ? f.b[1] : f.b[0];
+        if (cur && Math.abs(cur.s1 - s0) < 0.01) cur.s1 = s1; else { cur = { f, s0, s1 }; kerbs.push(cur); }
+      }
+    }
+    for (const k of kerbs) {
+      const f = k.f, th = f.dx ? PI / 2 : 0, line = f.dx ? f.a[0] : f.a[1], inward = -(f.dx || f.dy), W2 = 0.62;
+      let s0 = k.s0; const s1 = k.s1;
+      k.a = f.dx ? [line, s0] : [s0, line]; k.b = f.dx ? [line, s1] : [s1, line]; k.n = [f.dx, f.dy]; k.top = f.top;
+      while (s0 < s1 - 0.05) {
+        let L = 1.15 + r() * 0.85; if (s1 - (s0 + L) < 0.6) L = s1 - s0;
+        const mid = s0 + L / 2, cOff = line + inward * (W2 / 2 - 0.03);
+        const cx = f.dx ? cOff : mid, cz = f.dx ? mid : cOff, kk = 0.78 + r() * 0.22, warm = r() < 0.2 ? 1.05 : 1;
+        dblock(A, 'quay', cx, cz, th, L - 0.018, W2, f.top - 0.36, f.top + 0.05 + (r() - 0.5) * 0.015, [0.98 * kk * warm, 0.97 * kk, 0.93 * kk / warm], 0.035, [0.5 * kk, 0.54 * kk, 0.44 * kk]);
+        s0 += L;
+      }
+    }
+    out.kerbs = kerbs.length;
+    return { faces, kerbs };
+  }
+  // one stretch of the Mole's face from the deep to the kerb: dark green-black at the water, tide-worn brown-grey to a metre
+  // over it, the granite above; weed and wrack at the waterline
+  function quayFace(A, a, b, N, top, WY, r) {
+    const yb = -1.8, y1 = WY + 0.18, y2 = WY + 0.62, yt = top - 0.3;
+    const deep = [0.3, 0.36, 0.28], tide = [0.42, 0.46, 0.36], dry = [0.78, 0.78, 0.74];
+    A.quad('quay', [a[0], yb, a[1]], [b[0], yb, b[1]], [b[0], y1, b[1]], [a[0], y1, a[1]], [deep, deep, tide, tide], null, N);
+    A.quad('quay', [a[0], y1, a[1]], [b[0], y1, b[1]], [b[0], y2, b[1]], [a[0], y2, a[1]], [tide, tide, shade(tide, 1.25), shade(tide, 1.25)], null, N);
+    if (yt > y2) A.quad('quay', [a[0], y2, a[1]], [b[0], y2, b[1]], [b[0], yt, b[1]], [a[0], yt, a[1]], [shade(tide, 1.25), shade(tide, 1.25), dry, dry], null, N);
+    const e = 0.03, L = Math.hypot(b[0] - a[0], b[1] - a[1]), u0 = (a[0] + a[1]) / 1.5, u1 = u0 + L / 1.5;
+    A.quad('weed', [a[0] + N[0] * e, WY - 0.45, a[1] + N[2] * e], [b[0] + N[0] * e, WY - 0.45, b[1] + N[2] * e], [b[0] + N[0] * e, WY + 0.34 + r() * 0.12, b[1] + N[2] * e], [a[0] + N[0] * e, WY + 0.34 + r() * 0.12, a[1] + N[2] * e], [1, 1, 1], [u0, 0, u1, 0, u1, 1, u0, 1], N);
+  }
+  // a dressed block: centre (cx, cz), its long axis at angle th in the x-z plane, len x wid, y0 to y1, the top edges chamfered
+  function dblock(A, k, cx, cz, th, len, wid, y0, y1, col, ch, colBot) {
+    const ux = Math.cos(th), uz = Math.sin(th), vx = -uz, vz = ux, hl = len / 2, hw = wid / 2;
+    const P = (u, v, y) => [cx + ux * u + vx * v, y, cz + uz * u + vz * v];
+    ch = ch || 0; const cb = colBot || shade(col, 0.8), cm = shade(col, 0.93);
+    const T = [P(-hl + ch, -hw + ch, y1), P(hl - ch, -hw + ch, y1), P(hl - ch, hw - ch, y1), P(-hl + ch, hw - ch, y1)];
+    const M = [P(-hl, -hw, y1 - ch), P(hl, -hw, y1 - ch), P(hl, hw, y1 - ch), P(-hl, hw, y1 - ch)];
+    const B = [P(-hl, -hw, y0), P(hl, -hw, y0), P(hl, hw, y0), P(-hl, hw, y0)];
+    A.quad(k, T[0], T[1], T[2], T[3], col, null, [0, 1, 0]);
+    for (let i = 0; i < 4; i++) {
+      const j = (i + 1) % 4, mx = (M[i][0] + M[j][0]) / 2 - cx, mz = (M[i][2] + M[j][2]) / 2 - cz, ml = Math.hypot(mx, mz) || 1, n = [mx / ml, 0, mz / ml];
+      if (ch) A.quad(k, M[i], M[j], T[j], T[i], cm, null, [n[0], 1, n[2]]);
+      A.quad(k, B[i], B[j], M[j], M[i], [cb, cb, cm, cm], null, n);
+    }
+  }
+  // the Mole-head (Book Two): "a round stone platform thirty yards across, with the mast-tower standing up out of the middle
+  // of it". Concentric courses of flags, a kerb ring of big blocks, a round face down into the water with the tide on it.
+  function roundHead(A, THREE, R, H, r, WY, out) {
+    const C = R.C, cx = H.cx, cz = H.cz, RV = H.rv, top = R.Y(R.lvl(Math.floor(H.x), Math.floor(H.y))), g = 0.008;
+    const joinMole = (a) => { const z = cz + Math.sin(a) * RV, x = cx + Math.cos(a) * RV; return x < cx && z > H.zMole0 - 0.05 && z < H.zMole1 + 0.05; };
+    // the bed under the flags, a disc of dark joint
+    const NS = 96;
+    for (let i = 0; i < NS; i++) { const a0 = i / NS * PI * 2, a1 = (i + 1) / NS * PI * 2; A.tri('grout', [cx, top - 0.025, cz], [cx + Math.cos(a1) * RV, top - 0.025, cz + Math.sin(a1) * RV], [cx + Math.cos(a0) * RV, top - 0.025, cz + Math.sin(a0) * RV], [1, 1.05, 0.95], [0, 1, 0]); }
+    // the courses: rings of flags from the tower's foot to the kerb
+    const KW = 0.66; let rr = 1.25, courses = 0;
+    while (rr < RV - KW - 0.3) {
+      const w = Math.min(0.85 + r() * 0.3, RV - KW - rr), r1 = rr + w, rm = rr + w / 2, n = Math.max(6, Math.round(PI * 2 * rm / (1.05 + r() * 0.35))), ph = r() * PI * 2;
+      for (let i = 0; i < n; i++) {
+        const a0 = ph + (i + (r() - 0.5) * 0.25) / n * PI * 2, a1 = ph + (i + 1 + (r() - 0.5) * 0.25) / n * PI * 2;
+        const ga = g / rm, k = 0.84 + r() * 0.3, warm = r() < 0.25 ? 1.06 : 1, col = r() < 0.08 ? [0.7 * k, 0.7 * k, 0.68 * k] : [k * warm, k, k / warm];
+        arcSlab(A, 'flag', cx, cz, rr + g, r1 - g, a0 + ga, a1 - ga, top + (r() - 0.5) * 0.01, 0.07, col);
+      }
+      rr = r1; courses++;
+    }
+    // the kerb ring and the face
+    const NK = Math.round(PI * 2 * RV / 1.35);
+    for (let i = 0; i < NK; i++) {
+      const a0 = i / NK * PI * 2, a1 = (i + 1) / NK * PI * 2; if (joinMole((a0 + a1) / 2)) continue;
+      const kk = 0.78 + r() * 0.22;
+      arcSlab(A, 'quay', cx, cz, RV - KW, RV + 0.02, a0 + 0.009 / RV, a1 - 0.009 / RV, top + 0.05 + (r() - 0.5) * 0.015, 0.41, [0.98 * kk, 0.97 * kk, 0.93 * kk], [0.5 * kk, 0.54 * kk, 0.44 * kk]);
+    }
+    for (let i = 0; i < NS; i++) {
+      const a0 = i / NS * PI * 2, a1 = (i + 1) / NS * PI * 2; if (joinMole((a0 + a1) / 2)) continue;
+      const P0 = [cx + Math.cos(a0) * RV, cz + Math.sin(a0) * RV], P1 = [cx + Math.cos(a1) * RV, cz + Math.sin(a1) * RV], am = (a0 + a1) / 2;
+      quayFace(A, P0, P1, [Math.cos(am), 0, Math.sin(am)], top, WY, r);
+    }
+    out.headCourses = courses; out.headRound = true;
+  }
+  // a flag on a ring between radii r0, r1 and angles a0, a1 (three facets along the arc), standing from top-depth to top
+  function arcSlab(A, k, cx, cz, r0, r1, a0, a1, top, depth, col, colBot) {
+    const P = (rad, a, y) => [cx + Math.cos(a) * rad, y, cz + Math.sin(a) * rad], NA = 3, ch = 0.02, bot = top - depth;
+    const cb = colBot || shade(col, 0.8), cm = shade(col, 0.92);
+    for (let i = 0; i < NA; i++) {
+      const b0 = a0 + (a1 - a0) * i / NA, b1 = a0 + (a1 - a0) * (i + 1) / NA, am = (b0 + b1) / 2;
+      A.quad(k, P(r0 + ch, b0, top), P(r1 - ch, b0, top), P(r1 - ch, b1, top), P(r0 + ch, b1, top), col, null, [0, 1, 0]);
+      A.quad(k, P(r1, b0, bot), P(r1, b1, bot), P(r1, b1, top - ch), P(r1, b0, top - ch), [cb, cb, cm, cm], null, [Math.cos(am), 0, Math.sin(am)]);
+      A.quad(k, P(r1, b0, top - ch), P(r1, b1, top - ch), P(r1 - ch, b1, top), P(r1 - ch, b0, top), cm, null, [Math.cos(am), 1, Math.sin(am)]);
+      A.quad(k, P(r0, b0, bot), P(r0, b1, bot), P(r0, b1, top - ch), P(r0, b0, top - ch), [cb, cb, cm, cm], null, [-Math.cos(am), 0, -Math.sin(am)]);
+    }
+    const n0 = [Math.sin(a0), 0, -Math.cos(a0)], n1 = [-Math.sin(a1), 0, Math.cos(a1)];
+    A.quad(k, P(r0, a0, bot), P(r1, a0, bot), P(r1, a0, top), P(r0, a0, top), [cb, cb, cm, cm], null, n0);
+    A.quad(k, P(r0, a1, bot), P(r1, a1, bot), P(r1, a1, top), P(r0, a1, top), [cb, cb, cm, cm], null, n1);
+  }
+  // the parapet on the sea side of the Long Mole (Book Two: "a parapet wall of granite blocks the height of a man's chest"):
+  // the map's wall cells (moleParapet) drawn as three courses of big granite through-stones and a coping, the wall in the
+  // cell's harbour-side metre; the rest of the cell is the Mole's outer apron, rough blocks and boulders going down to the sea
+  function parapet(A, THREE, R, H, hidden, r, WY, out) {
+    const C = R.C; let n = 0;
+    const isP = (x, y) => { const c = R.cell(x, y); return !!c && R.blk(c) && !!c.moleParapet; };
+    for (let y = 0; y < R.H; y++) {
+      let x = 0;
+      while (x < R.W) {
+        if (!isP(x, y)) { x++; continue; }
+        const xs = x; while (x < R.W && isP(x, y)) x++;
+        const xe = x;
+        for (let xx = xs; xx < xe; xx++) hidden.add(R.idx(xx, y));
+        const walk = R.Y(R.lvl(xs, y - 1)), top = R.Y(R.cell(xs, y).top), Z0 = y * C + 0.01, T2 = 0.82;
+        const X0 = xs * C, X1 = Math.min(xe * C, H.rimX(Z0 + T2 / 2) + 0.3);   // tucks into the Mole-head's rim at its east end
+        // three courses of through-stones, staggered; a coping of long slabs a little proud on both faces
+        const ch = 0.17, cH = (top - ch - (walk - 0.02)) / 3;
+        for (let c = 0; c < 3; c++) {
+          let px = X0 - (c % 2 ? 0.4 : 0);
+          const y0 = walk - 0.02 + c * cH, y1 = y0 + cH - 0.012;
+          while (px < X1 - 0.05) {
+            let L = 0.9 + r() * 0.75; const a = Math.max(px, X0), b = Math.min(X1, px + L);
+            if (b - a > 0.08) {
+              const kk = (0.74 + r() * 0.24) * 1.8, warm = r() < 0.2 ? 1.05 : 1, out2 = (r() - 0.5) * 0.02;
+              dblock(A, 'ashlar', (a + b) / 2, Z0 + T2 / 2 + out2, 0, b - a - 0.014, T2, y0, y1, [0.92 * kk * warm, 0.9 * kk, 0.86 * kk / warm], 0.025, c === 0 ? [0.5 * kk, 0.5 * kk, 0.45 * kk] : shade([0.92 * kk, 0.9 * kk, 0.86 * kk], 0.88));
+            }
+            px += L;
+          }
+        }
+        // the mortar behind the joints
+        A.box('grout', X1 - X0, top - ch - walk, T2 - 0.08, (X0 + X1) / 2, (top - ch + walk) / 2, Z0 + T2 / 2, 0, [0.9, 0.92, 0.85]);
+        let px = X0;
+        while (px < X1 - 0.05) {
+          const L = Math.min(X1 - px, 1.4 + r() * 0.8), kk = (0.86 + r() * 0.16) * 1.6;
+          dblock(A, 'ashlar', px + L / 2, Z0 + T2 / 2, 0, L - 0.012, T2 + 0.12, top - ch, top, [1.02 * kk, 1.0 * kk, 0.96 * kk], 0.03, shade([1.02 * kk, kk, 0.96 * kk], 0.8));
+          px += L;
+        }
+        // the foot of the wall on the Mole side: damp and dark, where the sluicing runs off
+        A.quad('grout', [X0, walk + 0.003, Z0 - 0.16], [X1, walk + 0.003, Z0 - 0.16], [X1, walk + 0.003, Z0], [X0, walk + 0.003, Z0], [0.7, 0.75, 0.68], null, [0, 1, 0]);
+        // the seaward apron: the wall's outer face runs down to rough blocks and wet boulders, the sea over them at the tide
+        const Zo = Z0 + T2, Zs = (y + 1) * C + 1.2;
+        for (let xx = X0; xx < X1 - 0.1; xx += 1.5) {
+          const b = Math.min(X1, xx + 1.5);
+          A.quad('quay', [xx, WY - 1.8, Zs], [b, WY - 1.8, Zs], [b, walk - 0.05, Zo], [xx, walk - 0.05, Zo], [[0.36, 0.42, 0.33], [0.36, 0.42, 0.33], [0.85, 0.85, 0.8], [0.85, 0.85, 0.8]], null, [0, 0.8, 1]);
+          A.quad('weed', [xx, WY - 0.45, Zo + (WY - 0.45 - walk) / (WY - 1.8 - walk) * (Zs - Zo) + 0.03], [b, WY - 0.45, Zo + (WY - 0.45 - walk) / (WY - 1.8 - walk) * (Zs - Zo) + 0.03], [b, WY + 0.4, Zo + (WY + 0.4 - walk) / (WY - 1.8 - walk) * (Zs - Zo) + 0.03], [xx, WY + 0.4, Zo + (WY + 0.4 - walk) / (WY - 1.8 - walk) * (Zs - Zo) + 0.03], [1, 1, 1], [xx / 1.5, 0, b / 1.5, 0, b / 1.5, 1, xx / 1.5, 1], [0, 0.6, 1]);
+        }
+        for (let xx = X0 + 0.6; xx < X1; xx += 1.7 + r() * 1.2) boulder(A, THREE, xx, Zo + 1.0 + r() * 1.6, WY + 0.15 + r() * 0.45, 0.7 + r() * 0.5, r, WY);
+        n += xe - xs;
+        out.parapetRuns = (out.parapetRuns || []).concat([{ x0: X0, x1: X1, z0: Z0, z1: Z0 + T2, top, walk }]);
+      }
+    }
+    out.parapetCells = n;
   }
   // one flag: a slab with a chamfered top (a little proud of the joints)
   function slab(A, x0, z0, x1, z1, top, ch, col, r) {
@@ -371,16 +557,17 @@
     const m = new THREE.Matrix4().compose(new THREE.Vector3(p[0] + n[0] * 0.06, y - 0.1, p[2] + n[2] * 0.06), new THREE.Quaternion().setFromEuler(new THREE.Euler(0.35, ry, 0, 'YXZ')), new THREE.Vector3(1, 1, 1));
     A.geo('iron', TORUS(THREE), m, [0.85, 0.62, 0.48], null);
   }
-  let _tor = null, _torT = null;
-  function TORUS(THREE) { if (!_tor || _torT !== THREE) { _tor = new THREE.TorusGeometry(0.11, 0.02, 5, 12); _torT = THREE; } return _tor; }
+  let _tor = null, _torT = null, _turn = null;
+  function ROPETURN(THREE) { TORUS(THREE); if (!_turn) _turn = new THREE.TorusGeometry(0.165, 0.036, 6, 16); return _turn; }
+  function TORUS(THREE) { if (!_tor || _torT !== THREE) { _tor = new THREE.TorusGeometry(0.11, 0.02, 5, 12); _torT = THREE; _turn = null; } return _tor; }
   // an iron bollard, mushroom-topped, waist-high (Book Two)
   let _boll = null, _bollT = null;
-  function bollard(A, THREE, x, y, z) {
+  function bollard(A, THREE, x, y, z, sc) {
     if (!_boll || _bollT !== THREE) {
       const P = [[0, 0], [0.27, 0], [0.27, 0.05], [0.18, 0.08], [0.16, 0.5], [0.145, 0.74], [0.13, 0.8], [0.22, 0.84], [0.235, 0.88], [0.2, 0.93], [0.1, 0.96], [0, 0.965]].map(([a, b]) => new THREE.Vector2(a, b));
       _boll = new THREE.LatheGeometry(P, 14); _bollT = THREE;
     }
-    A.geo('iron', _boll, new THREE.Matrix4().makeTranslation(x, y, z), (px, py) => py > 0.82 ? [1.05, 1.0, 0.95] : py < 0.12 ? [0.8, 0.62, 0.5] : [0.95, 0.88, 0.8], null);
+    A.geo('iron', _boll, new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), new THREE.Quaternion(), new THREE.Vector3(sc || 1, sc || 1, sc || 1)), (px, py) => py > 0.82 ? [1.55, 1.45, 1.35] : py < 0.12 ? [1.1, 0.85, 0.66] : [1.4, 1.26, 1.12], null);   // weathered iron, rust at the foot
   }
   // a timber mooring post (a pile where it stands in the water), iron-capped, with rope round it
   function post(A, THREE, x, z, yb, yt) {
@@ -659,42 +846,81 @@
     const at = (e) => [e.x * C, R.Y(R.lvl(Math.floor(e.x), Math.floor(e.y))), e.y * C];
     const near = (x, y, rad) => ents.filter((e) => Math.hypot(e.x - x, e.y - y) < rad);
 
-    // ---- the Mole
-    const faces = mole(A, R, hidden, r, st);
-    // rings every few paces along the faces, iron ladder-rungs on the harbour (north) face
+    // ---- the Mole (Book Two: harbour on the left walking out, the sea on the right behind the parapet), the round Mole-head
+    const MH = (window.CANTABILE17 && CANTABILE17.MOLE_HEAD) || { x: 77, y: 51, r: 4.6 };
+    const H = { x: MH.x, y: MH.y, cx: MH.x * C, cz: MH.y * C, rv: (MH.r + 0.45) * C, zMole0: 0, zMole1: 0,
+      has: (x, y) => R.mole(x, y) && Math.hypot(x + 0.5 - MH.x, y + 0.5 - MH.y) <= MH.r + 0.01,
+      rimX: (z) => H.cx - Math.sqrt(Math.max(0, H.rv * H.rv - (z - H.cz) * (z - H.cz))) };
+    {
+      const cx0 = Math.floor(MH.x - MH.r) - 1; let y0 = 99, y1 = -1;
+      for (let y = 0; y < R.H; y++) { const c = R.cell(cx0, y); if (R.mole(cx0, y) || (c && c.moleParapet)) { y0 = Math.min(y0, y); y1 = Math.max(y1, y); } }
+      H.zMole0 = (y1 >= 0 ? y0 : MH.y - 1) * C; H.zMole1 = (y1 >= 0 ? y1 + 1 : MH.y + 2) * C;
+    }
+    st.head = { x: MH.x, y: MH.y, rv: H.rv / C };
+    const { faces, kerbs } = mole(A, R, hidden, r, st, H);
+    roundHead(A, THREE, R, H, r, WY, st);
+    parapet(A, THREE, R, H, hidden, r, WY, st);
+    // rings every few paces along the faces (game text: "an iron ring every few paces to make fast to"), and round the head
     const rings = [];
     faces.forEach((f, i) => {
       if ((i * 7 + f.x * 3) % 3 !== 0) return;
       const t = 0.3 + r() * 0.4, p = [f.a[0] + (f.b[0] - f.a[0]) * t, 0, f.a[1] + (f.b[1] - f.a[1]) * t];
-      ring(A, THREE, p, [f.dx, 0, f.dy], f.top - 0.32); rings.push([p[0] + f.dx * 0.08, f.top - 0.42, p[2] + f.dy * 0.08]);
+      ring(A, THREE, p, [f.dx, 0, f.dy], f.top - 0.5); rings.push([p[0] + f.dx * 0.08, f.top - 0.6, p[2] + f.dy * 0.08]);
     });
-    st.rings = rings.length;
-    let ladders = 0;
-    for (const lx of [58, 67]) {
-      const f = faces.find((q) => q.x === lx && q.dy === -1); if (!f) continue;
-      const cx = (f.a[0] + f.b[0]) / 2, z = f.a[1] - 0.09;
-      for (const s of [-0.24, 0.24]) A.rod('iron', 0.022, [cx + s, WY - 1.3, z], [cx + s, f.top + 0.05, z], [0.85, 0.65, 0.5], 6);
-      for (let y = WY - 1.1; y < f.top; y += 0.3) A.rod('iron', 0.016, [cx - 0.24, y, z], [cx + 0.24, y, z], [0.85, 0.65, 0.5], 5);
-      for (const s of [-0.24, 0.24]) A.rod('iron', 0.022, [cx + s, f.top + 0.05, z], [cx + s, f.top + 0.05, z + 0.3], [0.85, 0.65, 0.5], 6);
-      ladders++;
+    for (let i = 0; i < 9; i++) {
+      const a = -PI / 2 + (i - 4) * 0.62; if (Math.cos(a) < -0.85) continue;
+      const n = [Math.cos(a), 0, Math.sin(a)], p = [H.cx + n[0] * H.rv, 0, H.cz + n[2] * H.rv], top = R.Y(R.lvl(Math.floor(MH.x), Math.floor(MH.y)));
+      ring(A, THREE, p, n, top - 0.5); rings.push([p[0] + n[0] * 0.08, top - 0.6, p[2] + n[2] * 0.08]);
     }
+    st.rings = rings.length;
+    // iron ladder-rungs let into the harbour face (Book Two: "every forty yards"): one on the Mole, one on the head's harbour side
+    const ladder = (cx, cz, n, top) => {
+      const ry = Math.atan2(n[0], n[2]), ux = Math.cos(ry), uz = -Math.sin(ry), P = (u, y, d) => [cx + ux * u + n[0] * d, y, cz + uz * u + n[2] * d];
+      for (const s2 of [-0.24, 0.24]) A.rod('iron', 0.022, P(s2, WY - 1.3, 0.09), P(s2, top + 0.05, 0.09), [0.85, 0.65, 0.5], 6);
+      for (let y = WY - 1.1; y < top - 0.1; y += 0.3) A.rod('iron', 0.016, P(-0.24, y, 0.09), P(0.24, y, 0.09), [0.85, 0.65, 0.5], 5);
+      for (const s2 of [-0.24, 0.24]) A.rod('iron', 0.022, P(s2, top + 0.05, 0.09), P(s2, top + 0.05, -0.25), [0.85, 0.65, 0.5], 6);
+    };
+    let ladders = 0;
+    { const f = faces.find((q) => q.x === 65 && q.dy === -1); if (f) { ladder((f.a[0] + f.b[0]) / 2, f.a[1], [0, 0, -1], f.top); ladders++; } }
+    { const a = -PI / 2 - 0.35, n = [Math.cos(a), 0, Math.sin(a)]; ladder(H.cx + n[0] * H.rv, H.cz + n[2] * H.rv, n, R.Y(R.lvl(Math.floor(MH.x), Math.floor(MH.y)))); ladders++; }
     st.ladders = ladders;
     // bollards: iron, mushroom-topped, waist-high, every twenty paces down the middle (Book Two); one at the tower's foot
     const bollards = [];
-    for (const bx of [56.0, 61.0, 66.0, 71.0]) bollards.push([bx, 51.5]);
-    bollards.push([79.2, 47.75]);
+    for (const bx of [56.2, 61.2, 66.2, 71.2]) bollards.push([bx, MH.y]);
+    bollards.push([MH.x - 1.35, MH.y - 1.15]);
     for (const [bx, by] of bollards) bollard(A, THREE, bx * C, R.Y(R.lvl(Math.floor(bx), Math.floor(by))), by * C);
     st.bollards = bollards.length;
-    // the Mole steps: a flight of stone steps down the south face into the water, where the ferry lies (Quain)
+    // the Mole steps: a flight of stone steps down the harbour face of the landing into the water, where the ferry lies (Quain)
     {
-      const f = faces.find((q) => q.x === 58 && q.dy === 1);
+      const f = faces.find((q) => q.x === 56 && q.dy === -1);
       if (f) {
-        const z = f.a[1], n = 6, x0 = f.a[0] - 0.4, x1 = f.a[0] + 1.6;
-        for (let i = 0; i < n; i++) { const yt = f.top - (i + 1) * (f.top - WY + 0.25) / n; A.box('quay', x1 - x0, 0.2, 0.4, (x0 + x1) / 2, yt - 0.1, z + 0.2 + i * 0.36, 0, i > 3 ? [0.5, 0.55, 0.44] : [0.82, 0.82, 0.78]); A.box('quay', x1 - x0, yt - (WY - 1), 0.36, (x0 + x1) / 2, (yt + WY - 1) / 2 - 0.1, z + 0.2 + i * 0.36, 0, [0.55, 0.58, 0.5]); }
-        A.rod('iron', 0.025, [x1 + 0.05, f.top + 0.9, z + 0.02], [x1 + 0.05, WY + 0.55, z + 0.02 + n * 0.36], [0.85, 0.65, 0.5], 6);
+        const z = f.a[1], n = 6, x0 = f.a[0] - 0.4, x1 = f.a[0] + 1.6, dz = -1;
+        for (let i = 0; i < n; i++) { const yt = f.top - (i + 1) * (f.top - WY + 0.25) / n, zc = z + dz * (0.2 + i * 0.36); A.box('quay', x1 - x0, 0.2, 0.4, (x0 + x1) / 2, yt - 0.1, zc, 0, i > 3 ? [0.4, 0.45, 0.36] : [0.82, 0.82, 0.78]); A.box('quay', x1 - x0, yt - (WY - 1), 0.36, (x0 + x1) / 2, (yt + WY - 1) / 2 - 0.1, zc, 0, [0.45, 0.48, 0.4]); }
+        A.rod('iron', 0.025, [x1 + 0.05, f.top + 0.9, z - 0.02], [x1 + 0.05, WY + 0.55, z + dz * (0.02 + n * 0.36)], [0.85, 0.65, 0.5], 6);
         st.moleSteps = n;
       }
     }
+    // kerb bollards [PROPOSED] where boats are made fast: iron, a little lower, rope turns round the neck (picture 3)
+    const kerbBoll = [];
+    const kerbPoint = (p) => {   // the nearest point on the kerb (straight runs and the head's rim), set 0.4 m in from the edge
+      let best = null, bd = 1e9;
+      for (const k of kerbs) {
+        if (!k.a) continue;
+        const ax = k.a[0], az = k.a[1], bx = k.b[0], bz = k.b[1], L2 = (bx - ax) ** 2 + (bz - az) ** 2, t = clamp(((p[0] - ax) * (bx - ax) + (p[2] - az) * (bz - az)) / (L2 || 1), 0.08, 0.92);
+        const qx = ax + (bx - ax) * t - k.n[0] * 0.4, qz = az + (bz - az) * t - k.n[1] * 0.4, d = Math.hypot(qx - p[0], qz - p[2]);
+        if (d < bd) { bd = d; best = [qx, k.top, qz]; }
+      }
+      const a = Math.atan2(p[2] - H.cz, p[0] - H.cx), qx = H.cx + Math.cos(a) * (H.rv - 0.42), qz = H.cz + Math.sin(a) * (H.rv - 0.42), d = Math.hypot(qx - p[0], qz - p[2]);
+      if (d < bd && !(Math.cos(a) < 0 && qz > H.zMole0 - 0.3 && qz < H.zMole1 + 0.3)) { bd = d; best = [qx, R.Y(R.lvl(Math.floor(MH.x), Math.floor(MH.y))), qz]; }
+      return best ? { p: best, d: bd } : null;
+    };
+    const kerbBollard = (q) => {
+      for (const b of kerbBoll) if (Math.hypot(b[0] - q[0], b[2] - q[2]) < 1.3) return b;
+      const b = [q[0], q[1], q[2]]; kerbBoll.push(b);
+      bollard(A, THREE, b[0], b[1], b[2], 0.82);
+      for (let i = 0; i < 3; i++) { const m = new THREE.Matrix4().compose(new THREE.Vector3(b[0], b[1] + 0.42 + i * 0.075, b[2]), new THREE.Quaternion().setFromEuler(new THREE.Euler(PI / 2 + (i - 1) * 0.12, 0, (i - 1) * 0.1)), new THREE.Vector3(1, 1, 1)); A.geo('rope', ROPETURN(THREE), m, [1.25, 1.08, 0.82], null); }
+      return b;
+    };
 
     // ---- the sea's edge: the map's rock ring and sea stacks (core's tall boxes read as battlements from the Mole: no
     // castle) become boulders and stacks of wet rock, and the rock runs on a cell beyond the map's edge
@@ -805,31 +1031,30 @@
     }
     // the rope from the cradle to the derrick (Library: Going Up: "There is a rope from my cradle to the Mole-head derrick now")
     if (cradle && derTop) { A.rope('rope', cradle, derTop, 1.6, 0.025, [0.85, 0.85, 0.85], 16); st.cradleRope = true; }
+    // the Mole-bell (Book Two): "on an iron bracket on the side of the tower at head height", a rope hanging down; the lifebuoy
+    // "on its bracket by the bell". The map puts the bell's entity on the tower's south side (js/cantabile17.js).
     const bellE = ents.find((e) => e.sprite === 'p17c_molebell');
-    if (bellE) {
+    if (bellE && mastE) {
       replaced.add(bellE);
-      const [bx, by, bz] = at(bellE), hz = 0.85, H = 2.8;
-      for (const s of [-1, 1]) {
-        A.box('quay', 0.5, 0.25, 0.5, bx, by + 0.12, bz + s * hz, 0, [0.8, 0.8, 0.76]);
-        A.box('iron', 0.12, H, 0.12, bx, by + 0.25 + H / 2, bz + s * hz, 0, [0.82, 0.66, 0.55]);
-        A.beam('iron', 0.06, [bx, by + 0.3, bz + s * (hz + 0.55)], [bx, by + 1.6, bz + s * hz], [0.8, 0.64, 0.52]);
-        A.beam('iron', 0.06, [bx, by + H - 0.1, bz + s * hz * 0.4], [bx, by + H - 0.6, bz + s * hz], [0.8, 0.64, 0.52]);
-      }
-      A.box('iron', 0.16, 0.16, hz * 2 + 0.3, bx, by + 0.25 + H, bz, 0, [0.82, 0.66, 0.55]);
-      const P = [[0.06, 0.82], [0.2, 0.8], [0.25, 0.7], [0.27, 0.45], [0.31, 0.2], [0.38, 0.06], [0.4, 0.0], [0.36, -0.01]].map(([a, b2]) => new THREE.Vector2(a, b2));
-      const bell = new THREE.LatheGeometry(P, 18), top = by + 0.25 + H - 0.08;
-      A.geo('bronze', bell, new THREE.Matrix4().makeTranslation(bx, top - 0.82, bz), [1, 1, 1], null);
-      A.box('iron', 0.12, 0.14, 0.32, bx, top - 0.02, bz, 0, [0.8, 0.65, 0.55]);
-      A.rod('iron', 0.025, [bx, top - 0.1, bz], [bx, top - 0.72, bz], [0.8, 0.65, 0.55], 6);
-      A.rod('iron', 0.06, [bx, top - 0.75, bz], [bx, top - 0.68, bz], [0.8, 0.65, 0.55], 8);
-      A.rod('rope', 0.018, [bx, top - 0.72, bz], [bx + 0.05, by + 0.04, bz + 0.2], [0.95, 0.92, 0.85], 5);
-      // the lifebuoy on its bracket by the bell (Book Two): a cork ring in tarred canvas, its line coiled under it
-      const lz = bz + hz + 0.1;
-      A.box('iron', 0.2, 0.04, 0.04, bx - 0.1, by + 1.55, lz, 0, [0.8, 0.65, 0.55]);
-      const lb = new THREE.Matrix4().compose(new THREE.Vector3(bx - 0.17, by + 1.25, lz), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, PI / 2, 0)), new THREE.Vector3(3.0, 3.0, 4.2));
+      const [mx, my, mz] = at(mastE), [, , bz0] = at(bellE), sz = Math.sign(bz0 - mz) || 1, legZ = mz + sz * 0.86, armZ = legZ + sz * 0.82, top = my + 0.45 + 2.55;
+      // the bracket: a plate on the tower's legs, the arm out from it, the brace under it
+      A.box('iron', 1.9, 0.5, 0.05, mx, top - 0.05, legZ + sz * 0.03, 0, [0.8, 0.64, 0.52]);
+      A.beam('iron', 0.08, [mx, top + 0.05, legZ], [mx, top + 0.05, armZ + sz * 0.08], [0.85, 0.68, 0.55], 0.1);
+      A.beam('iron', 0.05, [mx, top - 0.85, legZ + sz * 0.03], [mx, top, armZ - sz * 0.12], [0.8, 0.64, 0.52]);
+      const P = [[0.06, 0.82], [0.2, 0.8], [0.25, 0.7], [0.27, 0.45], [0.31, 0.2], [0.38, 0.06], [0.4, 0.0], [0.36, -0.01]].map(([a2, b2]) => new THREE.Vector2(a2, b2));
+      const bell = new THREE.LatheGeometry(P, 18), by0 = top - 0.06;
+      A.geo('bronze', bell, new THREE.Matrix4().makeTranslation(mx, by0 - 0.82, armZ), [1, 1, 1], null);
+      A.box('iron', 0.14, 0.16, 0.34, mx, by0 + 0.02, armZ, 0, [0.8, 0.65, 0.55]);
+      A.rod('iron', 0.025, [mx, by0 - 0.1, armZ], [mx, by0 - 0.72, armZ], [0.8, 0.65, 0.55], 6);
+      A.rod('iron', 0.06, [mx, by0 - 0.75, armZ], [mx, by0 - 0.68, armZ], [0.8, 0.65, 0.55], 8);
+      A.tube('rope', [[mx, by0 - 0.72, armZ], [mx + 0.02, by0 - 1.4, armZ + sz * 0.02], [mx + 0.05, my + 0.45, armZ + sz * 0.06]], 0.017, [0.95, 0.92, 0.85], 6, 3);
+      // the lifebuoy on its bracket by the bell: a cork ring in tarred canvas, its line coiled on the stones under it
+      const lx = mx + 0.62;
+      A.box('iron', 0.04, 0.04, 0.24, lx, my + 0.45 + 1.62, legZ + sz * 0.12, 0, [0.8, 0.65, 0.55]);
+      const lb = new THREE.Matrix4().compose(new THREE.Vector3(lx, my + 0.45 + 1.32, legZ + sz * 0.22), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, 0)), new THREE.Vector3(3.0, 3.0, 4.2));
       A.geo('cloth', TORUS(THREE), lb, [0.95, 0.92, 0.84], null);
-      coil(A, THREE, bx - 0.2, by, lz + 0.45, 0.6);
-      st.moleBell = true; st.lifebuoy = true;
+      coil(A, THREE, lx + 0.15, my + 0.45, legZ + sz * 0.6, 0.6);
+      st.moleBell = true; st.lifebuoy = true; st.bellOnTower = Math.hypot(bellE.x - mastE.x, bellE.y - mastE.y);
     }
 
     // ---- mooring posts (the map's posts), coils, the ring on the stones, crates and casks, lamps
@@ -871,12 +1096,18 @@
     }
     groupAt(37.4, 51.45, 'cask', 3, 0.05);        // by the Harbour office door: the dues come in casks as often as coin
     groupAt(42.0, 51.5, 'crate', 5, -0.04);
-    groupAt(55.2, 50.45, 'cask', 3, 0.1);
-    groupAt(59.4, 50.42, 'crate', 5, 0.02);       // the Mole's own: fish boxes and salvage waiting on the Harbour's fifth         // at the Mole's root, north edge: the Mole's own salt fish
+    groupAt(54.9, 50.6, 'cask', 3, 0.1);          // the ferry's stores by the Mole steps
+    groupAt(54.35, 49.5, 'cask', 1, 0);           // the ferry's water cask at the Mole steps
+    // against the parapet's foot, out of the way of the moorings: fish boxes waiting for the barrows, salt casks, salvage
+    // waiting on the Harbour's fifth
+    groupAt(57.6, 51.88, 'crate', 5, PI + 0.03);
+    groupAt(62.1, 51.88, 'cask', 3, PI + 0.1);
+    groupAt(63.55, 51.89, 'crate', 3, PI - 0.12);
+    groupAt(70.6, 51.88, 'cask', 1, PI);
     groupAt(73.0, 48.55, 'crate', 3, 0.5);        // salvage under the derrick (Article the Sixteenth)
-    groupAt(72.7, 49.5, 'cask', 1, 0);
-    groupAt(60.7, 53.45, 'cask', 1, 0);           // the ferry's water cask at the Mole steps
-    coil(A, THREE, 61.4 * C, YL, 53.8 * C, 0.8);
+    groupAt(73.7, 49.6, 'cask', 1, 0);
+    coil(A, THREE, 56.9 * C, YL, 49.72 * C, 0.8);
+    coil(A, THREE, 59.0 * C, YL, 51.7 * C, 0.9);
     coil(A, THREE, 73.6 * C, YL, 49.25 * C, 1.0);
 
     // ---- the map's harbour lamps (on the ground: an iron post, a stone foot, a lantern on an arm)
@@ -884,12 +1115,12 @@
       if (e.sprite !== 'p17c_lamppost' && e._lamp !== 'p17c_lamppost') continue;
       if (e._lampZ != null || e.yOff) continue;   // the Stair's wall-top lamps keep their sprites
       replaced.add(e);
-      const [x, y, z] = at(e);
+      const [x, y, z] = at(e), sz = R.blk(R.cell(Math.floor(e.x), Math.floor(e.y) + 1)) ? -1 : 1;   // the arm turns away from a wall behind it
       A.box('stone', 0.36, 0.3, 0.36, x, y + 0.15, z, 0, [0.8, 0.8, 0.76]);
       A.rod('iron', 0.06, [x, y + 0.3, z], [x, y + 2.75, z], [0.85, 0.72, 0.62], 8);
-      A.box('iron', 0.04, 0.04, 0.42, x, y + 2.7, z + 0.19, 0, [0.85, 0.72, 0.62]);
-      A.beam('iron', 0.03, [x, y + 2.4, z + 0.01], [x, y + 2.68, z + 0.3], [0.85, 0.72, 0.62]);
-      lamps.push({ p: [x, y + 2.42, z + 0.38], s: 0.95, e });
+      A.box('iron', 0.04, 0.04, 0.42, x, y + 2.7, z + sz * 0.19, 0, [0.85, 0.72, 0.62]);
+      A.beam('iron', 0.03, [x, y + 2.4, z + sz * 0.01], [x, y + 2.68, z + sz * 0.3], [0.85, 0.72, 0.62]);
+      lamps.push({ p: [x, y + 2.42, z + sz * 0.38], s: 0.95, e });
       st.lampPosts = (st.lampPosts || 0) + 1;
     }
 
@@ -908,34 +1139,35 @@
       const id = boats.length + 1;
       const ends = boat(A, THREE, { x, y: WY - 0.34, z, ry, L, Bm, v }, id, r, MT);
       boats.push({ e, id, ph: e._ph || 0 });
-      // the painter: from the bow to the nearest ring or post, sagging
+      // the painters: a thick laid rope from the bow (and the stern, when the kerb is near) to a kerb bollard, sagging;
+      // boats lying off make fast to a post or a ring
       for (const end of [ends.bow, ends.stern]) {
+        // a bow line leads forward and a stern line aft (as boats are made fast), so the bollard is looked for a little beyond
+        const ox = end[0] - x, oz = end[2] - z, ol = Math.hypot(ox, oz) || 1, kp = kerbPoint([end[0] + ox / ol * 2.6, end[1], end[2] + oz / ol * 2.6]);
+        if (kp) kp.d = Math.hypot(kp.p[0] - end[0], kp.p[2] - end[2]);
+        if (kp && kp.d < 8) {
+          const b = kerbBollard(kp.p), tgt = [b[0], b[1] + 0.5, b[2]], d = Math.hypot(tgt[0] - end[0], tgt[2] - end[2]);
+          A.cable('rope', end, tgt, 0.22 + d * 0.07, 0.042, [1.25, 1.08, 0.82], 18); st.cables = (st.cables || 0) + 1;
+          continue;
+        }
         let tgt = null, bd = 12;
         for (const q of ringsAndPosts) { const d = Math.hypot(q[0] - end[0], q[2] - end[2]); if (d < bd) { bd = d; tgt = q; } }
-        if (tgt && bd > 0.5) A.rope('rope', end, tgt, Math.min(0.9, 0.12 + bd * 0.08), 0.022, [0.85, 0.82, 0.78], 10);
+        if (tgt && bd > 0.5) A.cable('rope', end, tgt, Math.min(0.9, 0.12 + bd * 0.08), 0.03, [1.2, 1.05, 0.8], 14);
         if (end === ends.bow && bd > 6) break;
       }
     }
-    // one more boat of the Harbour's own [PROPOSED], alongside the Mole by the steps, its painter to a ring
-    {
-      const x = 62.3 * C, z = 54.9 * C, id = boats.length + 1;
-      if (R.water(62, 54) && id < 16) {
-        const ends = boat(A, THREE, { x, y: WY - 0.34, z, ry: PI + 0.06, L: 6.4, Bm: 2.0, v: 2 }, id, r, MT);
-        boats.push({ e: null, id, ph: 1.7 });
-        for (const end of [ends.bow, ends.stern]) { let tgt = null, bd = 12; for (const q of ringsAndPosts) { const d = Math.hypot(q[0] - end[0], q[2] - end[2]); if (d < bd) { bd = d; tgt = q; } } if (tgt) A.rope('rope', end, tgt, Math.min(0.9, 0.12 + bd * 0.08), 0.022, [0.85, 0.82, 0.78], 10); }
-      }
-    }
-    st.boats = boats.length;
+    st.boats = boats.length; st.kerbBollards = kerbBoll.length;
 
-    // ---- the jetty [PROPOSED]: a timber landing stage off the Mole's south face, where the boats come alongside
+    // ---- the jetty (owner: APPROVED): a timber landing stage off the Mole steps' landing into the harbour, where the boats
+    // come alongside (Book Two puts the moorings on the harbour side)
     {
-      const f = faces.find((q) => q.x === 55 && q.dy === 1);
+      const f = faces.find((q) => q.x === 54 && q.dy === -1);
       if (f) {
-        const x0 = 55.15 * C, x1 = 55.75 * C + 0.4, z0 = f.a[1] + 0.05, z1 = z0 + 6.4, dy = f.top - 0.32;
+        const x0 = 54.12 * C, x1 = 54.72 * C + 0.4, z1 = f.a[1] - 0.05, z0 = z1 - 6.4, dy = f.top - 0.32;
         for (let z = z0; z < z1; z += 0.24) A.box('planks', x1 - x0 + 0.1, 0.06, 0.21, (x0 + x1) / 2, dy, z + 0.11, 0, [0.78 + r() * 0.15, 0.72 + r() * 0.12, 0.62]);
-        for (const xx of [x0, x1]) { A.box('timber', 0.12, 0.18, z1 - z0, xx, dy - 0.12, (z0 + z1) / 2, 0, [0.6, 0.55, 0.5]); for (let z = z0 + 0.3; z <= z1; z += 2.0) A.rod('timber', 0.13, [xx, WY - 1.0, z], [xx, dy + (z > z1 - 1 ? 0.95 : 0.1), z], [0.65, 0.58, 0.5], 7); }
-        A.rod('timber', 0.13, [x1, WY - 1.0, z1], [x1, dy + 0.95, z1], [0.65, 0.58, 0.5], 7);
-        ringsAndPosts.push([x1, dy + 0.7, z1]);
+        for (const xx of [x0, x1]) { A.box('timber', 0.12, 0.18, z1 - z0, xx, dy - 0.12, (z0 + z1) / 2, 0, [0.6, 0.55, 0.5]); for (let z = z1 - 0.3; z >= z0; z -= 2.0) A.rod('timber', 0.13, [xx, WY - 1.0, z], [xx, dy + (z < z0 + 1 ? 0.95 : 0.1), z], [0.65, 0.58, 0.5], 7); }
+        A.rod('timber', 0.13, [x1, WY - 1.0, z0], [x1, dy + 0.95, z0], [0.65, 0.58, 0.5], 7);
+        ringsAndPosts.push([x1, dy + 0.7, z0]);
         st.jetty = true;
       }
     }
@@ -1126,7 +1358,7 @@
   // On the Long Mole just short of the Mole-head, looking back toward the town: a bollard and a cask close on the left, the
   // Mole's flags running in with water and moored boats on both sides, the Harbour office and Hesper's houses at the Mole's root, the terraces stacked up the cliff
   // with the Stair cut up the middle, and the counting-house at the top against the sky (no castle: the owner's rule).
-  const benchCam = { map: MAPID, x: 72.2, y: 51.0, dir: Math.PI - 0.04, pitch: 4, tod: 0.62, day: 3, weather: 'overcast' };
+  const benchCam = { map: MAPID, x: 58.6, y: 50.6, dir: 0.0, pitch: -14, tod: 0.62, day: 3, weather: 'overcast' };
 
   const api = { id: ID, MAPID, maps: (m) => !!m && m.id === MAPID, dress, lit, benchCam, get last() { return S.last; }, _internal: { mats, Acc, reader } };
   window.R11HARBOUR = api;

@@ -2,7 +2,10 @@
 // Covers js/r11harbour.js (ROADMAP R11 phase 4, team HARBOUR): Port Cantabile dressed to the owner's picture 3
 // (docs/graphics/bench3-harbour.jpg; docs/graphics/art-bible.md).
 //   - the dresser is on window.R11DRESSERS and R11.benchCams.harbour is { map, x, y, dir, pitch, tod, day, weather } on
-//     the Long Mole, looking toward the town
+//     the Long Mole, looking out along it to the Mole-head (picture 3: the harbour and a moored boat on the left)
+//   - the Long Mole follows Book Two (owner's ruling 9 Nov 2026): the parapet on the sea side is the map's wall cells, drawn
+//     as granite courses; the moorings on the harbour side; the round Mole-head with the mast-tower in the middle and the
+//     Mole-bell on its bracket on the tower; the water's edge a kerb of big blocks; thick ropes from the boats to kerb bollards
 //   - the dress: the Mole's cells drawn as flags (hidden from core), bollards, rings, ladders, the Mole steps; the
 //     mast-tower, the derrick with the Articles, the cradle rope, the Mole-bell and the lifebuoy; every map boat replaced
 //     by a hull; houses replacing core's blocks (hiddenCells never hold a door or a walkable cell); the counting-house;
@@ -111,7 +114,7 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
       ok(r.reg, 'not on R11DRESSERS');
       const B = r.B; ok(B && B.map === 'cantabile_harbour' && ['x', 'y', 'dir', 'pitch', 'tod'].every((k) => typeof B[k] === 'number'), 'shape ' + JSON.stringify(B));
       ok(r.mole === 'p17c_mole', 'the camera stands on ' + r.mole);
-      ok(Math.cos(B.dir) < -0.9, 'looks west, toward the town: dir ' + B.dir);
+      ok(Math.cos(B.dir) > 0.8, 'looks east, out along the Mole to the Mole-head: dir ' + B.dir);
       // nobody stands in the camera's face (a billboard a pace away fills picture 3's frame)
       const close = await page.evaluate(() => { const B = R11.benchCams.harbour, m = G.maps[B.map], c = Math.cos(B.dir), s = Math.sin(B.dir);
         return (m.entities || []).filter((e) => { const dx = e.x - B.x, dy = e.y - B.y, d = Math.hypot(dx, dy); return d < 1.6 && (dx * c + dy * s) / (d || 1) > 0.3 && !/post|ring|coil|barrel|crate|gull|lamp/.test(e.sprite || ''); }).map((e) => e.sprite); });
@@ -126,19 +129,42 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
         const boats = (m.p17cBoats || []).length, boatsReplaced = (m.p17cBoats || []).filter((e) => L.replaced.has(e)).length;
         const repl = (sp) => m.entities.filter((e) => e.sprite === sp).every((e) => L.replaced.has(e));
         const coreHidden = [...L.hiddenCells].every((c) => R11.R && true);
-        return { st, doorHidden, walkHidden, boats, boatsReplaced, mast: repl('p17c_mast'), derrick: repl('p17c_derrick'), bell: repl('p17c_molebell'), posts: repl('p12r_post'), sea: !!L.sea, map: G.map.id, coreHidden };
+        const par = []; for (let i = 0; i < m.cells.length; i++) if (m.cells[i] && m.cells[i].moleParapet) par.push(i);
+        const parapetHidden = par.length > 0 && par.every((i) => L.hiddenCells.has(i));
+        const parapetSea = par.length > 0 && par.every((i) => { const t = m.floorTextures[m.floorCells[i + m.w]]; const n = m.floorTextures[m.floorCells[i - m.w]]; return /water/.test(t || '') && n === 'p17c_mole'; });
+        const MH = CANTABILE17.MOLE_HEAD, mastE = m.entities.find((e) => e.sprite === 'p17c_mast'), mastMid = Math.round(Math.hypot(mastE.x - MH.x, mastE.y - MH.y) * 100) / 100;
+        return { st, doorHidden, walkHidden, boats, boatsReplaced, mast: repl('p17c_mast'), derrick: repl('p17c_derrick'), bell: repl('p17c_molebell'), posts: repl('p12r_post'), sea: !!L.sea, map: G.map.id, coreHidden, parapetHidden, parapetSea, mastMid };
       });
       const s = dress.st;
       console.log('  stats ' + JSON.stringify(Object.assign({}, s, { countingHouse: !!s.countingHouse })));
       ok(dress.map === 'cantabile_harbour', 'map ' + dress.map);
-      ok(s.moleCells > 120 && s.bollards >= 5 && s.rings >= 10 && s.ladders === 2 && s.moleSteps > 0, 'the Mole ' + JSON.stringify([s.moleCells, s.bollards, s.rings, s.ladders, s.moleSteps]));
+      ok(s.moleCells > 90 && s.bollards >= 5 && s.rings >= 10 && s.ladders === 2 && s.moleSteps > 0 && s.kerbs > 4, 'the Mole ' + JSON.stringify([s.moleCells, s.bollards, s.rings, s.ladders, s.moleSteps, s.kerbs]));
+      ok(s.parapetCells >= 15 && dress.parapetHidden && dress.parapetSea, 'the parapet on the sea side: ' + s.parapetCells + ' cells, hidden ' + dress.parapetHidden + ', sea beyond it ' + dress.parapetSea);
+      ok(s.headRound && s.headCourses >= 3, 'the round Mole-head: ' + s.headCourses + ' courses');
       ok(s.mastTower && s.derrick && s.articles && s.cradleRope && s.moleBell && s.lifebuoy && dress.mast && dress.derrick && dress.bell, 'the Mole-head');
+      ok(s.bellOnTower < 1 && dress.mastMid < 0.2, 'the mast-tower in the middle of the head (' + dress.mastMid + ') and the Mole-bell on the tower (' + s.bellOnTower + ')');
+      ok(s.cables >= 4 && s.kerbBollards >= 2, 'boats made fast with thick rope to kerb bollards: ' + s.cables + ' cables, ' + s.kerbBollards + ' bollards');
       ok(dress.boats > 0 && dress.boatsReplaced === dress.boats && s.boats >= dress.boats, 'boats ' + dress.boatsReplaced + '/' + dress.boats);
       ok(s.houses >= 20 && s.countingHouse && s.cliffCells > 500 && s.shoreRocks > 50 && dress.sea && dress.posts, 'houses ' + s.houses + ' cliff ' + s.cliffCells + ' shore ' + s.shoreRocks + ' sea ' + dress.sea);
       ok(dress.doorHidden === 0 && dress.walkHidden === 0, 'hidden doors ' + dress.doorHidden + ', hidden walkable cells (not the Mole) ' + dress.walkHidden);
       ok(s.lamps > 20, 'lamps ' + s.lamps);
     });
-    await step('the skyline (no castle): the cliff town is in the bench view, and the counting-house\'s roof stands over the cliff seen from the Mole', async () => {
+    await step('the bench view: a moored boat close on the left with its rope; the mast-tower, the Mole-light, the derrick\'s Articles and the Mole-bell down the Mole', async () => {
+      const r = await page.evaluate(() => {
+        S.bench(); S.frame();
+        const L = R11HARBOUR.last, m = G.map, T = R11.THREE, M = R11.M, B = R11.benchCams.harbour, ZK = 0.61875, v = new T.Vector3();
+        const pr = (x, y, h) => { v.set(x, h * ZK, y).project(R11.camera); return { x: Math.round(v.x * 100) / 100, y: Math.round(v.y * 100) / 100, in: Math.abs(v.x) < 1 && Math.abs(v.y) < 1 && v.z < 1 }; };
+        const g = m.groundAt ? m.groundAt(B.x, B.y) : 0.4;
+        const near = L.boats.filter((b) => b.e).map((b) => ({ b, d: Math.hypot(b.e.x - B.x, b.e.y - B.y) })).sort((a, c) => a.d - c.d)[0];
+        const ent = (sp) => m.entities.find((e) => e.sprite === sp);
+        return { boat: near && Object.assign(pr(near.b.e.x, near.b.e.y, 0.2), { d: Math.round(near.d * 100) / 100 }), mast: pr(ent('p17c_mast').x, ent('p17c_mast').y, g + 4), light: pr(ent('p17c_mast').x - 0.5, ent('p17c_mast').y, g + 3.4),
+          derrick: pr(ent('p17c_derrick').x, ent('p17c_derrick').y, g + 1.8), bell: pr(ent('p17c_molebell').x, ent('p17c_molebell').y, g + 1.2), cables: L.stats.cables };
+      });
+      console.log('  ' + JSON.stringify(r));
+      ok(r.boat && r.boat.in && r.boat.x < -0.2 && r.boat.d < 4, 'the nearest moored boat sits on the left of the frame: ' + JSON.stringify(r.boat));
+      ok(r.mast.in && r.light.in && r.derrick.in && r.bell.in, 'the Mole-head in view');
+    });
+    await step('the skyline (no castle): the counting-house\'s roof stands over the cliff seen from the Mole', async () => {
       const r = await page.evaluate(() => {
         const L = R11HARBOUR.last, ch = L.stats.countingHouse, M = R11.M, T = R11.THREE, B = R11.benchCams.harbour;
         const proj = () => new T.Vector3((ch.x0 + ch.x1 + 1) / 2, ch.top * M, (ch.y0 + ch.y1 + 1) / 2).project(R11.camera);
@@ -154,7 +180,6 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
         return { town, p: { x: p.x, y: p.y, z: p.z }, top: ch.top, maxTop };
       });
       console.log('  ' + JSON.stringify(r));
-      ok(r.town >= 3, 'terrace houses in the bench view: ' + r.town);
       ok(Math.abs(r.p.x) < 1 && r.p.y > -1 && r.p.y < 1 && r.p.z < 1, 'counting-house roof projects to ' + JSON.stringify(r.p));
       ok(r.top >= r.maxTop - 0.6, 'the counting-house is the highest roof: ' + r.top + ' vs ' + r.maxTop);
     });

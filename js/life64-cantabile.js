@@ -14,6 +14,9 @@
 //  the Salt Stair; the children go in at Hesper's doors.
 //  They keep to the quay (flags and Mole, never the water or the cliff), and when the Mole-bell rings they stop where they
 //  are and say nothing until the harbour has counted (js/cantabile17.js T.count).
+//  R11 phase 4 (owner's ruling 9 Nov 2026, Book Two): the Long Mole is twenty feet wide with a parapet on the sea side and
+//  its moorings on the harbour side, so the pilot watches the sea over the parapet and the caulker and the night fisher
+//  work the harbour edge, and the two Free Captains argue a little further out.
 //  The Flambeaux at the counting-house and the Book Two scenes are not staged, as in the extra.
 // ============================================================
 'use strict';
@@ -79,29 +82,29 @@ const LIFE64_CANT = (function () {
       work: S('"Washing, then minding the little ones. Then washing. It\'s salt again by noon, all of it. Everything here is."'),
       barks: [S('Hesper\'s eldest: "Don\'t go near the steps! I can see you!"')] },
     { key: 'pilot', name: S('A pilot'), sprite: 'p60_man_c', home: STAIR,
-      day: [home(18, 6), st(6, 18, 'watch', [66.5, 52.4], { face: SO })],
+      day: [home(18, 6), st(6, 18, 'watch', [66.5, 51.62], { face: SO })],
       greet: S('"Want taking through the reef? I can hear it from here. It\'s on the fourth key and going up. Ask me in an hour and I\'ll tell you a different price."'),
       work: S('"Pilotage. I listen to the sea and tell boats where it\'s lying. Auld Bessa reads it better. Auld Bessa is eighty-four."'),
       barks: [S('A pilot, to the sea: "Going up. Going up. There\'s the turn."')] },
     { key: 'capA', name: S('A Free Captain'), sprite: 'p60_man_a', home: STAIR,
-      day: [home(16, 10), st(10, 16, 'chat', [62.5, 51.0], { face: 'capB' })],
+      day: [home(16, 10), st(10, 16, 'chat', [64.9, 50.8], { face: 'capB' })],
       greet: S('"Free Captain, and free to tell you to mind your business. Politely."'),
       barks: [S('A Free Captain: "...and I say it\'s my fifth, by the Articles, and he says—"'), S('A Free Captain, hand on heart: "On the Articles. On the drop."')] },
     { key: 'capB', name: S('A Free Captain'), sprite: 'p16f_dockman', home: STAIR,
-      day: [home(16, 10), st(10, 16, 'chat', [63.6, 51.1], { face: 'capA' })],
+      day: [home(16, 10), st(10, 16, 'chat', [65.9, 51.0], { face: 'capA' })],
       greet: S('She is listening to the other captain with the expression of a woman counting how far it is from the Mole to the derrick.'),
       barks: [S('A Free Captain: "Then take it to the Queen. Take it to the Queen, and take your boots off first."')] },
     { key: 'sluice', name: S('A boy with a bucket'), sprite: 'p17c_child', scale: 0.8, home: STAIR,
-      day: [home(18, 7), st(7, 10, 'scrub', [57.5, 51.5], { face: N }), st(10, 16, 'carry', [55.5, 51.4], { to2: [70.5, 51.4] }), st(16, 18, 'sit', [55.4, 53.6], { face: SO })],
+      day: [home(18, 7), st(7, 10, 'scrub', [57.5, 51.5], { face: N }), st(10, 16, 'carry', [55.5, 51.4], { to2: [70.5, 51.4] }), st(16, 18, 'sit', [56.6, 49.5], { face: N })],
       greet: S('"Penny a morning to sluice the Mole. Gulls are a penny each. Not to sluice. To shout at."'),
       barks: [S('A boy with a bucket: "Gangway! Wet stones! Gangway!"')] },
     { key: 'caulk', name: S('A caulker'), sprite: 'p60_man_b', home: STAIR,
-      day: [home(18, 7), st(7, 12, 'hammer', [68.5, 52.6], { face: SO }), st(12, 13, 'sit', [69.5, 51.0], { face: N }), st(13, 18, 'hammer', [68.5, 52.6], { face: SO })],
-      props: [['p_barrel', 69.4, 52.6, 0.55]],
+      day: [home(18, 7), st(7, 12, 'hammer', [68.9, 50.3], { face: N }), st(12, 13, 'sit', [69.5, 51.4], { face: N }), st(13, 18, 'hammer', [68.9, 50.3], { face: N })],
+      props: [['p_barrel', 67.9, 50.35, 0.55]],
       greet: S('"Oakum and pitch. Tap it in, pay it over, she\'s tight. Mind the pot, it\'s hot, and so am I."'),
       barks: [S('A caulker: "Tap. Tap. Pay it in."')] },
     { key: 'sail', name: S('A sail-mender'), sprite: 'p60_wom_a', home: STAIR,
-      day: [home(18, 9), st(9, 18, 'sit', [73.5, 54.4], { face: E })],
+      day: [home(18, 9), st(9, 18, 'sit', [74.4, 53.6], { face: E })],
       greet: S('"Every boat in the harbour has a bar of bells at the shroud-head, and every one of them\'s tuned, and not one of them\'s tuned to the next. Listen. That\'s forty boats arguing."'),
       work: S('"Patching. Wind tears it, I sew it, wind tears it. We\'ve an understanding."'),
       barks: [S('A sail-mender: "Palm, needle, pull."')] },
@@ -123,7 +126,7 @@ const LIFE64_CANT = (function () {
       greet: S('"Watching for boats. Watching for weather. Watching for anybody who wants to climb that mast who isn\'t crew."'),
       barks: [S('The night watch, to the dark: "All\'s well on the Mole. All\'s well."')] },
     { key: 'nightfish', name: S('A man fishing off the Mole'), sprite: 'p17c_hand', home: STAIR,
-      day: [home(0, 20), st(20, 24, 'sit', [58.5, 53.6], { face: SO })],
+      day: [home(0, 20), st(20, 24, 'sit', [60.6, 50.25], { face: N })],
       greet: S('"Not biting. Never bites. I come for the quiet. There isn\'t any, but I come for it."'),
       barks: [S('A man fishing: "...come on... come on..."')] },
   ];
