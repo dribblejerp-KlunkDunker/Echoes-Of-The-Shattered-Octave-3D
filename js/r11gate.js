@@ -43,9 +43,9 @@ const R11GATE = (function () {
 
   // ---- per tier: spacing of the hedge's grids (m) and density factors
   const TIERS = {
-    ultra: { du: 0.3, dv: 0.27, spray: 1, tuft: 1, stem: 1, straw: 1, radial: 5, seg: 8, shadow: true, ico: 2 },
-    high: { du: 0.36, dv: 0.32, spray: 0.75, tuft: 0.8, stem: 0.8, straw: 0.8, radial: 5, seg: 7, shadow: true, ico: 2 },
-    phone: { du: 0.55, dv: 0.45, spray: 0.4, tuft: 0.45, stem: 0.4, straw: 0.5, radial: 4, seg: 5, shadow: false, ico: 1 },
+    ultra: { du: 0.3, dv: 0.27, spray: 1, tuft: 1, stem: 1, straw: 1, radial: 5, seg: 8, shadow: true, ico: 2, lat: 7, lseg: 5 },
+    high: { du: 0.36, dv: 0.32, spray: 0.75, tuft: 0.8, stem: 0.8, straw: 0.8, radial: 5, seg: 7, shadow: true, ico: 2, lat: 5, lseg: 4 },
+    phone: { du: 0.55, dv: 0.45, spray: 0.4, tuft: 0.45, stem: 0.4, straw: 0.5, radial: 4, seg: 5, shadow: false, ico: 1, lat: 2.2, lseg: 3 },
   };
   const tierOf = (n) => (TIERS[n] ? n : 'high');
   // where the gate stands along the gap through the Hedge (0 outer edge, 1 town edge): near the town end, so from inside
@@ -331,7 +331,7 @@ const R11GATE = (function () {
       bark: scan('bark_brown_02', { color: 0xb4ada4, ns: 1.5, vc: true }),
       wood: scan('medieval_wood', { color: 0xe8e2d8, vc: true }),
       stone: scan('medieval_blocks_02', { color: 0xc8c0b4, vc: true }),
-      wool: shared(new THREE.MeshStandardMaterial({ map: woolTex(THREE), bumpMap: woolTex(THREE), bumpScale: 2.2, roughness: 1, metalness: 0, vertexColors: true })),
+      wool: shared(new THREE.MeshStandardMaterial({ map: woolTex(THREE), bumpMap: woolTex(THREE), bumpScale: 0.6, roughness: 1, metalness: 0, vertexColors: true })),
       card: shared(new THREE.MeshStandardMaterial({ map: atlasTex(THREE), alphaTest: 0.42, side: THREE.DoubleSide, roughness: 0.92, metalness: 0, vertexColors: true })),
       cloth: shared(new THREE.MeshStandardMaterial({ map: clothTex(THREE), side: THREE.DoubleSide, roughness: 1, metalness: 0, vertexColors: true })),
       iron: shared(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7, metalness: 0.45, vertexColors: true })),
@@ -433,7 +433,7 @@ const R11GATE = (function () {
     // the packed wool: a man's height, give or take
     const woolTop = (x, z) => lerp(1.72 + (fbm(x * 0.45, 11.3, z * 0.45) - 0.5) * 1.1 + (vn(x * 1.6, 6.6, z * 1.6) - 0.5) * 0.55, 1.25, thinW(x, z) * 0.7);
     // how far the wool stands proud of the hedge's line at a point (lumps of ~0.5 m, rammed)
-    const woolOut = (x, h, z) => { const f0 = fbm(x * 3.4, h * 3.9 + 3.1, z * 3.4), f = sstep(f0, 0.3, 0.72); return { b: 0.05 + 0.3 * f + 0.08 * vn(x * 0.45, h * 0.3, z * 0.45), f }; };
+    const woolOut = (x, h, z) => { const f0 = fbm(x * 3.4, h * 3.9 + 3.1, z * 3.4), f = sstep(f0, 0.3, 0.72); return { b: 0.04 + 0.12 * f + 0.05 * vn(x * 0.45, h * 0.3, z * 0.45), f }; };
     return { gAt, thinW, gateW, top, woolTop, woolOut, gx, gz };
   }
 
@@ -449,7 +449,7 @@ const R11GATE = (function () {
     const RT = { thornA: rectUV(AT.thornA), thornB: rectUV(AT.thornB), straw: rectUV(AT.straw), strawB: rectUV(AT.strawB), writ: rectUV(AT.writ) };
     const ico = (d) => { const k = 'ico' + d; if (!TEX[k]) { const add = window.R11THREE && window.R11THREE.mergeVertices; let g = new THREE.IcosahedronGeometry(1, d); g.deleteAttribute('uv'); g.deleteAttribute('normal'); if (add) g = add(g); TEX[k] = g; } return TEX[k]; };
     const greenK = S.greening ? 1 : 0;
-    let nTuft = 0, nCard = 0, nStem = 0, nPost = 0;
+    let nTuft = 0, nCard = 0, nStem = 0, nPost = 0, nLat = 0;
 
     for (const r of runs) {
       const L = r.L, ext = 0.18, A = r.A, Tt = r.T, N = r.N, nu = Math.max(2, Math.ceil((L + ext * 2) / T.du));
@@ -467,7 +467,7 @@ const R11GATE = (function () {
             else { h = wt + 0.1; d = -0.32; f = 0.5; }
             const p = P(s, h, d);
             // grey wool, dirtier toward the roots, darker in the hollows; rotted (darker, browner) where it is thin
-            let k = 0.16 + 0.56 * f * f * (3 - 2 * f); const dirt = sstep(0.5 - h, 0, 0.5);
+            let k = 0.5 + 0.24 * f * f * (3 - 2 * f); const dirt = sstep(0.5 - h, 0, 0.5);
             let c = [k * 0.98, k * 0.95, k * 0.9];
             c = [lerp(c[0], 0.3, dirt), lerp(c[1], 0.26, dirt), lerp(c[2], 0.2, dirt)];
             if (tw > 0) c = [lerp(c[0], 0.4, tw * 0.6), lerp(c[1], 0.36, tw * 0.6), lerp(c[2], 0.3, tw * 0.6)];
@@ -486,8 +486,8 @@ const R11GATE = (function () {
           for (let j = 0; j <= nv + 1; j++) {
             let h, d; const f = fbm(bx * 1.3 + 7, j * 0.7, bz * 1.3);
             if (j <= nv) { h = lerp(wt, tp, j / nv); d = lerp(0.12, -0.2, Math.min(1, j / 2)) + 0.22 * f - (j === nv ? 0.15 : 0); } else { h = tp + 0.05; d = -0.75; }
-            const k = 0.46 + 0.3 * f;
-            Pg[j].push(P(s, h, d)); Cg[j].push([k, k * 0.97, k * 0.9]); Ug[j].push([(s + h * 0.8) / 0.8, (h - s * 0.8) / 0.8]);
+            const k = 1.6 + 0.9 * f;
+            Pg[j].push(P(s, h, d)); Cg[j].push([k * 0.92, k * 0.98, k * 1.25]); Ug[j].push([(s + h * 0.8) / 0.8, (h - s * 0.8) / 0.8]);
           }
         }
         accGrid(bark, Pg, Cg, Ug, false);
@@ -506,32 +506,51 @@ const R11GATE = (function () {
       for (let k = 0; k < nS; k++) {
         const s0 = R(0, L), [bx, bz] = at(s0), wt = sh.woolTop(bx, bz), tp = sh.top(bx, bz), gw = sh.gateW(bx, bz);
         const h0 = R(0.05, wt), dir = rnd() < 0.5 ? -1 : 1, s1 = clamp(s0 + dir * R(0.5, 1.8), 0.1, L - 0.1), h1 = Math.min(tp + 0.15, h0 + R(0.6, 2.2));
-        const bulge = R(0.1, 0.32) + gw * 0.1, seg = T.seg, pts = [], rad = [], r0 = R(0.025, 0.06) * (1 + gw * 0.2);
+        const bulge = R(0.1, 0.32), seg = T.seg, pts = [], rad = [], r0 = R(0.025, 0.06);
         for (let q = 0; q <= seg; q++) {
           const t = q / seg, s = lerp(s0, s1, t) + Math.sin(t * PI * 2 + k) * 0.08, h = lerp(h0, h1, t) + Math.sin(t * PI * 3 + k * 1.7) * 0.07;
-          const d = Math.sin(t * PI) * bulge * 0.6 + sh.woolOut(bx + Tt[0] * (s - s0), h, bz + Tt[1] * (s - s0)).b + 0.02;
+          const d = Math.sin(t * PI) * bulge * 0.25 + sh.woolOut(bx + Tt[0] * (s - s0), h, bz + Tt[1] * (s - s0)).b * 0.7;
           pts.push(P(s, h, d)); rad.push(r0 * (1 - t * 0.6));
         }
-        const kk = R(1.35, 1.9);
-        // by the gap only one stem in three is kept: inches from the eye, in the gap's shade, more read as black coils
-        // (built into a throwaway so the random stream, and so everything after it, stays as it was)
-        const keep = !(gw > 0.55 && k % 3 !== 0);
-        accTube(keep ? bark : Acc(), pts, rad, T.radial, [kk, kk * 0.98, kk * 0.95], 0.9); if (keep) nStem++;
+        const kk = R(2.6, 3.6);
+        // none by the gap: inches from the eye they read as black coils; the lattice below is the face there
+        const keep = gw <= 0.4;
+        accTube(keep ? bark : Acc(), pts, rad, T.radial, [kk * 0.92, kk * 0.98, kk * 1.25], 0.9); if (keep) nStem++;
+      }
+      // ---- the face: thin thorn stems crossing in a close lattice over the wool and the tangle (picture 2's wall);
+      // denser by the gate. Its own random stream, so the rest of the Hedge does not move
+      {
+        const lr = mulberry(Math.round(A[0] * 131 + A[1] * 71 + L * 17) + 9), LR = (a, b) => a + (b - a) * lr();
+        const nL = Math.round(L * T.lat * 3);
+        for (let k = 0; k < nL; k++) {
+          const s0 = LR(0, L), [bx, bz] = at(s0), gw = sh.gateW(bx, bz), tw = sh.thinW(bx, bz), tp = sh.top(bx, bz), wt = sh.woolTop(bx, bz);
+          if (lr() > (1 + 2 * gw) / 3 || lr() < tw * 0.5) continue;
+          const h0 = LR(0.1, tp - 0.15), th = (lr() < 0.5 ? 1 : -1) * LR(0.5, 1.15), len = LR(0.7, 2.1), ph = lr() * 6, bow = LR(0.02, 0.07), r0 = LR(0.011, 0.026);
+          const pts = [], rad = [], seg = T.lseg;
+          for (let q = 0; q <= seg; q++) {
+            const t = q / seg, s = clamp(s0 + Math.cos(th) * len * (t - 0.5) + Math.sin(t * PI * 2 + ph) * 0.04, -0.1, L + 0.1);
+            const h = clamp(h0 + Math.sin(th) * len * (t - 0.5) + Math.sin(t * PI * 1.5 + ph) * 0.05, 0.04, tp + 0.02);
+            const [qx, qz] = at(s), face = h < wt ? sh.woolOut(qx, h, qz).b : 0.06 + 0.1 * fbm(qx * 1.3 + 7, h * 1.4, qz * 1.3);
+            pts.push(P(s, h, face + 0.03 + Math.sin(t * PI) * bow)); rad.push(r0 * (1 - t * 0.45));
+          }
+          const kk = LR(3.0, 4.4);
+          accTube(bark, pts, rad, 3, [kk * 0.9, kk * 0.97, kk * 1.22], 0.6); nLat++;
+        }
       }
       // ---- wool caught in the thorn (lumpy tufts)
-      const nT = Math.round(L * 1.0 * T.tuft * (r.kind === 'in' ? 1 : 0.6));
+      const nT = Math.round(L * 2.4 * T.tuft * (r.kind === 'in' ? 1 : 0.6));
       for (let k = 0; k < nT; k++) {
         const s = R(0, L), [bx, bz] = at(s), wt = sh.woolTop(bx, bz), tp = sh.top(bx, bz), tw = sh.thinW(bx, bz);
         if (rnd() < tw * 0.7) continue;
         const h = R(wt - 0.15, tp + 0.05), near = sh.gateW(bx, bz) > 0.2, geo = ico(near ? T.ico : 1);
-        const sz = R(0.1, 0.22) * (h > tp - 0.2 ? 0.8 : 1), p = P(s, h, R(-0.12, 0.06));
-        tuft(THREE, wool, geo, p, sz, rnd, N, [0.84, 0.82, 0.77]); nTuft++;
+        const sz = R(0.055, 0.13) * (h > tp - 0.2 ? 0.8 : 1), face = h < wt ? sh.woolOut(bx, h, bz).b : 0.08, p = P(s, h, face + R(-0.05, 0.02));
+        tuft(THREE, wool, geo, p, sz, rnd, N, [1.5, 1.47, 1.4]); nTuft++;
       }
       // ---- the top of the packed wool: lumps of it, so it ends in tufts, not a ledge
       for (let s = R(0, 0.3); s < L; s += R(0.28, 0.5) / Math.max(0.5, T.tuft)) {
         const [bx, bz] = at(s), wt = sh.woolTop(bx, bz), tw = sh.thinW(bx, bz);
-        const p = P(s, wt - R(0.02, 0.12), sh.woolOut(bx, wt, bz).b * 0.4 - R(0.0, 0.12)), sz = R(0.14, 0.24) * (1 - tw * 0.3);
-        tuft(THREE, wool, ico(sh.gateW(bx, bz) > 0.2 ? T.ico : 1), p, sz, rnd, N, tw > 0.3 ? [0.42, 0.38, 0.33] : [0.62, 0.6, 0.56]); nTuft++;
+        const p = P(s, wt - R(0.02, 0.12), sh.woolOut(bx, wt, bz).b * 0.4 - R(0.0, 0.12)), sz = R(0.08, 0.15) * (1 - tw * 0.3);
+        tuft(THREE, wool, ico(sh.gateW(bx, bz) > 0.2 ? T.ico : 1), p, sz, rnd, N, tw > 0.3 ? [0.75, 0.7, 0.62] : [1.3, 1.27, 1.2]); nTuft++;
       }
       // ---- sprays of bare thorn (atlas cards): in front of the tangle, along the top, a few over the wool
       const card1 = (s, h, d, w, hh, yaw, tilt, which, col) => {
@@ -541,7 +560,7 @@ const R11GATE = (function () {
         const ux = N[0] * Math.sin(tilt), uy = Math.cos(tilt), uz = N[1] * Math.sin(tilt);
         accCard(card, p, [rx * w / 2, 0, rz * w / 2], [ux * hh / 2, uy * hh / 2, uz * hh / 2], which, col, rnd() < 0.5); nCard++;
       };
-      const cTh = () => { const k = R(1.15, 1.6); return greenK ? [k * 0.8, k * 1.05, k * 0.7] : [k, k * 0.98, k * 0.94]; };
+      const cTh = () => { const k = R(1.6, 2.2); return greenK ? [k * 0.8, k * 1.05, k * 0.7] : [k, k * 0.98, k * 0.94]; };
       const nC = Math.round(L * 8 * T.spray);
       for (let k = 0; k < nC; k++) {
         const s = R(-0.1, L + 0.1), [bx, bz] = at(s), wt = sh.woolTop(bx, bz), tp = sh.top(bx, bz), tw = sh.thinW(bx, bz);
@@ -617,7 +636,7 @@ const R11GATE = (function () {
       for (let j = 0; j <= 1; j++) { Pu.push([]); Cu.push([]); Uu.push([]); for (let i = 0; i <= 1; i++) { const x = (cx + i) * C, z = (cy + j) * C; Pu[j].push([x, g + y0, z]); Cu[j].push([0.18, 0.17, 0.15]); Uu[j].push([x, z]); } }
       accGrid(bark, Pu, Cu, Uu, false);
     }
-    out.stats = { runs: runs.length, tufts: nTuft, cards: nCard, stems: nStem, posts: nPost };
+    out.stats = { runs: runs.length, tufts: nTuft, cards: nCard, stems: nStem, posts: nPost, lattice: nLat };
     return { bark, wool, card, cloth, wood, iron, stone, sh, C, WALLM, M };
   }
   // one tuft of wool: a lumpy, squashed ball, lighter on top, darker under
@@ -627,7 +646,7 @@ const R11GATE = (function () {
     const P = [], cnt = pos.count;
     for (let k = 0; k < cnt; k++) {
       const x = pos.getX(k), y = pos.getY(k), z = pos.getZ(k);
-      const r = 1 + (vn(x * 2.2 + sd, y * 2.2, z * 2.2) - 0.5) * 0.45 + (vn(x * 5 + sd, y * 5, z * 5) - 0.5) * 0.12;
+      const r = 1 + (vn(x * 2.2 + sd, y * 2.2, z * 2.2) - 0.5) * 0.3 + (vn(x * 5 + sd, y * 5, z * 5) - 0.5) * 0.06;
       let lx = x * r * ax, ly = y * r * ay, lz = z * r * az; if (lx < -0.3) lx = -0.3 + (lx + 0.3) * 0.3;   // flattened where it is pushed into the thorn
       P.push([p[0] + (lx * cy - lz * sy) * sz, p[1] + ly * sz, p[2] + (lx * sy + lz * cy) * sz]);
     }
@@ -641,7 +660,7 @@ const R11GATE = (function () {
     }
     for (let k = 0; k < cnt; k++) {
       let nx = Nn[k * 3], ny = Nn[k * 3 + 1], nz = Nn[k * 3 + 2]; const l = Math.hypot(nx, ny, nz) || 1; nx /= l; ny /= l; nz /= l;
-      const y = pos.getY(k), lit = 0.62 + 0.38 * clamp(y * 0.5 + 0.5, 0, 1), v = 0.92 + (vn(k * 0.37, sd, 1) - 0.5) * 0.2;
+      const y = pos.getY(k), lit = 0.78 + 0.22 * clamp(y * 0.5 + 0.5, 0, 1), v = 0.92 + (vn(k * 0.37, sd, 1) - 0.5) * 0.2;
       accVert(A, P[k][0], P[k][1], P[k][2], nx, ny, nz, (pos.getX(k) + pos.getZ(k)) * 0.6 * sz / 0.2 + sd, pos.getY(k) * 0.6 * sz / 0.2, col[0] * lit * v, col[1] * lit * v, col[2] * lit * v);
     }
     if (I) for (let t = 0; t < I.length; t++) A.i.push(base + I[t]); else for (let k = 0; k < cnt; k++) A.i.push(base + k);
@@ -686,17 +705,19 @@ const R11GATE = (function () {
       // the lintel over the gap and its knee braces [PROPOSED]
       accBox(st.wood, THREE, C + 1.15, 0.3, 0.36, m4((gx0 + gx1) / 2, g0 + PH + 0.2, gz, 0.01, 0.006), OAKD, 1.2, true);
       for (const [x, sg] of [[gx0, 1], [gx1, -1]]) accBox(st.wood, THREE, 0.12, 0.82, 0.14, m4(x + sg * 0.42, g0 + PH - 0.3, gz, 0, -sg * 0.79), OAK, 1.2);
-      // the coin ledge on the west gatepost, on the gap's side where Kaelen comes for it [PROPOSED form], and the coin
-      const lx = gx0, lz = gz - PW / 2 - 0.06, ly = g0 + 1.34;
+      // the coin ledge on the east gatepost (the hinge post), on its face toward the gap, where Kaelen comes for it
+      // [PROPOSED form], and the coin
+      const lx = gx1 - 0.05, lz = gz - PW / 2 - 0.06, ly = g0 + 1.3;
       accBox(st.wood, THREE, 0.24, 0.05, 0.12, m4(lx, ly, lz, 0), OAK, 1.2);
       const crnd = mulberry(1349);
       for (let k = 0; k < 5; k++) accGeo(st.iron, THREE, coinGeo(THREE), m4(lx + (crnd() - 0.5) * 0.17, ly + 0.027 + k % 2 * 0.0036, lz + (crnd() - 0.5) * 0.07, crnd() * 3, (crnd() - 0.5) * 0.06), COPPER);
       accGeo(st.iron, THREE, coinGeo(THREE), m4(lx + 0.03, ly + 0.025 + 0.012, lz + 0.05, 0.3, 0, PI / 2 - 0.25), COPPER);   // one stood in the crack
       if (gate.town) {
-        // the mounting-block by the gatepost (town side) [PROPOSED: of stone, two steps]
-        const bx = gx0 - 0.85, bz = tz + 0.42;
-        accBox(st.stone, THREE, 1.05, 0.38, 0.62, m4(bx, g0 + 0.19, bz, 0.03), [0.62, 0.6, 0.56], 2.6);
-        accBox(st.stone, THREE, 1.0, 0.36, 0.34, m4(bx + 0.02, g0 + 0.38 + 0.18, bz - 0.13, 0.03), [0.66, 0.63, 0.58], 2.6);
+        // the mounting-block by the east gatepost, in the gap against the thorn [PROPOSED: of stone, two steps, the
+        // upper one against the Hedge]
+        const bx = gx1 - 0.62, bz = gz - 0.95;
+        accBox(st.stone, THREE, 0.62, 0.38, 1.05, m4(bx, g0 + 0.19, bz, 0.03), [0.62, 0.6, 0.56], 2.6);
+        accBox(st.stone, THREE, 0.34, 0.36, 1.0, m4(bx + 0.13, g0 + 0.38 + 0.18, bz + 0.02, 0.03), [0.66, 0.63, 0.58], 2.6);
         // Harrow's stool by the other post [PROPOSED]
         const sx = gx1 + 0.78, sz = tz + 0.62;
         accGeo(st.wood, THREE, new THREE.CylinderGeometry(0.18, 0.17, 0.05, 12), m4(sx, g0 + 0.45, sz, 0.4), OAK);
@@ -754,9 +775,13 @@ const R11GATE = (function () {
       // the bar: across both leaves when shut; when open, left lying in the east leaf's staples
       if (!open) { const m = m4(gx0 + C / 2 - 0.1, g0 + 0.07 + 1.32, gz + 0.13, 0); accBox(dy.wood, THREE, C - 0.25, 0.14, 0.13, m, OAKD, 1.2, true); accBox(dy.iron, THREE, 0.05, 0.24, 0.05, m4(gx0 + PW / 2 + 0.02, g0 + 1.39, gz + 0.13, 0), IRON); }
       if (open && sg < 0) {
-        // the bar laid in two brackets on the east gatepost's gap side, pointing out along the gap (picture 2)
-        accBox(dy.wood, THREE, 0.14, 0.15, 1.15, m4(gx1 - PW / 2 - 0.08, g0 + 1.42, gz - 0.42, 0.04), OAKD, 1.2);
-        for (const dz of [-0.05, -0.62]) accBox(dy.iron, THREE, 0.2, 0.05, 0.06, m4(gx1 - PW / 2 - 0.08, g0 + 1.32, gz + dz, 0), IRON);
+        // the bar laid by in two iron brackets: one on the gatepost's gap face, one on the open leaf (picture 2)
+        const bxw = gx1 - PW / 2 - 0.14, by = g0 + 1.62;
+        accBox(dy.wood, THREE, 0.13, 0.15, 1.2, m4(bxw, by, gz + 0.32, 0.02), OAKD, 1.2);
+        for (const dz of [-0.12, 0.72]) {
+          accBox(dy.iron, THREE, 0.26, 0.04, 0.06, m4(bxw + 0.06, by - 0.095, gz + dz, 0), IRON);
+          accBox(dy.iron, THREE, 0.03, 0.2, 0.06, m4(bxw - 0.085, by - 0.01, gz + dz, 0), IRON);
+        }
       }
     }
     return { gx0, gx1, gz, g0, PH };
@@ -887,7 +912,7 @@ const R11GATE = (function () {
   function onMap(m) { if (S0.live && S0.live.map !== m) S0.live = null; }
 
   // picture 2's camera: in the gap of the North Gate, the gate standing open, looking down the track into town
-  const benchCam = { map: 'oakhaven', x: 23.36, y: 0.8, dir: Math.PI / 2 - 0.1, pitch: 10, tod: 0.6, day: 1, weather: 'overcast', flags: { gate_open: true } };
+  const benchCam = { map: 'oakhaven', x: 23.62, y: 1.12, dir: Math.PI / 2 + 0.1, pitch: 4, tod: 0.6, day: 1, weather: 'overcast', flags: { gate_open: true } };
 
   function wire() {
     if (typeof window === 'undefined') return;
