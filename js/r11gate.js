@@ -210,7 +210,7 @@ const R11GATE = (function () {
             g.beginPath(); g.ellipse(0, 0, 5 + rnd() * 5, 2.4 + rnd() * 2, 0, 0, TAU); g.fill(); g.restore();
           }
         }
-        if (rnd() < 0.012) { const p = pts[i]; for (let k = 0; k < 9; k++) { g.fillStyle = 'rgba(' + (160 + rnd() * 24 | 0) + ',' + (156 + rnd() * 22 | 0) + ',' + (146 + rnd() * 20 | 0) + ',0.95)'; g.beginPath(); g.arc(p[0] + (rnd() - 0.5) * 18, p[1] + (rnd() - 0.5) * 14, 3 + rnd() * 5, 0, TAU); g.fill(); } }
+        if (false) { const p = pts[i]; for (let k = 0; k < 9; k++) { g.fillStyle = 'rgba(' + (160 + rnd() * 24 | 0) + ',' + (156 + rnd() * 22 | 0) + ',' + (146 + rnd() * 20 | 0) + ',0.95)'; g.beginPath(); g.arc(p[0] + (rnd() - 0.5) * 18, p[1] + (rnd() - 0.5) * 14, 3 + rnd() * 5, 0, TAU); g.fill(); } }
       }
       if (depth < 4 && len > 18) {
         const nb = 2 + (rnd() * 2 | 0);
@@ -416,14 +416,14 @@ const R11GATE = (function () {
   // ======================================================================== the hedge's shape (metres, world)
   function shaper(map, S, C, WALLM) {
     const gate = S.gate, thin = S.thin;
-    const gx = gate ? (gate.px + 0.5) * C : 0, gz = gate ? (gate.py + 1) * C : 0;
+    const gx = gate ? (gate.px + 0.5) * C : 0, gz = gate ? (gate.py + 0.5) * C : 0;
     const gAt = (x, z) => { try { return (map.groundAt ? map.groundAt(x / C, z / C) : 0) * WALLM; } catch (e) { return 0; } };
     const thinW = (x, z) => thin ? 1 - sstep(Math.hypot(x - thin.x * C, z - thin.y * C), 2.5, 6.5) : 0;
     const gateW = (x, z) => gate ? 1 - sstep(Math.hypot(x - gx, (z - gz) * 0.8), 2.2, 4.5) : 0;
     // the top of the thorn above the ground (2.9-3.9 m; up to the lintel by the gate; low where it is thin)
     const top = (x, z) => {
       let t = 3.32 + (fbm(x * 0.21, 1.7, z * 0.21) - 0.5) * 1.1 + (vn(x * 1.1, 4.2, z * 1.1) - 0.5) * 0.32;
-      t = lerp(t, Math.max(t, 3.7), gateW(x, z));
+      t = lerp(t, Math.max(t, 3.45), gateW(x, z));
       return lerp(t, 2.55 + (vn(x * 0.9, 8.1, z * 0.9) - 0.5) * 0.4, thinW(x, z));
     };
     // the packed wool: a man's height, give or take
@@ -463,7 +463,7 @@ const R11GATE = (function () {
             else { h = wt + 0.1; d = -0.32; f = 0.5; }
             const p = P(s, h, d);
             // grey wool, dirtier toward the roots, darker in the hollows; rotted (darker, browner) where it is thin
-            let k = 0.24 + 0.46 * f; const dirt = sstep(0.5 - h, 0, 0.5);
+            let k = 0.16 + 0.56 * f * f * (3 - 2 * f); const dirt = sstep(0.5 - h, 0, 0.5);
             let c = [k * 0.98, k * 0.95, k * 0.9];
             c = [lerp(c[0], 0.3, dirt), lerp(c[1], 0.26, dirt), lerp(c[2], 0.2, dirt)];
             if (tw > 0) c = [lerp(c[0], 0.4, tw * 0.6), lerp(c[1], 0.36, tw * 0.6), lerp(c[2], 0.3, tw * 0.6)];
@@ -481,9 +481,9 @@ const R11GATE = (function () {
           const s = -ext + (L + ext * 2) * i / nu, [bx, bz] = at(s), wt = sh.woolTop(bx, bz) - 0.3, tp = sh.top(bx, bz);
           for (let j = 0; j <= nv + 1; j++) {
             let h, d; const f = fbm(bx * 1.3 + 7, j * 0.7, bz * 1.3);
-            if (j <= nv) { h = lerp(wt, tp, j / nv); d = -0.2 + 0.22 * f - (j === nv ? 0.15 : 0); } else { h = tp + 0.05; d = -0.75; }
+            if (j <= nv) { h = lerp(wt, tp, j / nv); d = lerp(0.12, -0.2, Math.min(1, j / 2)) + 0.22 * f - (j === nv ? 0.15 : 0); } else { h = tp + 0.05; d = -0.75; }
             const k = 0.34 + 0.24 * f;
-            Pg[j].push(P(s, h, d)); Cg[j].push([k, k * 0.97, k * 0.9]); Ug[j].push([s / 1.4, h / 1.4]);
+            Pg[j].push(P(s, h, d)); Cg[j].push([k, k * 0.97, k * 0.9]); Ug[j].push([(s + h * 0.8) / 0.8, (h - s * 0.8) / 0.8]);
           }
         }
         accGrid(bark, Pg, Cg, Ug, false);
@@ -508,8 +508,8 @@ const R11GATE = (function () {
           const d = Math.sin(t * PI) * bulge * 0.6 + sh.woolOut(bx + Tt[0] * (s - s0), h, bz + Tt[1] * (s - s0)).b + 0.02;
           pts.push(P(s, h, d)); rad.push(r0 * (1 - t * 0.6));
         }
-        const kk = R(0.6, 0.85);
-        accTube(bark, pts, rad, T.radial, [kk, kk * 0.97, kk * 0.92], 0.9); nStem++;
+        const kk = R(1.0, 1.45);
+        accTube(bark, pts, rad, T.radial, [kk, kk * 0.98, kk * 0.95], 0.9); nStem++;
       }
       // ---- wool caught in the thorn (lumpy tufts)
       const nT = Math.round(L * 1.0 * T.tuft * (r.kind === 'in' ? 1 : 0.6));
@@ -520,6 +520,12 @@ const R11GATE = (function () {
         const sz = R(0.13, 0.3) * (h > tp - 0.2 ? 0.8 : 1), p = P(s, h, R(-0.12, 0.06));
         tuft(THREE, wool, geo, p, sz, rnd, N, [0.66, 0.64, 0.6]); nTuft++;
       }
+      // ---- the top of the packed wool: lumps of it, so it ends in tufts, not a ledge
+      for (let s = R(0, 0.3); s < L; s += R(0.28, 0.5) / Math.max(0.5, T.tuft)) {
+        const [bx, bz] = at(s), wt = sh.woolTop(bx, bz), tw = sh.thinW(bx, bz);
+        const p = P(s, wt - R(0.02, 0.12), sh.woolOut(bx, wt, bz).b * 0.4 - R(0.0, 0.12)), sz = R(0.18, 0.32) * (1 - tw * 0.3);
+        tuft(THREE, wool, ico(1), p, sz, rnd, N, tw > 0.3 ? [0.42, 0.38, 0.33] : [0.62, 0.6, 0.56]); nTuft++;
+      }
       // ---- sprays of bare thorn (atlas cards): in front of the tangle, along the top, a few over the wool
       const card1 = (s, h, d, w, hh, yaw, tilt, which, col) => {
         const p = P(s, h, d), ca = Math.cos(yaw), sa = Math.sin(yaw);
@@ -528,7 +534,7 @@ const R11GATE = (function () {
         const ux = N[0] * Math.sin(tilt), uy = Math.cos(tilt), uz = N[1] * Math.sin(tilt);
         accCard(card, p, [rx * w / 2, 0, rz * w / 2], [ux * hh / 2, uy * hh / 2, uz * hh / 2], which, col, rnd() < 0.5); nCard++;
       };
-      const cTh = () => { const k = R(0.75, 1.05); return greenK ? [k * 0.8, k * 1.05, k * 0.7] : [k, k * 0.98, k * 0.94]; };
+      const cTh = () => { const k = R(1.15, 1.6); return greenK ? [k * 0.8, k * 1.05, k * 0.7] : [k, k * 0.98, k * 0.94]; };
       const nC = Math.round(L * 8 * T.spray);
       for (let k = 0; k < nC; k++) {
         const s = R(-0.1, L + 0.1), [bx, bz] = at(s), wt = sh.woolTop(bx, bz), tp = sh.top(bx, bz), tw = sh.thinW(bx, bz);
@@ -632,10 +638,10 @@ const R11GATE = (function () {
   // and their iron into `dy` (rebuilt when the flag changes).
   function buildGate(THREE, S, H, open, st, dy, map) {
     const gate = S.gate; if (!gate) return null;
-    const C = H.C, sh = H.sh, gx0 = gate.px * C, gx1 = (gate.px + 1) * C, gz = (gate.py + 1) * C, g0 = sh.gAt((gate.px + 0.5) * C, gz + 0.5);
+    const C = H.C, sh = H.sh, gx0 = gate.px * C, gx1 = (gate.px + 1) * C, gz = (gate.py + 0.5) * C, tz = (gate.py + 1) * C, g0 = sh.gAt((gate.px + 0.5) * C, tz + 0.5);
     const m4 = (x, y, z, ry, rz, rx) => { const m = new THREE.Matrix4(); m.makeRotationFromEuler(new THREE.Euler(rx || 0, ry || 0, rz || 0, 'YXZ')); m.setPosition(x, y, z); return m; };
     const OAK = [0.62, 0.57, 0.5], OAKD = [0.5, 0.46, 0.4], IRON = [0.2, 0.19, 0.18], IRONR = [0.26, 0.2, 0.16], COPPER = [0.66, 0.38, 0.22];
-    const PW = 0.34, PH = 3.32;
+    const PW = 0.34, PH = 3.05;
     if (st) {
       // gateposts (oak), half into the thorn
       for (const [x, k] of [[gx0, 0], [gx1, 1]]) {
@@ -643,7 +649,7 @@ const R11GATE = (function () {
         // a cap of boards on the post-top
         accBox(st.wood, THREE, PW + 0.06, 0.05, PW + 0.06, m4(x, g0 + PH + 0.025, gz, 0.1), OAK, 1.2);
         // the pintles the leaves hang on
-        for (const y of [0.5, 2.05]) accBox(st.iron, THREE, 0.06, 0.06, 0.16, m4(x + (k ? -1 : 1) * 0.19, g0 + y, gz, 0), IRON);
+        for (const y of [0.5, 1.95]) accBox(st.iron, THREE, 0.06, 0.06, 0.16, m4(x + (k ? -1 : 1) * 0.19, g0 + y, gz, 0), IRON);
       }
       // the lintel over the gap and its knee braces [PROPOSED]
       accBox(st.wood, THREE, C + 1.15, 0.3, 0.36, m4((gx0 + gx1) / 2, g0 + PH + 0.2, gz, 0.01, 0.006), OAKD, 1.2, true);
@@ -656,17 +662,17 @@ const R11GATE = (function () {
       accGeo(st.iron, THREE, coinGeo(THREE), m4(lx + 0.03, ly + 0.025 + 0.012, lz + 0.05, 0.3, 0, PI / 2 - 0.25), COPPER);   // one stood in the crack
       if (gate.town) {
         // the mounting-block by the gatepost (town side) [PROPOSED: of stone, two steps]
-        const bx = gx0 - 0.85, bz = gz + 0.42;
+        const bx = gx0 - 0.85, bz = tz + 0.42;
         accBox(st.stone, THREE, 1.05, 0.38, 0.62, m4(bx, g0 + 0.19, bz, 0.03), [0.62, 0.6, 0.56], 2.6);
         accBox(st.stone, THREE, 1.0, 0.36, 0.34, m4(bx + 0.02, g0 + 0.38 + 0.18, bz - 0.13, 0.03), [0.66, 0.63, 0.58], 2.6);
         // Harrow's stool by the other post [PROPOSED]
-        const sx = gx1 + 0.78, sz = gz + 0.62;
+        const sx = gx1 + 0.78, sz = tz + 0.62;
         accGeo(st.wood, THREE, new THREE.CylinderGeometry(0.18, 0.17, 0.05, 12), m4(sx, g0 + 0.45, sz, 0.4), OAK);
         for (let k = 0; k < 3; k++) { const a = k / 3 * TAU + 0.4; accBox(st.wood, THREE, 0.035, 0.46, 0.035, m4(sx + Math.cos(a) * 0.11, g0 + 0.22, sz + Math.sin(a) * 0.11, 0, Math.cos(a) * 0.14, -Math.sin(a) * 0.14), OAKD, 1.2); }
       }
       // writs posted on the thorn at the gate, which the thorn has kept (four; the third deep in, past reaching)
       const wr = rectUV(AT.writ), gp = gate.py * C;
-      const writs = [[gx1, -1, gp + 0.9, 1.52, 0.1, 0], [gx1, -1, gp + 1.85, 1.74, -0.12, 0], [gx1, -1, gp + 1.38, 1.22, 0.2, -0.22], [gx0, 1, gp + 1.45, 1.62, -0.06, 0]];
+      const writs = [[gx1, -1, gp + 0.45, 1.52, 0.1, 0], [gx1, -1, gp + 1.15, 1.74, -0.12, 0], [gx1, -1, gp + 0.8, 1.22, 0.2, -0.22], [gx0, 1, gp + 0.75, 1.62, -0.06, 0]];   // on the outer half of the gap, where a writ-server stands
       for (const [x, sg, z, y, roll, inset] of writs) {
         const b = sh.woolOut(x, y, z).b, cx = x + sg * (b + 0.035 + inset), w = 0.15, h = 0.19, cr = Math.cos(roll), sr = Math.sin(roll);
         accCard(st.card, [cx, g0 + y, z], [0, sr * w, sg * w * cr], [0, h * cr, -sg * h * sr], wr, inset ? [0.6, 0.58, 0.54] : [0.95, 0.93, 0.88], sg < 0);
@@ -676,7 +682,7 @@ const R11GATE = (function () {
         for (const ci of S.outer) {
           const x = ci % S.W, y = (ci / S.W) | 0, near = Math.abs(x - gate.px) <= 4 && y === 0;
           const x0 = x * C, z0 = y * C, n = near ? 3 : 1, Pg = [], Cg = [], Ug = [];
-          for (let j = 0; j <= n; j++) { Pg.push([]); Cg.push([]); Ug.push([]); for (let i = 0; i <= n; i++) { const px = x0 + i / n * C, pz = z0 + j / n * C, f = fbm(px * 0.8, 5, pz * 0.8); Pg[j].push([px, 0.004, pz]); const k = 0.3 + f * 0.14; Cg[j].push([k, k * 0.9, k * 0.72]); Ug[j].push([px / 1.6, pz / 1.6]); } }
+          for (let j = 0; j <= n; j++) { Pg.push([]); Cg.push([]); Ug.push([]); for (let i = 0; i <= n; i++) { const px = x0 + i / n * C, pz = z0 + j / n * C, f = fbm(px * 0.8, 5, pz * 0.8); Pg[j].push([px, 0.004, pz]); const k = 0.42 + f * 0.16; Cg[j].push([k, k * 0.92, k * 0.76]); Ug[j].push([px / 1.6, pz / 1.6]); } }
           accGrid(st.bark, Pg, Cg, Ug, true);
         }
       } else {
@@ -687,34 +693,38 @@ const R11GATE = (function () {
     }
     // ---- the leaves: oak planks, ledges and a brace on the town face, iron strap hinges with arrow ends, nails, a ring,
     // the bar in its staples, a lock plate (Harrow's key)
-    const Wl = (C - 2 * (PW / 2 + 0.03)) / 2, Hl = 2.48, ang = open ? 1.62 : 0;
+    const Wl = (C - 2 * (PW / 2 + 0.03)) / 2, Hl = 2.32, ang = open ? 1.22 : 0;
     for (const sg of [1, -1]) {
-      const hx = sg > 0 ? gx0 + PW / 2 + 0.03 : gx1 - PW / 2 - 0.03, a = sg > 0 ? ang : -ang;   // west leaf turns +, east -
+      const hx = sg > 0 ? gx0 + PW / 2 + 0.03 : gx1 - PW / 2 - 0.03, a = sg > 0 ? -ang : ang;   // inward, toward the town: west leaf turns -, east +
       const L4 = new THREE.Matrix4().makeRotationY(a).setPosition(hx, g0 + 0.07, gz);
       const put = (A, w, h, d, x, y, z, rz, col, grainX) => { const m = m4(x, y, z, 0, rz || 0); m.premultiply(L4); accBox(A, THREE, w, h, d, m, col, 1.2, grainX); };
       const lr = mulberry(sg > 0 ? 71 : 73);
       const np = 5, pw = Wl / np;
       for (let k = 0; k < np; k++) { const hh = Hl - lr() * 0.05; put(dy.wood, pw - 0.012, hh, 0.06, sg * (pw * (k + 0.5)), hh / 2, 0, (lr() - 0.5) * 0.004, k % 2 ? OAK : OAKD); }
       // ledges and the brace on the town face (+z when shut)
-      for (const y of [0.42, 2.02]) put(dy.wood, Wl - 0.05, 0.17, 0.05, sg * Wl / 2, y, 0.055, 0, OAK, true);
-      const bl = Math.hypot(Wl - 0.2, 1.42), ba = Math.atan2(1.42, Wl - 0.2);
-      put(dy.wood, bl, 0.15, 0.045, sg * Wl / 2, 1.22, 0.052, sg * ba, OAKD, true);
+      for (const y of [0.42, 1.88]) put(dy.wood, Wl - 0.05, 0.17, 0.05, sg * Wl / 2, y, 0.055, 0, OAK, true);
+      const bl = Math.hypot(Wl - 0.2, 1.3), ba = Math.atan2(1.3, Wl - 0.2);
+      put(dy.wood, bl, 0.15, 0.045, sg * Wl / 2, 1.15, 0.052, sg * ba, OAKD, true);
       // strap hinges over the ledges, from the hinge side
-      for (const y of [0.42, 2.02]) {
-        put(dy.iron, Wl * 0.78, 0.07, 0.014, sg * Wl * 0.39, y, 0.088, 0, IRON);
-        const tip = m4(sg * Wl * 0.78, y, 0.088, 0, PI / 4); tip.premultiply(L4); accBox(dy.iron, THREE, 0.075, 0.075, 0.014, tip, IRON);
-        for (let k = 0; k < 5; k++) put(dy.iron, 0.024, 0.024, 0.012, sg * (0.06 + k * Wl * 0.16), y, 0.1, 0, IRONR);
+      for (const y of [0.42, 1.88]) {
+        put(dy.iron, Wl * 0.78, 0.07, 0.014, sg * Wl * 0.39, y, -0.038, 0, IRON);
+        const tip = m4(sg * Wl * 0.78, y, -0.038, 0, PI / 4); tip.premultiply(L4); accBox(dy.iron, THREE, 0.075, 0.075, 0.014, tip, IRON);
+        for (let k = 0; k < 5; k++) put(dy.iron, 0.024, 0.024, 0.012, sg * (0.06 + k * Wl * 0.16), y, -0.05, 0, IRONR);
         put(dy.iron, 0.07, 0.09, 0.07, sg * 0.0, y, 0.0, 0, IRON);   // the knuckle on the pintle
       }
       // a ring to pull by
-      { const m = m4(sg * (Wl - 0.2), 1.05, 0.1, 0); m.premultiply(L4); accGeo(dy.iron, THREE, ringGeo(THREE), m, IRON); }
+      { const m = m4(sg * (Wl - 0.2), 1.05, -0.06, 0); m.premultiply(L4); accGeo(dy.iron, THREE, ringGeo(THREE), m, IRON); }
       // staples for the bar
       for (const x of [Wl * 0.3, Wl * 0.85]) { put(dy.iron, 0.05, 0.24, 0.05, sg * x - 0.04, 1.32, 0.13, 0, IRON); put(dy.iron, 0.05, 0.24, 0.05, sg * x + 0.04, 1.32, 0.13, 0, IRON); }
       if (sg > 0) put(dy.iron, 0.17, 0.24, 0.02, sg * (Wl - 0.13), 1.0, 0.087, 0, IRON);   // the lock plate
       if (sg > 0) put(dy.wood, 0.03, 0.06, 0.01, sg * (Wl - 0.13), 0.97, 0.098, 0, [0.05, 0.05, 0.05]);   // its keyhole
       // the bar: across both leaves when shut; when open, left lying in the east leaf's staples
       if (!open && sg > 0) { const m = m4(gx0 + C / 2, g0 + 0.07 + 1.32, gz + 0.13, 0); accBox(dy.wood, THREE, C - 0.55, 0.14, 0.13, m, OAKD, 1.2, true); }
-      if (open && sg < 0) put(dy.wood, Wl * 0.95, 0.14, 0.13, sg * Wl * 0.55, 1.32, 0.13, 0, OAKD, true);
+      if (open && sg < 0) {
+        // the bar laid in two brackets on the east gatepost's gap side, pointing out along the gap (picture 2)
+        accBox(dy.wood, THREE, 0.14, 0.15, 1.15, m4(gx1 - PW / 2 - 0.08, g0 + 1.42, gz - 0.42, 0.04), OAKD, 1.2);
+        for (const dz of [-0.05, -0.62]) accBox(dy.iron, THREE, 0.2, 0.05, 0.06, m4(gx1 - PW / 2 - 0.08, g0 + 1.32, gz + dz, 0), IRON);
+      }
     }
     return { gx0, gx1, gz, g0, PH };
   }
@@ -829,7 +839,7 @@ const R11GATE = (function () {
   function onMap(m) { if (S0.live && S0.live.map !== m) S0.live = null; }
 
   // picture 2's camera: in the gap of the North Gate, the gate standing open, looking down the track into town
-  const benchCam = { map: 'oakhaven', x: 23.42, y: 1.32, dir: Math.PI / 2 - 0.06, pitch: 0, tod: 0.6, day: 1, weather: 'overcast', flags: { gate_open: true } };
+  const benchCam = { map: 'oakhaven', x: 23.42, y: 1.06, dir: Math.PI / 2 - 0.12, pitch: 10, tod: 0.6, day: 1, weather: 'overcast', flags: { gate_open: true } };
 
   function wire() {
     if (typeof window === 'undefined') return;
