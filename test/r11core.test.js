@@ -168,7 +168,11 @@ const HELPERS = () => {
     await step('memory: loadMap away and back 5 times does not grow geometries or textures', async () => {
       const r = await page.evaluate(() => {
         const visit = (id, x, y) => { S.stage(id, x, y, 0, 0.45); S.frame(); };
-        visit('oakhaven', 20.5, 29.2); visit('tavern', 8.5, 10.5); visit('oakhaven', 20.5, 29.2);
+        // a warm-up visit to every map of the loop first: CORE's shared texture caches (game textures for decals and
+        // gate lattices, gameTex) fill on a texture's first use and are kept for good, which is not growth. Oakhaven's
+        // North Gate door cell is hidden by js/r11gate.js (it draws its own gate), so two of them are first used in the
+        // deepwoods; without this visit the baseline is taken before they exist.
+        visit('oakhaven', 20.5, 29.2); visit('tavern', 8.5, 10.5); visit('deepwoods', 27.5, 30.5); visit('oakhaven', 20.5, 29.2);
         const m0 = R11.memory();
         for (let i = 0; i < 5; i++) { visit('tavern', 8.5, 10.5); visit('deepwoods', 27.5, 30.5); visit('oakhaven', 20.5, 29.2); }
         return { m0, m1: R11.memory(), builds: R11.stats.builds };
