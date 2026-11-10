@@ -43,9 +43,9 @@ const R11GATE = (function () {
 
   // ---- per tier: spacing of the hedge's grids (m) and density factors
   const TIERS = {
-    ultra: { du: 0.3, dv: 0.27, spray: 1, tuft: 1, stem: 1, straw: 1, radial: 5, seg: 8, shadow: true, ico: 2, lat: 7, lseg: 5 },
-    high: { du: 0.36, dv: 0.32, spray: 0.75, tuft: 0.8, stem: 0.8, straw: 0.8, radial: 5, seg: 7, shadow: true, ico: 2, lat: 5, lseg: 4 },
-    phone: { du: 0.55, dv: 0.45, spray: 0.4, tuft: 0.45, stem: 0.4, straw: 0.5, radial: 4, seg: 5, shadow: false, ico: 1, lat: 2.2, lseg: 3 },
+    ultra: { du: 0.3, dv: 0.27, spray: 1, tuft: 1, stem: 1, straw: 1, radial: 5, seg: 8, shadow: true, ico: 2, lat: 7, lseg: 5, lrad: 4 },
+    high: { du: 0.36, dv: 0.32, spray: 0.75, tuft: 0.8, stem: 0.8, straw: 0.8, radial: 5, seg: 7, shadow: true, ico: 2, lat: 5, lseg: 4, lrad: 4 },
+    phone: { du: 0.55, dv: 0.45, spray: 0.4, tuft: 0.45, stem: 0.4, straw: 0.5, radial: 4, seg: 5, shadow: false, ico: 1, lat: 2.2, lseg: 3, lrad: 3 },
   };
   const tierOf = (n) => (TIERS[n] ? n : 'high');
   // where the gate stands along the gap through the Hedge (0 outer edge, 1 town edge): near the town end, so from inside
@@ -427,7 +427,7 @@ const R11GATE = (function () {
     // the top of the thorn above the ground (2.9-3.9 m; up to the lintel by the gate; low where it is thin)
     const top = (x, z) => {
       let t = 3.32 + (fbm(x * 0.21, 1.7, z * 0.21) - 0.5) * 1.1 + (vn(x * 1.1, 4.2, z * 1.1) - 0.5) * 0.32;
-      t = lerp(t, Math.max(t, 3.45), gateW(x, z));
+      t = lerp(t, Math.max(t, 3.15), gateW(x, z));
       return lerp(t, 2.55 + (vn(x * 0.9, 8.1, z * 0.9) - 0.5) * 0.4, thinW(x, z));
     };
     // the packed wool: a man's height, give or take
@@ -486,7 +486,7 @@ const R11GATE = (function () {
           for (let j = 0; j <= nv + 1; j++) {
             let h, d; const f = fbm(bx * 1.3 + 7, j * 0.7, bz * 1.3);
             if (j <= nv) { h = lerp(wt, tp, j / nv); d = lerp(0.12, -0.2, Math.min(1, j / 2)) + 0.22 * f - (j === nv ? 0.15 : 0); } else { h = tp + 0.05; d = -0.75; }
-            const k = 1.6 + 0.9 * f;
+            const k = 0.95 + 0.7 * f;
             Pg[j].push(P(s, h, d)); Cg[j].push([k * 0.92, k * 0.98, k * 1.25]); Ug[j].push([(s + h * 0.8) / 0.8, (h - s * 0.8) / 0.8]);
           }
         }
@@ -521,11 +521,11 @@ const R11GATE = (function () {
       // denser by the gate. Its own random stream, so the rest of the Hedge does not move
       {
         const lr = mulberry(Math.round(A[0] * 131 + A[1] * 71 + L * 17) + 9), LR = (a, b) => a + (b - a) * lr();
-        const nL = Math.round(L * T.lat * 3);
+        const nL = Math.round(L * T.lat * 5);
         for (let k = 0; k < nL; k++) {
           const s0 = LR(0, L), [bx, bz] = at(s0), gw = sh.gateW(bx, bz), tw = sh.thinW(bx, bz), tp = sh.top(bx, bz), wt = sh.woolTop(bx, bz);
-          if (lr() > (1 + 2 * gw) / 3 || lr() < tw * 0.5) continue;
-          const h0 = LR(0.1, tp - 0.15), th = (lr() < 0.5 ? 1 : -1) * LR(0.5, 1.15), len = LR(0.7, 2.1), ph = lr() * 6, bow = LR(0.02, 0.07), r0 = LR(0.011, 0.026);
+          if (lr() > (1 + 4 * gw) / 5 || lr() < tw * 0.5) continue;
+          const h0 = LR(0.1, tp - 0.15), th = (lr() < 0.5 ? 1 : -1) * LR(0.5, 1.15), len = LR(0.7, 2.1), ph = lr() * 6, bow = LR(0.02, 0.07), r0 = LR(0.012, 0.03);
           const pts = [], rad = [], seg = T.lseg;
           for (let q = 0; q <= seg; q++) {
             const t = q / seg, s = clamp(s0 + Math.cos(th) * len * (t - 0.5) + Math.sin(t * PI * 2 + ph) * 0.04, -0.1, L + 0.1);
@@ -533,8 +533,8 @@ const R11GATE = (function () {
             const [qx, qz] = at(s), face = h < wt ? sh.woolOut(qx, h, qz).b : 0.06 + 0.1 * fbm(qx * 1.3 + 7, h * 1.4, qz * 1.3);
             pts.push(P(s, h, face + 0.03 + Math.sin(t * PI) * bow)); rad.push(r0 * (1 - t * 0.45));
           }
-          const kk = LR(3.0, 4.4);
-          accTube(bark, pts, rad, 3, [kk * 0.9, kk * 0.97, kk * 1.22], 0.6); nLat++;
+          const kk = LR(3.6, 5.4);
+          accTube(bark, pts, rad, T.lrad, [kk * 0.84, kk * 0.92, kk * 1.32], 0.6); nLat++;
         }
       }
       // ---- wool caught in the thorn (lumpy tufts)
@@ -542,15 +542,25 @@ const R11GATE = (function () {
       for (let k = 0; k < nT; k++) {
         const s = R(0, L), [bx, bz] = at(s), wt = sh.woolTop(bx, bz), tp = sh.top(bx, bz), tw = sh.thinW(bx, bz);
         if (rnd() < tw * 0.7) continue;
-        const h = R(wt - 0.15, tp + 0.05), near = sh.gateW(bx, bz) > 0.2, geo = ico(near ? T.ico : 1);
+        const h = R(wt - 0.15, tp + 0.05), near = sh.gateW(bx, bz) > 0.2, geo = ico(1);
         const sz = R(0.055, 0.13) * (h > tp - 0.2 ? 0.8 : 1), face = h < wt ? sh.woolOut(bx, h, bz).b : 0.08, p = P(s, h, face + R(-0.05, 0.02));
-        tuft(THREE, wool, geo, p, sz, rnd, N, [1.5, 1.47, 1.4]); nTuft++;
+        if (!near || T.ico < 2) tuft(THREE, wool, geo, p, sz, rnd, N, [1.5, 1.47, 1.4]);
+        else for (let q = 0; q < 4; q++) tuft(THREE, wool, geo, [p[0] + Tt[0] * R(-0.6, 0.6) * sz, p[1] + R(-0.5, 0.5) * sz, p[2] + Tt[1] * R(-0.6, 0.6) * sz], sz * R(0.45, 0.7), rnd, N, [1.5, 1.47, 1.4]);
+        nTuft++;
+      }
+      // ---- by the gate, where the eye is close, more of it caught in the face (picture 2: pale clumps in the weave)
+      if (T.ico >= 2) for (let k = 0, nG = Math.round(L * 5 * T.tuft); k < nG; k++) {
+        const s = R(0, L), [bx, bz] = at(s); if (sh.gateW(bx, bz) < 0.25) continue;
+        const wt = sh.woolTop(bx, bz), tp = sh.top(bx, bz), h = R(0.35, tp - 0.25), sz = R(0.07, 0.13);
+        const face = h < wt ? sh.woolOut(bx, h, bz).b : 0.08, p = P(s, h, face + R(-0.02, 0.05)), geo = ico(1);
+        for (let q = 0; q < 4; q++) tuft(THREE, wool, geo, [p[0] + Tt[0] * R(-0.6, 0.6) * sz, p[1] + R(-0.5, 0.5) * sz, p[2] + Tt[1] * R(-0.6, 0.6) * sz], sz * R(0.45, 0.7), rnd, N, [1.55, 1.52, 1.45]);
+        nTuft++;
       }
       // ---- the top of the packed wool: lumps of it, so it ends in tufts, not a ledge
       for (let s = R(0, 0.3); s < L; s += R(0.28, 0.5) / Math.max(0.5, T.tuft)) {
         const [bx, bz] = at(s), wt = sh.woolTop(bx, bz), tw = sh.thinW(bx, bz);
         const p = P(s, wt - R(0.02, 0.12), sh.woolOut(bx, wt, bz).b * 0.4 - R(0.0, 0.12)), sz = R(0.08, 0.15) * (1 - tw * 0.3);
-        tuft(THREE, wool, ico(sh.gateW(bx, bz) > 0.2 ? T.ico : 1), p, sz, rnd, N, tw > 0.3 ? [0.75, 0.7, 0.62] : [1.3, 1.27, 1.2]); nTuft++;
+        tuft(THREE, wool, ico(1), p, sz, rnd, N, tw > 0.3 ? [0.75, 0.7, 0.62] : [1.3, 1.27, 1.2]); nTuft++;
       }
       // ---- sprays of bare thorn (atlas cards): in front of the tangle, along the top, a few over the wool
       const card1 = (s, h, d, w, hh, yaw, tilt, which, col) => {
@@ -692,7 +702,7 @@ const R11GATE = (function () {
     const C = H.C, sh = H.sh, gx0 = gate.px * C, gx1 = (gate.px + 1) * C, gz = (gate.py + GATE_ZF) * C, tz = (gate.py + 1) * C, g0 = sh.gAt((gate.px + 0.5) * C, tz + 0.5);
     const m4 = (x, y, z, ry, rz, rx) => { const m = new THREE.Matrix4(); m.makeRotationFromEuler(new THREE.Euler(rx || 0, ry || 0, rz || 0, 'YXZ')); m.setPosition(x, y, z); return m; };
     const OAK = [1.6, 1.52, 1.4], OAKD = [1.36, 1.28, 1.16], IRON = [0.13, 0.125, 0.12], IRONR = [0.2, 0.15, 0.12], COPPER = [0.66, 0.38, 0.22];
-    const PW = 0.34, PH = 3.05;
+    const PW = 0.34, PH = 2.75;
     if (st) {
       // gateposts (oak), half into the thorn
       for (const [x, k] of [[gx0, 0], [gx1, 1]]) {
@@ -912,7 +922,7 @@ const R11GATE = (function () {
   function onMap(m) { if (S0.live && S0.live.map !== m) S0.live = null; }
 
   // picture 2's camera: in the gap of the North Gate, the gate standing open, looking down the track into town
-  const benchCam = { map: 'oakhaven', x: 23.62, y: 1.12, dir: Math.PI / 2 + 0.1, pitch: 4, tod: 0.6, day: 1, weather: 'overcast', flags: { gate_open: true } };
+  const benchCam = { map: 'oakhaven', x: 23.42, y: 0.7, dir: Math.PI / 2 - 0.12, pitch: 10, tod: 0.6, day: 1, weather: 'overcast', flags: { gate_open: true } };
 
   function wire() {
     if (typeof window === 'undefined') return;
