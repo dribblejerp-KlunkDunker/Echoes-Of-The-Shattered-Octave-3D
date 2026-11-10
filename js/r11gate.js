@@ -506,14 +506,17 @@ const R11GATE = (function () {
       for (let k = 0; k < nS; k++) {
         const s0 = R(0, L), [bx, bz] = at(s0), wt = sh.woolTop(bx, bz), tp = sh.top(bx, bz), gw = sh.gateW(bx, bz);
         const h0 = R(0.05, wt), dir = rnd() < 0.5 ? -1 : 1, s1 = clamp(s0 + dir * R(0.5, 1.8), 0.1, L - 0.1), h1 = Math.min(tp + 0.15, h0 + R(0.6, 2.2));
-        const bulge = R(0.1, 0.32) + gw * 0.1, seg = T.seg, pts = [], rad = [], r0 = R(0.025, 0.06) * (1 + gw * 0.6);
+        const bulge = R(0.1, 0.32) + gw * 0.1, seg = T.seg, pts = [], rad = [], r0 = R(0.025, 0.06) * (1 + gw * 0.2);
         for (let q = 0; q <= seg; q++) {
           const t = q / seg, s = lerp(s0, s1, t) + Math.sin(t * PI * 2 + k) * 0.08, h = lerp(h0, h1, t) + Math.sin(t * PI * 3 + k * 1.7) * 0.07;
           const d = Math.sin(t * PI) * bulge * 0.6 + sh.woolOut(bx + Tt[0] * (s - s0), h, bz + Tt[1] * (s - s0)).b + 0.02;
           pts.push(P(s, h, d)); rad.push(r0 * (1 - t * 0.6));
         }
         const kk = R(1.35, 1.9);
-        accTube(bark, pts, rad, T.radial, [kk, kk * 0.98, kk * 0.95], 0.9); nStem++;
+        // by the gap only one stem in three is kept: inches from the eye, in the gap's shade, more read as black coils
+        // (built into a throwaway so the random stream, and so everything after it, stays as it was)
+        const keep = !(gw > 0.55 && k % 3 !== 0);
+        accTube(keep ? bark : Acc(), pts, rad, T.radial, [kk, kk * 0.98, kk * 0.95], 0.9); if (keep) nStem++;
       }
       // ---- wool caught in the thorn (lumpy tufts)
       const nT = Math.round(L * 1.0 * T.tuft * (r.kind === 'in' ? 1 : 0.6));
