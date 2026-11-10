@@ -149,6 +149,46 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
       ok(dress.doorHidden === 0 && dress.walkHidden === 0, 'hidden doors ' + dress.doorHidden + ', hidden walkable cells (not the Mole) ' + dress.walkHidden);
       ok(s.lamps > 20, 'lamps ' + s.lamps);
     });
+    await step('Book Two\'s Mole (fix round): twelve feet over the water with a way up from the Yard, the parapet round the head on the sea side, bollards solid down the middle and under the bell, the moorings in the harbour', async () => {
+      const r = await page.evaluate(() => {
+        S.bench(); S.frame();
+        const m = G.map, L = R11HARBOUR.last, st = L.stats, C17 = CANTABILE17, MH = C17.MOLE_HEAD, MET = 1.875, o = {};
+        o.drop = Math.round((m.groundAt(60.5, 50.5) + 0.05) * MET * 100) / 100;          // the Mole's flags over the water's surface
+        o.headDrop = Math.round((m.groundAt(MH.x + 2.5, MH.y - 2.5) + 0.05) * MET * 100) / 100;
+        o.landing = Math.round((m.groundAt(56.5, 49.5) + 0.05) * MET * 100) / 100;
+        // a flood fill over the real height field (STEP_UP; slopes pass) from the Lantern Yard reaches the Mole and its head
+        const seen = new Uint8Array(m.w * m.h), q = [[40, 50]]; seen[50 * m.w + 40] = 1;
+        while (q.length) { const [x, y] = q.shift(); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy, i = ny * m.w + nx; if (nx < 0 || ny < 0 || nx >= m.w || ny >= m.h || seen[i] || m.isBlocked(nx, ny)) continue; const ga = m.groundAt(x + 0.5, y + 0.5), gb = m.groundAt(nx + 0.5, ny + 0.5); if (Math.abs(ga - gb) > STEP_UP && !(m.smooth && m.smooth[i] && m.smooth[y * m.w + x])) continue; seen[i] = 1; q.push([nx, ny]); } }
+        o.reachMole = !!seen[50 * m.w + 65] && !!seen[Math.floor(MH.y) * m.w + Math.floor(MH.x) + 2] && !!seen[49 * m.w + 56];
+        // a real walk up the ramp from the Yard onto the Mole (the game's own mover)
+        S.pin(() => { loadMap('cantabile_harbour', { x: 44.5, y: 50.6, dir: 0 }); G.state = 'play'; for (const e of G.ents) if (e.kind === 'enemy') { e.hidden = true; e.dead = true; } for (let i = 0; i < 160; i++) { G.keys = { w: true }; update(0.033); } G.keys = {}; });
+        o.walked = { x: Math.round(Engine.cam.x * 10) / 10, feet: Math.round((G.player.feet || 0) * 100) / 100 };
+        // the parapet round the head (real wall cells), hidden from core and drawn as the arc
+        const hp = []; for (let i = 0; i < m.cells.length; i++) if (m.cells[i] && m.cells[i].headParapet) hp.push(i);
+        o.headPara = { n: hp.length, hidden: hp.every((i) => L.hiddenCells.has(i)), south: !!(m.cells[Math.floor(MH.y + 5) * m.w + Math.floor(MH.x)] || {}).headParapet, east: !!(m.cells[Math.floor(MH.y) * m.w + Math.floor(MH.x + 5)] || {}).headParapet,
+          north: !!(m.cells[Math.floor(MH.y - 5) * m.w + Math.floor(MH.x)] || {}).headParapet, top: m.cells[hp[0]] && Math.round((m.cells[hp[0]].top - C17.MOLE_L) * 100) / 100, drawn: st.headParapet && st.headParapet.blocks };
+        // bollards: solid map entities in both styles; one at the tower's foot under the bell
+        const bol = m.entities.filter((e) => e._bollard), bell = m.entities.find((e) => e.sprite === 'p17c_molebell'), tb = bol.find((e) => e._towerBollard);
+        o.bollards = { n: bol.length, solid: bol.every((e) => e.solid), middle: bol.filter((e) => !e._towerBollard).every((e) => Math.abs(e.y - 51) < 0.05), underBell: tb && bell ? Math.round(Math.hypot(tb.x - bell.x, tb.y - bell.y) * 100) / 100 : null, drawn: st.bollards, bellBody: st.bellBody };
+        // walkable either side of the middle bollards (the Mole is twenty feet wide)
+        const cellsOpen = (x, y) => [[-0.24, -0.24], [0.24, -0.24], [-0.24, 0.24], [0.24, 0.24]].every(([dx, dy]) => !m.isBlocked(Math.floor(x + dx), Math.floor(y + dy)));
+        o.sides = bol.filter((e) => !e._towerBollard).every((e) => { const rr = (e.radius || 0.3) + 0.22; return Math.abs(50.55 - e.y) > rr && Math.abs(51.45 - e.y) > rr && cellsOpen(e.x, 50.55) && cellsOpen(e.x, 51.45); }) && G.ents.filter((e) => e._bollard && e.solid).length === 5;
+        // the moorings: every boat in the harbour basin (north of the Mole's line, inside the cliff), none off the Yard's sea front
+        o.boats = (m.p17cBoats || []).map((e) => [e.x, e.y]); o.basin = o.boats.every(([x, y]) => y < 49.6 && x > 52);
+        o.steps = { n: st.moleSteps, drop: st.stepsDrop, ladders: st.ladders };
+        S.bench(); S.frame();
+        return o;
+      });
+      console.log('  ' + JSON.stringify(r));
+      ok(r.drop >= 3.0 && r.drop <= 3.7 && r.headDrop >= 3.0 && r.headDrop <= 3.7 && r.landing >= 3.0, 'twelve feet over the water: Mole ' + r.drop + ' m, head ' + r.headDrop + ' m, landing ' + r.landing + ' m');
+      ok(r.reachMole && r.walked.x > 55 && Math.abs(r.walked.feet - 1.7) < 0.05, 'the way up from the Yard: flood fill ' + r.reachMole + ', walked ' + JSON.stringify(r.walked));
+      ok(r.headPara.n >= 10 && r.headPara.hidden && r.headPara.south && r.headPara.east && !r.headPara.north && r.headPara.top === 0.7 && r.headPara.drawn > 20, 'the parapet round the head on the sea side: ' + JSON.stringify(r.headPara));
+      ok(r.bollards.n === 5 && r.bollards.solid && r.bollards.middle && r.bollards.underBell < 0.1 && r.bollards.drawn === 5, 'bollards: ' + JSON.stringify(r.bollards));
+      ok(r.bollards.bellBody && r.bollards.bellBody[0] >= 1.35 && r.bollards.bellBody[1] <= 2.0, 'the bell\'s body at head height: ' + JSON.stringify(r.bollards.bellBody));
+      ok(r.sides, 'the Mole walkable either side of the middle bollards, and the bollards block');
+      ok(r.basin, 'every boat in the harbour basin: ' + JSON.stringify(r.boats));
+      ok(r.steps.n >= 10 && r.steps.drop > 2 && r.steps.ladders === 2, 'the Mole steps go down to the water: ' + JSON.stringify(r.steps));
+    });
     await step('the bench view: a moored boat close on the left with its rope; the mast-tower, the Mole-light, the derrick\'s Articles and the Mole-bell down the Mole', async () => {
       const r = await page.evaluate(() => {
         S.bench(); S.frame();

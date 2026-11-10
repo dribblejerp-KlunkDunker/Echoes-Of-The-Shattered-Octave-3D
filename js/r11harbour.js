@@ -46,6 +46,7 @@
   // the harbour's lamp rule (js/cantabile17.js LAMP): out by day, lit from dusk (0.715) to dawn (0.26)
   const lit = (tod) => tod < 0.26 || tod >= 0.715;
   const SAND = 'large_sandstone_blocks_01';
+  const MAXBOATS = 15;   // boat ids 1..MAXBOATS index uLift (0: not a boat)
 
   // ======================================================================== materials (cached, shared across builds)
   function canvasTex(THREE, w, h, draw, srgb) {
@@ -120,7 +121,7 @@
     // tints given as [r, g, b] are linear multipliers on the scan (may exceed 1): the dark scans (weathered_planks is about
     // 0.08 linear, cliff_side warm brown) are lifted and turned to picture 3's mid browns and wet greys instead of going black
     M.flag = scan(SAND, [1.1, 1.09, 1.07]);           // the Mole's dressed flags (granite-grey)
-    M.quay = scan(SAND, 0x8f8e88);                     // the Mole's faces: granite blocks, green at the water
+    M.quay = scan(SAND, [0.95, 0.94, 0.9]);            // the Mole's faces: granite blocks, green at the water (fix round: as light as the flags; the faces read black in shade)
     M.grout = new THREE.MeshStandardMaterial({ color: 0x4e5043, roughness: 0.92, vertexColors: true });   // the joints: mossy, a shade under the stone, not black
     M.weed = new THREE.MeshStandardMaterial({ map: weedTex(THREE), alphaTest: 0.35, roughness: 0.55, side: THREE.DoubleSide, vertexColors: true });
     M.stone = scan('rustic_stone_wall', 0xb4aca0);     // plinths, chimneys, foundations
@@ -141,12 +142,12 @@
     M.winLit = new THREE.MeshStandardMaterial({ color: 0x2a3034, roughness: 0.25, emissive: 0xffa040, emissiveIntensity: 0, vertexColors: true });
     M.flame = new THREE.MeshBasicMaterial({ color: new THREE.Color(1, 0.62, 0.25).multiplyScalar(6) });
     // the boats ride the water: their materials lift each boat by the game's own swing (uLift[boatId], metres)
-    M.U = { lift: { value: new Array(16).fill(0) }, roll: { value: new Array(16).fill(0) } };
+    M.U = { lift: { value: new Array(MAXBOATS + 1).fill(0) } };
     const bob = (m, tag) => {
       m.onBeforeCompile = (sh) => {
-        sh.uniforms.uLift = M.U.lift; sh.uniforms.uRoll = M.U.roll;
-        sh.vertexShader = 'attribute float boatId;\nuniform float uLift[16];\nuniform float uRoll[16];\n' + sh.vertexShader.replace('#include <begin_vertex>',
-          '#include <begin_vertex>\n{ int bi = int(boatId + 0.5); transformed.y += uLift[bi] + uRoll[bi] * position.z * 0.0; }');
+        sh.uniforms.uLift = M.U.lift;
+        sh.vertexShader = 'attribute float boatId;\nuniform float uLift[' + (MAXBOATS + 1) + '];\n' + sh.vertexShader.replace('#include <begin_vertex>',
+          '#include <begin_vertex>\n{ int bi = clamp(int(boatId + 0.5), 0, ' + MAXBOATS + '); transformed.y += uLift[bi]; }');
       };
       m.customProgramCacheKey = () => 'r11harbour-bob-' + tag;
       return m;
@@ -162,6 +163,7 @@
     return M;
   }
   const BOATKEYS = new Set(['hull', 'bWood', 'bRope', 'bBronze', 'bCloth']);
+  const NOSHADOW = new Set(['far', 'grout', 'weed', 'winDark', 'winLit', 'board', 'bRope', 'bBronze']), SMALL = new Set(['iron', 'rope', 'bRope', 'bBronze', 'bCloth', 'cloth']);
 
   // ======================================================================== geometry accumulator: one mesh per material
   function Acc(THREE) {
@@ -302,7 +304,8 @@
     const R = {
       W, H, C, cell, blk, ftex, lvl,
       water: (x, y) => inMap(x, y) && !blk(cell(x, y)) && /^t_(water|shallows)$/.test(ftex(x, y) || ''),
-      mole: (x, y) => inMap(x, y) && !blk(cell(x, y)) && ftex(x, y) === 'p17c_mole',
+      // the Mole's flat cells (the ramp up from the Yard is sloped: core draws it, with its side walls)
+      mole: (x, y) => inMap(x, y) && !blk(cell(x, y)) && ftex(x, y) === 'p17c_mole' && !(map.smooth && map.smooth[y * W + x]),
       walk: (x, y) => inMap(x, y) && !blk(cell(x, y)) && !/^t_(water|shallows)$/.test(ftex(x, y) || ''),
       top: (x, y) => { const c = cell(x, y); return blk(c) ? (c.top != null ? c.top : lvl(x, y) + 1) : lvl(x, y); },
       tex: (x, y) => { const c = cell(x, y); return c ? c.tex : null; },
@@ -416,7 +419,7 @@
   // over it, the granite above; weed and wrack at the waterline
   function quayFace(A, a, b, N, top, WY, r) {
     const yb = -1.8, y1 = WY + 0.18, y2 = WY + 0.62, yt = top - 0.3;
-    const deep = [0.3, 0.36, 0.28], tide = [0.42, 0.46, 0.36], dry = [0.78, 0.78, 0.74];
+    const deep = [0.3, 0.36, 0.28], tide = [0.48, 0.52, 0.4], dry = [0.95, 0.94, 0.9];
     A.quad('quay', [a[0], yb, a[1]], [b[0], yb, b[1]], [b[0], y1, b[1]], [a[0], y1, a[1]], [deep, deep, tide, tide], null, N);
     A.quad('quay', [a[0], y1, a[1]], [b[0], y1, b[1]], [b[0], y2, b[1]], [a[0], y2, a[1]], [tide, tide, shade(tide, 1.25), shade(tide, 1.25)], null, N);
     if (yt > y2) A.quad('quay', [a[0], y2, a[1]], [b[0], y2, b[1]], [b[0], yt, b[1]], [a[0], yt, a[1]], [shade(tide, 1.25), shade(tide, 1.25), dry, dry], null, N);
@@ -457,19 +460,59 @@
       }
       rr = r1; courses++;
     }
-    // the kerb ring and the face
+    // the kerb ring and the face; on the sea side (the parapet's arc) the kerb is the wall's footing and the face stands
+    // out under the wall's outer face
+    const onArc = (a) => H.para && H.onPara(a);
     const NK = Math.round(PI * 2 * RV / 1.35);
     for (let i = 0; i < NK; i++) {
-      const a0 = i / NK * PI * 2, a1 = (i + 1) / NK * PI * 2; if (joinMole((a0 + a1) / 2)) continue;
-      const kk = 0.78 + r() * 0.22;
-      arcSlab(A, 'quay', cx, cz, RV - KW, RV + 0.02, a0 + 0.009 / RV, a1 - 0.009 / RV, top + 0.05 + (r() - 0.5) * 0.015, 0.41, [0.98 * kk, 0.97 * kk, 0.93 * kk], [0.5 * kk, 0.54 * kk, 0.44 * kk]);
+      const a0 = i / NK * PI * 2, a1 = (i + 1) / NK * PI * 2, am = (a0 + a1) / 2; if (joinMole(am)) continue;
+      const kk = 0.78 + r() * 0.22, arc = onArc(am);
+      arcSlab(A, 'quay', cx, cz, RV - KW, arc ? H.rin + 0.06 : RV + 0.02, a0 + 0.009 / RV, a1 - 0.009 / RV, top + (arc ? 0.0 : 0.05 + (r() - 0.5) * 0.015), 0.41, [0.98 * kk, 0.97 * kk, 0.93 * kk], [0.5 * kk, 0.54 * kk, 0.44 * kk]);
     }
     for (let i = 0; i < NS; i++) {
-      const a0 = i / NS * PI * 2, a1 = (i + 1) / NS * PI * 2; if (joinMole((a0 + a1) / 2)) continue;
-      const P0 = [cx + Math.cos(a0) * RV, cz + Math.sin(a0) * RV], P1 = [cx + Math.cos(a1) * RV, cz + Math.sin(a1) * RV], am = (a0 + a1) / 2;
-      quayFace(A, P0, P1, [Math.cos(am), 0, Math.sin(am)], top, WY, r);
+      const a0 = i / NS * PI * 2, a1 = (i + 1) / NS * PI * 2, am = (a0 + a1) / 2; if (joinMole(am)) continue;
+      const rad = onArc(am) ? H.rout : RV;
+      const P0 = [cx + Math.cos(a0) * rad, cz + Math.sin(a0) * rad], P1 = [cx + Math.cos(a1) * rad, cz + Math.sin(a1) * rad];
+      quayFace(A, P0, P1, [Math.cos(am), 0, Math.sin(am)], onArc(am) ? top + 0.28 : top, WY, r);
+    }
+    if (H.para) {
+      // the step in the face where the arc ends on the harbour side (east-north-east), and the wall itself
+      const a = H.pa0, n = [Math.sin(a), 0, -Math.cos(a)], P = (rad, y) => [cx + Math.cos(a) * rad, y, cz + Math.sin(a) * rad];
+      A.quad('quay', P(RV, -1.8), P(H.rout, -1.8), P(H.rout, top - 0.02), P(RV, top - 0.02), [[0.3, 0.36, 0.28], [0.3, 0.36, 0.28], [0.78, 0.78, 0.74], [0.78, 0.78, 0.74]], null, n);
+      headWall(A, H, cx, cz, top, r, out);
     }
     out.headCourses = courses; out.headRound = true;
+  }
+  // the parapet round the Mole-head on the sea side (Book Two: "a parapet wall of granite blocks the height of a man's chest";
+  // the map's ring of wall cells, headParapet): three courses of granite blocks on the arc and a coping, as the straight wall
+  function headWall(A, H, cx, cz, walk, r, out) {
+    const top = H.paraTop, ch = 0.17, cH = (top - ch - (walk - 0.02)) / 3, a0 = H.pa0, a1 = H.pa1, rm = (H.rin + H.rout) / 2;
+    let blocks = 0;
+    for (let c = 0; c < 3; c++) {
+      const y0 = walk - 0.02 + c * cH, y1 = y0 + cH - 0.012;
+      let a = a0 - (c % 2 ? 0.4 / rm : 0);
+      while (a < a1 - 0.01) {
+        const L = (0.9 + r() * 0.75) / rm, b0 = Math.max(a, a0), b1 = Math.min(a1, a + L);
+        if ((b1 - b0) * rm > 0.08) {
+          const kk = (0.78 + r() * 0.24) * 1.45, warm = r() < 0.2 ? 1.05 : 1, col = [0.92 * kk * warm, 0.9 * kk, 0.86 * kk / warm];
+          arcSlab(A, 'flag', cx, cz, H.rin, H.rout, b0 + 0.007 / rm, b1 - 0.007 / rm, y1, y1 - y0, col, c === 0 ? [0.5 * kk, 0.5 * kk, 0.45 * kk] : shade(col, 0.88));
+          blocks++;
+        }
+        a += L;
+      }
+    }
+    // the mortar behind the joints, and the coping of long slabs a little proud on both faces
+    for (let i = 0, n = Math.ceil((a1 - a0) * rm / 1.2); i < n; i++) {
+      const b0 = a0 + (a1 - a0) * i / n, b1 = a0 + (a1 - a0) * (i + 1) / n;
+      arcSlab(A, 'grout', cx, cz, H.rin + 0.04, H.rout - 0.04, b0, b1, top - ch, top - ch - walk, [0.9, 0.92, 0.85]);
+    }
+    let a = a0;
+    while (a < a1 - 0.01) {
+      const L = (1.4 + r() * 0.8) / rm, b1 = Math.min(a1, a + L), kk = (0.86 + r() * 0.16) * 1.3, col = [1.02 * kk, 1.0 * kk, 0.96 * kk];
+      arcSlab(A, 'flag', cx, cz, H.rin - 0.06, H.rout + 0.06, a + 0.006 / rm, b1 - 0.006 / rm, top, ch, col, shade(col, 0.8));
+      a = b1; blocks++;
+    }
+    out.headParapet = { blocks, a0, a1, rin: H.rin, rout: H.rout };
   }
   // a flag on a ring between radii r0, r1 and angles a0, a1 (three facets along the arc), standing from top-depth to top
   function arcSlab(A, k, cx, cz, r0, r1, a0, a1, top, depth, col, colBot) {
@@ -500,7 +543,7 @@
         const xe = x;
         for (let xx = xs; xx < xe; xx++) hidden.add(R.idx(xx, y));
         const walk = R.Y(R.lvl(xs, y - 1)), top = R.Y(R.cell(xs, y).top), Z0 = y * C + 0.01, T2 = 0.82;
-        const X0 = xs * C, X1 = Math.min(xe * C, H.rimX(Z0 + T2 / 2) + 0.3);   // tucks into the Mole-head's rim at its east end
+        const X0 = xs * C, X1 = Math.min(xe * C, H.para ? H.joinX + 0.2 : H.rimX(Z0 + T2 / 2) + 0.3);   // meets the head's arc (or tucks into the rim)
         // three courses of through-stones, staggered; a coping of long slabs a little proud on both faces
         const ch = 0.17, cH = (top - ch - (walk - 0.02)) / 3;
         for (let c = 0; c < 3; c++) {
@@ -860,6 +903,20 @@
       for (let y = 0; y < R.H; y++) { const c = R.cell(cx0, y); if (R.mole(cx0, y) || (c && c.moleParapet)) { y0 = Math.min(y0, y); y1 = Math.max(y1, y); } }
       H.zMole0 = (y1 >= 0 ? y0 : MH.y - 1) * C; H.zMole1 = (y1 >= 0 ? y1 + 1 : MH.y + 2) * C;
     }
+    // the parapet's arc round the head on the sea side (the map's headParapet cells): its wall stands just inside the head's
+    // rim (no further than a walker can reach), and meets the straight wall where their centrelines cross
+    {
+      const HP = (window.CANTABILE17 && CANTABILE17.HEAD_PARA) || [-0.35, PI];
+      let n = 0, ptop = null;
+      for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) { const c = R.cell(x, y); if (c && R.blk(c) && c.headParapet) { hidden.add(R.idx(x, y)); n++; if (ptop == null) ptop = R.Y(c.top); } }
+      if (n) {
+        H.para = true; H.rin = H.rv - 0.08 * C; H.rout = H.rin + 0.82; H.paraTop = ptop; H.pa0 = HP[0];
+        const rm = (H.rin + H.rout) / 2, zc = 52 * C + 0.01 + 0.41 - H.cz;
+        H.joinX = H.cx - Math.sqrt(Math.max(0, rm * rm - zc * zc)); H.pa1 = Math.atan2(zc, H.joinX - H.cx);
+        H.onPara = (a) => { while (a > PI) a -= 2 * PI; while (a <= -PI) a += 2 * PI; return a >= H.pa0 && a <= H.pa1; };
+        st.headParapetCells = n;
+      }
+    }
     st.head = { x: MH.x, y: MH.y, rv: H.rv / C };
     const { faces, kerbs } = mole(A, R, hidden, r, st, H);
     roundHead(A, THREE, R, H, r, WY, st);
@@ -872,7 +929,7 @@
       ring(A, THREE, p, [f.dx, 0, f.dy], f.top - 0.5); rings.push([p[0] + f.dx * 0.08, f.top - 0.6, p[2] + f.dy * 0.08]);
     });
     for (let i = 0; i < 9; i++) {
-      const a = -PI / 2 + (i - 4) * 0.62; if (Math.cos(a) < -0.85) continue;
+      const a = -PI / 2 + (i - 4) * 0.62; if (Math.cos(a) < -0.85 || (H.para && H.onPara(a))) continue;
       const n = [Math.cos(a), 0, Math.sin(a)], p = [H.cx + n[0] * H.rv, 0, H.cz + n[2] * H.rv], top = R.Y(R.lvl(Math.floor(MH.x), Math.floor(MH.y)));
       ring(A, THREE, p, n, top - 0.5); rings.push([p[0] + n[0] * 0.08, top - 0.6, p[2] + n[2] * 0.08]);
     }
@@ -889,19 +946,34 @@
     { const a = -PI / 2 - 0.35, n = [Math.cos(a), 0, Math.sin(a)]; ladder(H.cx + n[0] * H.rv, H.cz + n[2] * H.rv, n, R.Y(R.lvl(Math.floor(MH.x), Math.floor(MH.y)))); ladders++; }
     st.ladders = ladders;
     // bollards: iron, mushroom-topped, waist-high, every twenty paces down the middle (Book Two); one at the tower's foot
-    const bollards = [];
-    for (const bx of [56.2, 61.2, 66.2, 71.2]) bollards.push([bx, MH.y]);
-    bollards.push([MH.x - 1.35, MH.y - 1.15]);
-    for (const [bx, by] of bollards) bollard(A, THREE, bx * C, R.Y(R.lvl(Math.floor(bx), Math.floor(by))), by * C);
-    st.bollards = bollards.length;
-    // the Mole steps: a flight of stone steps down the harbour face of the landing into the water, where the ferry lies (Quain)
+    // (the map's own bollard entities, solid in both styles: js/cantabile17.js BOLLARDS and the one under the bell)
+    let bollards = 0;
+    for (const e of ents) {
+      if (!e._bollard && e.sprite !== 'p17c_bollard') continue;
+      replaced.add(e); bollard(A, THREE, e.x * C, R.Y(R.lvl(Math.floor(e.x), Math.floor(e.y))), e.y * C); bollards++;
+      if (e._towerBollard) st.towerBollard = [e.x, e.y];
+    }
+    st.bollards = bollards;
+    // the Mole steps: a flight of stone steps against the harbour face of the landing, going down westward from the Mole's
+    // flags to a stone stage a little over the water at the tide, where the ferry comes alongside (Quain) and the jetty
+    // runs out; the twelve-foot drop (Book Two) taken in steps of a hand and a half
+    const STAGE = WY + 0.75;
     {
-      const f = faces.find((q) => q.x === 56 && q.dy === -1);
-      if (f) {
-        const z = f.a[1], n = 6, x0 = f.a[0] - 0.4, x1 = f.a[0] + 1.6, dz = -1;
-        for (let i = 0; i < n; i++) { const yt = f.top - (i + 1) * (f.top - WY + 0.25) / n, zc = z + dz * (0.2 + i * 0.36); A.box('quay', x1 - x0, 0.2, 0.4, (x0 + x1) / 2, yt - 0.1, zc, 0, i > 3 ? [0.4, 0.45, 0.36] : [0.82, 0.82, 0.78]); A.box('quay', x1 - x0, yt - (WY - 1), 0.36, (x0 + x1) / 2, (yt + WY - 1) / 2 - 0.1, zc, 0, [0.45, 0.48, 0.4]); }
-        A.rod('iron', 0.025, [x1 + 0.05, f.top + 0.9, z - 0.02], [x1 + 0.05, WY + 0.55, z + dz * (0.02 + n * 0.36)], [0.85, 0.65, 0.5], 6);
-        st.moleSteps = n;
+      const fl = faces.filter((q) => q.dy === -1 && q.x >= 54 && q.x <= 58 && Math.abs(q.a[1] - 49 * C) < 0.01);
+      if (fl.length) {
+        const z = fl[0].a[1], top = fl[0].top, W2 = 1.25, tread = 0.3, n = Math.max(4, Math.round((top - STAGE) / 0.2)), rise = (top - STAGE) / n;
+        const xs = 58.92 * C, zc = z - W2 / 2;
+        for (let i = 0; i < n; i++) {
+          const yt = top - (i + 1) * rise, xa = xs - (i + 1) * tread, xb = xs - i * tread, wet = yt < WY + 1.3;
+          A.box('quay', xb - xa, yt - (WY - 1.4), W2, (xa + xb) / 2, (yt + WY - 1.4) / 2, zc, 0, wet ? [0.45, 0.5, 0.4] : [0.82, 0.82, 0.78]);
+        }
+        const xe = xs - n * tread, x0 = 54.05 * C;   // the stage at the foot, along the face to the jetty
+        if (xe > x0) A.box('quay', xe - x0, STAGE - (WY - 1.4), W2, (x0 + xe) / 2, (STAGE + WY - 1.4) / 2, zc, 0, [0.42, 0.48, 0.38]);
+        A.quad('weed', [x0, WY - 0.45, z - W2 - 0.02], [xs, WY - 0.45, z - W2 - 0.02], [xs, WY + 0.4, z - W2 - 0.02], [x0, WY + 0.4, z - W2 - 0.02], [1, 1, 1], [x0 / 1.5, 0, xs / 1.5, 0, xs / 1.5, 1, x0 / 1.5, 1], [0, 0, -1]);
+        // the iron hand-rail on the open side of the flight
+        A.rod('iron', 0.025, [xs - 0.1, top + 0.95, z - W2 + 0.06], [xe, STAGE + 0.95, z - W2 + 0.06], [0.85, 0.65, 0.5], 6);
+        for (let i = 0; i <= n; i += 4) { const xx = xs - 0.1 - i * tread, yy = top - i * rise; A.rod('iron', 0.02, [xx, yy - 0.02, z - W2 + 0.06], [xx, yy + 0.95 - 0.02, z - W2 + 0.06], [0.85, 0.65, 0.5], 5); }
+        st.moleSteps = n; st.stepsDrop = top - STAGE;
       }
     }
     // kerb bollards [PROPOSED] where boats are made fast: iron, a little lower, rope turns round the neck (picture 3)
@@ -915,7 +987,7 @@
         if (d < bd) { bd = d; best = [qx, k.top, qz]; }
       }
       const a = Math.atan2(p[2] - H.cz, p[0] - H.cx), qx = H.cx + Math.cos(a) * (H.rv - 0.42), qz = H.cz + Math.sin(a) * (H.rv - 0.42), d = Math.hypot(qx - p[0], qz - p[2]);
-      if (d < bd && !(Math.cos(a) < 0 && qz > H.zMole0 - 0.3 && qz < H.zMole1 + 0.3)) { bd = d; best = [qx, R.Y(R.lvl(Math.floor(MH.x), Math.floor(MH.y))), qz]; }
+      if (d < bd && !(Math.cos(a) < 0 && qz > H.zMole0 - 0.3 && qz < H.zMole1 + 0.3) && !(H.para && H.onPara(a))) { bd = d; best = [qx, R.Y(R.lvl(Math.floor(MH.x), Math.floor(MH.y))), qz]; }
       return best ? { p: best, d: bd } : null;
     };
     const kerbBollard = (q) => {
@@ -1040,24 +1112,28 @@
     const bellE = ents.find((e) => e.sprite === 'p17c_molebell');
     if (bellE && mastE) {
       replaced.add(bellE);
-      const [mx, my, mz] = at(mastE), [, , bz0] = at(bellE), sz = Math.sign(bz0 - mz) || 1, legZ = mz + sz * 0.86, armZ = legZ + sz * 0.82, top = my + 0.45 + 2.55;
+      // (fix round: the bracket at head height, the bell's body about 1.45-1.9 m over the flags, hanging over the bollard
+      // at the tower's foot: "sitting on the bollard at the foot of the mast-tower, under the bell, with her back to the stone")
+      const [mx, my, mz] = at(mastE), [, , bz0] = at(bellE), sz = Math.sign(bz0 - mz) || 1, legZ = mz + sz * 0.86;
+      const tb = st.towerBollard, armZ = tb ? tb[1] * C : legZ + sz * 0.82, top = my + 2.0, BS = 0.58;
       // the bracket: a plate on the tower's legs, the arm out from it, the brace under it
-      A.box('iron', 1.9, 0.5, 0.05, mx, top - 0.05, legZ + sz * 0.03, 0, [0.8, 0.64, 0.52]);
+      A.box('iron', 1.9, 0.4, 0.05, mx, top - 0.05, legZ + sz * 0.03, 0, [0.8, 0.64, 0.52]);
       A.beam('iron', 0.08, [mx, top + 0.05, legZ], [mx, top + 0.05, armZ + sz * 0.08], [0.85, 0.68, 0.55], 0.1);
-      A.beam('iron', 0.05, [mx, top - 0.85, legZ + sz * 0.03], [mx, top, armZ - sz * 0.12], [0.8, 0.64, 0.52]);
+      A.beam('iron', 0.05, [mx, top - 0.75, legZ + sz * 0.03], [mx, top, armZ - sz * 0.12], [0.8, 0.64, 0.52]);
       const P = [[0.06, 0.82], [0.2, 0.8], [0.25, 0.7], [0.27, 0.45], [0.31, 0.2], [0.38, 0.06], [0.4, 0.0], [0.36, -0.01]].map(([a2, b2]) => new THREE.Vector2(a2, b2));
-      const bell = new THREE.LatheGeometry(P, 18), by0 = top - 0.06;
-      A.geo('bronze', bell, new THREE.Matrix4().makeTranslation(mx, by0 - 0.82, armZ), [1, 1, 1], null);
-      A.box('iron', 0.14, 0.16, 0.34, mx, by0 + 0.02, armZ, 0, [0.8, 0.65, 0.55]);
-      A.rod('iron', 0.025, [mx, by0 - 0.1, armZ], [mx, by0 - 0.72, armZ], [0.8, 0.65, 0.55], 6);
-      A.rod('iron', 0.06, [mx, by0 - 0.75, armZ], [mx, by0 - 0.68, armZ], [0.8, 0.65, 0.55], 8);
-      A.tube('rope', [[mx, by0 - 0.72, armZ], [mx + 0.02, by0 - 1.4, armZ + sz * 0.02], [mx + 0.05, my + 0.45, armZ + sz * 0.06]], 0.017, [0.95, 0.92, 0.85], 6, 3);
+      const bell = new THREE.LatheGeometry(P, 18), by0 = top - 0.08;
+      A.geo('bronze', bell, new THREE.Matrix4().compose(new THREE.Vector3(mx, by0 - 0.82 * BS, armZ), new THREE.Quaternion(), new THREE.Vector3(BS, BS, BS)), [1, 1, 1], null);
+      A.box('iron', 0.12, 0.1, 0.26, mx, by0 + 0.03, armZ, 0, [0.8, 0.65, 0.55]);
+      A.rod('iron', 0.02, [mx, by0 - 0.06, armZ], [mx, by0 - 0.44, armZ], [0.8, 0.65, 0.55], 6);
+      A.rod('iron', 0.045, [mx, by0 - 0.47, armZ], [mx, by0 - 0.41, armZ], [0.8, 0.65, 0.55], 8);
+      A.tube('rope', [[mx, by0 - 0.44, armZ], [mx + 0.03, by0 - 0.75, armZ + sz * 0.02], [mx + 0.08, my + 1.02, armZ + sz * 0.05]], 0.017, [0.95, 0.92, 0.85], 6, 3);
+      st.bellBody = [Math.round((by0 - 0.82 * BS - my) * 100) / 100, Math.round((by0 - my) * 100) / 100];
       // the lifebuoy on its bracket by the bell: a cork ring in tarred canvas, its line coiled on the stones under it
-      const lx = mx + 0.62;
-      A.box('iron', 0.04, 0.04, 0.24, lx, my + 0.45 + 1.62, legZ + sz * 0.12, 0, [0.8, 0.65, 0.55]);
-      const lb = new THREE.Matrix4().compose(new THREE.Vector3(lx, my + 0.45 + 1.32, legZ + sz * 0.22), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, 0)), new THREE.Vector3(3.0, 3.0, 4.2));
+      const lx = mx + 0.78;
+      A.box('iron', 0.04, 0.04, 0.24, lx, my + 1.86, legZ + sz * 0.12, 0, [0.8, 0.65, 0.55]);
+      const lb = new THREE.Matrix4().compose(new THREE.Vector3(lx, my + 1.56, legZ + sz * 0.22), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, 0)), new THREE.Vector3(3.0, 3.0, 4.2));
       A.geo('cloth', TORUS(THREE), lb, [0.95, 0.92, 0.84], null);
-      coil(A, THREE, lx + 0.15, my + 0.45, legZ + sz * 0.6, 0.6);
+      coil(A, THREE, lx + 0.35, my, legZ + sz * 0.45, 0.6);
       st.moleBell = true; st.lifebuoy = true; st.bellOnTower = Math.hypot(bellE.x - mastE.x, bellE.y - mastE.y);
     }
 
@@ -1066,7 +1142,7 @@
       if (e.sprite === 'p12r_post') {
         replaced.add(e);
         const cx = Math.floor(e.x), cy = Math.floor(e.y), onWater = R.water(cx, cy);
-        const g = onWater ? WY - 1.2 : R.Y(R.lvl(cx, cy)), topY = onWater ? YL + 0.95 : g + 1.0;
+        const g = onWater ? WY - 1.2 : R.Y(R.lvl(cx, cy)), topY = onWater ? WY + 2.0 : g + 1.0;
         post(A, THREE, e.x * C, e.y * C, g, topY); st.posts = (st.posts || 0) + 1;
       } else if (e.sprite === 'p17c_coil') {
         replaced.add(e); const p = at(e); coil(A, THREE, p[0], p[1], p[2], 0.9 + r() * 0.2); st.coils = (st.coils || 0) + 1;
@@ -1130,9 +1206,9 @@
 
     // ---- the boats: the map's own, a hull each, bobbing with the game's swing; ropes that sag to a ring or a post
     const boats = [];
-    const ringsAndPosts = rings.concat(ents.filter((e) => e.sprite === 'p12r_post').map((e) => [e.x * C, YL + 0.6, e.y * C]));
+    const ringsAndPosts = rings.concat(ents.filter((e) => e.sprite === 'p12r_post').map((e) => [e.x * C, R.water(Math.floor(e.x), Math.floor(e.y)) ? WY + 1.7 : R.Y(R.lvl(Math.floor(e.x), Math.floor(e.y))) + 0.7, e.y * C]));
     for (const e of (map.p17cBoats || ents.filter((q) => q.p17cBoat))) {
-      if (boats.length >= 15) break;
+      if (boats.length >= MAXBOATS) break;
       replaced.add(e);
       const s = e.scale || 2, v = /2$/.test(e.sprite || '') ? 2 : 1;
       // lie along the nearest edge: a quay or mole to the north/south lies them east-west
@@ -1167,7 +1243,7 @@
     {
       const f = faces.find((q) => q.x === 54 && q.dy === -1);
       if (f) {
-        const x0 = 54.12 * C, x1 = 54.72 * C + 0.4, z1 = f.a[1] - 0.05, z0 = z1 - 6.4, dy = f.top - 0.32;
+        const x0 = 54.12 * C, x1 = 54.72 * C + 0.4, z1 = f.a[1] - 0.05, z0 = z1 - 6.4, dy = STAGE - 0.03;   // level with the steps' stage
         for (let z = z0; z < z1; z += 0.24) A.box('planks', x1 - x0 + 0.1, 0.06, 0.21, (x0 + x1) / 2, dy, z + 0.11, 0, [0.78 + r() * 0.15, 0.72 + r() * 0.12, 0.62]);
         for (const xx of [x0, x1]) { A.box('timber', 0.12, 0.18, z1 - z0, xx, dy - 0.12, (z0 + z1) / 2, 0, [0.6, 0.55, 0.5]); for (let z = z1 - 0.3; z >= z0; z -= 2.0) A.rod('timber', 0.13, [xx, WY - 1.0, z], [xx, dy + (z < z0 + 1 ? 0.95 : 0.1), z], [0.65, 0.58, 0.5], 7); }
         A.rod('timber', 0.13, [x1, WY - 1.0, z0], [x1, dy + 0.95, z0], [0.65, 0.58, 0.5], 7);
@@ -1266,8 +1342,8 @@
     st.coping = cop; st.stanchions = stan;
 
     // ---- into meshes
-    const noShadow = new Set(['far', 'grout', 'weed', 'winDark', 'winLit', 'board', 'bRope', 'bBronze']), small = new Set(['iron', 'rope', 'bRope', 'bBronze', 'bCloth', 'cloth']);
-    st.meshes = A.finish(metres, MT, { noShadow, small, phone });
+    st.meshes = A.finish(metres, MT, { noShadow: NOSHADOW, small: SMALL, phone });
+    out.tier = tier;
     // the flames (lit at night) and the lanterns (Poly Haven's Lantern_01, CC0, instanced) and the crates (instanced)
     const flames = new THREE.InstancedMesh(new THREE.SphereGeometry(0.045, 8, 6), MT.flame, Math.max(1, lamps.length));
     flames.name = 'harbour:flames'; flames.count = lamps.length; flames.frustumCulled = false; metres.add(flames);
@@ -1280,12 +1356,13 @@
       if (ctx.addLight) { try { ctx.addLight(pl, L.prio || 2); } catch (e) { warnOnce('addLight', e); } }
     }
     st.lamps = lamps.length; st.crates = crates.length;
-    out.lampSig = '';
+    out.lampState = new Uint8Array(lamps.length); out.lampOn = -1;
     syncLamps(out, (typeof G !== 'undefined' && G.tod) || 0.5, true);
     const token = out;
     const kit = window.R11KIT && typeof R11KIT.ready === 'function' ? R11KIT.ready() : Promise.resolve(null);
     out.gltfDone = Promise.resolve(kit).then((P) => {
-      if (!P || S.last !== token) return;
+      // the player may have left the harbour (or the dress been rebuilt) while the models loaded: then nothing to add
+      if (!P || S.last !== token || !group.parent || !(typeof G !== 'undefined' && G && G.mapId === MAPID)) return;
       const ob = new THREE.Object3D();
       if (P.lantern && lamps.length) for (const part of P.lantern) {
         const im = new THREE.InstancedMesh(part.geo, part.mat, lamps.length);
@@ -1297,7 +1374,7 @@
         for (const part of cr) {
           const im = new THREE.InstancedMesh(part.geo, part.mat, pick.length);
           pick.forEach((c, i) => { ob.position.set(c[0], c[1], c[2]); ob.rotation.set(0, c[3], 0); ob.scale.setScalar(c[4] * 0.68); ob.updateMatrix(); im.setMatrixAt(i, ob.matrix.clone().multiply(part.m)); });
-          im.instanceMatrix.needsUpdate = true; im.computeBoundingSphere(); im.castShadow = !phone; im.receiveShadow = true; im.name = 'harbour:crate'; metres.add(im);
+          im.instanceMatrix.needsUpdate = true; im.computeBoundingSphere(); im.castShadow = (out.tier || tier) !== 'phone'; im.receiveShadow = true; im.name = 'harbour:crate'; metres.add(im);
         }
       }
       out.stats.draws = countDraws(group);
@@ -1308,18 +1385,22 @@
   function countDraws(group) { let n = 0; group.traverse((o) => { if ((o.isMesh || o.isInstancedMesh) && o.visible && !(o.isInstancedMesh && o.count === 0)) n++; }); return n; }
 
   // ======================================================================== per frame: the lamps, the windows, the boats
+  // runs every frame: it compares the lamps' state against the last it drew (no strings, no allocation) and only rewrites
+  // the flames when something changed. By day every PointLight sits at intensity 0 (core skips intensity-0 kit lights).
   function syncLamps(L, tod, force) {
-    const on = lit(tod);
-    let sig = on ? '1' : '0';
-    for (const q of L.lamps) sig += q.e ? (q.e._lampOn ? 'a' : 'b') : '';
-    if (sig === L.lampSig && !force) return;
-    L.lampSig = sig;
-    const THREE = S.matsT, o3 = new THREE.Object3D();
-    L.lamps.forEach((q, i) => {
-      const isOn = q.e ? (q.e._lampOn != null ? !!q.e._lampOn : on) : on;
+    const on = lit(tod) ? 1 : 0, lamps = L.lamps, st = L.lampState;
+    let changed = !!force || L.lampOn !== on;
+    if (!changed) for (let i = 0; i < lamps.length; i++) { const e = lamps[i].e; if (e && st[i] !== (e._lampOn == null ? 0 : e._lampOn ? 1 : 2)) { changed = true; break; } }
+    if (!changed) return;
+    L.lampOn = on;
+    const THREE = S.matsT, o3 = S.o3 && S.o3T === THREE ? S.o3 : (S.o3 = new THREE.Object3D(), S.o3T = THREE, S.o3);
+    for (let i = 0; i < lamps.length; i++) {
+      const q = lamps[i], e = q.e;
+      if (e) st[i] = e._lampOn == null ? 0 : e._lampOn ? 1 : 2;
+      const isOn = e ? (e._lampOn != null ? !!e._lampOn : !!on) : !!on;
       o3.position.set(q.p[0], q.p[1] - 0.03 * q.s, q.p[2]); o3.scale.set(isOn ? q.s : 0, isOn ? q.s * 1.4 : 0, isOn ? q.s : 0); o3.updateMatrix(); L.flames.setMatrixAt(i, o3.matrix);
       if (q.pl) q.pl.intensity = isOn ? q.I : 0;
-    });
+    }
     L.flames.instanceMatrix.needsUpdate = true;
     const M = S.mats; if (M) { M.winLit.emissiveIntensity = on ? (M.winLit.userData.litI || 2.2) : 0; }
   }
@@ -1333,12 +1414,26 @@
       M.flag.roughness = 1 - 0.55 * wet; M.quay.roughness = 1 - 0.4 * wet;
       const k = ZK / (+(window.R11 && R11.M) || 0.33);
       const still = typeof GFX !== 'undefined' && GFX.reduceMotion;
-      for (const b of L.boats) M.U.lift.value[b.id] = b.e ? (+b.e.animLift || 0) * k : (still ? 0 : 0.02 * Math.sin((F && F.t || 0) * 1.4 + b.ph));
+      for (const b of L.boats) if (b.id > 0 && b.id <= MAXBOATS) M.U.lift.value[b.id] = b.e ? (+b.e.animLift || 0) * k : (still ? 0 : 0.02 * Math.sin((F && F.t || 0) * 1.4 + b.ph));
     } catch (e) { warnOnce('frame', e); }
   }
   function hook() {
     if (S.hooked || !(window.R11 && typeof R11.on === 'function')) return;
-    S.hooked = true; R11.on('frame', frame); R11.on('mapbuilt', outerSea);
+    S.hooked = true; R11.on('frame', frame); R11.on('mapbuilt', outerSea); R11.on('tier', onTier);
+  }
+  // a tier change keeps the map (core does not rebuild it): what the dress does differently by tier is its shadows (Phone
+  // casts none from small things and crates), so those are set again in place
+  function onTier(t) {
+    const L = S.last; if (!L || !L.metres || !L.group || !L.group.parent || L.tier === t) return;
+    try {
+      L.tier = t; const phone = t === 'phone';
+      L.metres.traverse((o) => {
+        if (!o.isMesh) return;
+        const k = /^harbour:/.test(o.name) ? o.name.slice(8) : '';
+        if (k === 'crate') o.castShadow = !phone;
+        else if (o.material && S.mats && S.mats[k] === o.material) o.castShadow = !NOSHADOW.has(k) && !(phone && SMALL.has(k));
+      });
+    } catch (e) { warnOnce('tier', e); }
   }
   // the sea beyond the map's edge, in core's (or WATER's) own water material, so the harbour mouth has a horizon
   function outerSea(map) {
@@ -1348,6 +1443,9 @@
       if (!wm) return;
       const THREE = R11.THREE, W = map.w, H = map.h, y = -0.05 * ZK, F = 420, P = [], I = [];
       const quads = [[-F, -F, W + F, 0], [-F, H, W + F, H + F], [-F, 0, 0, H], [W, 0, W + F, H]];
+      // the parapet's cells (straight and round the head) are wall cells over the sea: core lays no water there, so it is laid
+      // here, under the wall's apron and round its foot
+      for (let cy = 0; cy < H; cy++) for (let cx = 0; cx < W; cx++) { const c = map.cells[cy * W + cx]; if (c && !c.door && (c.moleParapet || c.headParapet)) quads.push([cx, cy, cx + 1, cy + 1]); }
       for (const [x0, z0, x1, z1] of quads) { const b = P.length / 3; P.push(x0, y, z0, x1, y, z0, x1, y, z1, x0, y, z1); I.push(b, b + 2, b + 1, b, b + 3, b + 2); }
       const g = new THREE.BufferGeometry(), n = P.length / 3, uvs = [], cols = [];
       for (let i = 0; i < n; i++) { uvs.push(P[i * 3] / 0.66, P[i * 3 + 2] / 0.66); cols.push(1, 1, 1); }
@@ -1368,7 +1466,8 @@
 
   const api = { id: ID, MAPID, maps: (m) => !!m && m.id === MAPID, dress, lit, benchCam, get last() { return S.last; }, _internal: { mats, Acc, reader } };
   window.R11HARBOUR = api;
-  (window.R11DRESSERS = window.R11DRESSERS || []).push({ id: ID, maps: api.maps, dress });
+  window.R11DRESSERS = window.R11DRESSERS || [];
+  if (!window.R11DRESSERS.some((d) => d && d.id === ID)) window.R11DRESSERS.push({ id: ID, maps: api.maps, dress });
   const pub = () => { try { if (window.R11) { R11.benchCams = R11.benchCams || {}; R11.benchCams.harbour = benchCam; hook(); return true; } } catch (e) { /* none */ } return false; };
   if (!pub()) { const t = setInterval(() => { if (pub()) clearInterval(t); }, 250); }
 })();
