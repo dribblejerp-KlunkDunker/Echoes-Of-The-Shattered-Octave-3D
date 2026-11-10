@@ -134,13 +134,25 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
       ok(dress.doorHidden === 0 && dress.walkHidden === 0, 'hidden doors ' + dress.doorHidden + ', hidden walkable cells (not the Mole) ' + dress.walkHidden);
       ok(s.lamps > 20, 'lamps ' + s.lamps);
     });
-    await step('the counting-house (the skyline: no castle) is in the bench camera\'s view', async () => {
+    await step('the skyline (no castle): the cliff town is in the bench view, and the counting-house\'s roof stands over the cliff seen from the Mole', async () => {
       const r = await page.evaluate(() => {
-        const ch = R11HARBOUR.last.stats.countingHouse, M = R11.M, T = R11.THREE;
-        const p = new T.Vector3((ch.x0 + ch.x1 + 1) / 2, ch.top * M, (ch.y0 + ch.y1 + 1) / 2).project(R11.camera);
-        return { x: p.x, y: p.y, z: p.z };
+        const L = R11HARBOUR.last, ch = L.stats.countingHouse, M = R11.M, T = R11.THREE, B = R11.benchCams.harbour;
+        const proj = () => new T.Vector3((ch.x0 + ch.x1 + 1) / 2, ch.top * M, (ch.y0 + ch.y1 + 1) / 2).project(R11.camera);
+        // a terrace house (on the cliff, west of the Stair) in the bench view
+        S.bench(); S.frame();
+        let town = 0; const v = new T.Vector3();
+        for (let y = 20; y < 44; y++) for (let x = 2; x < 26; x++) { const c = G.map.cells[y * G.map.w + x]; if (!c || !/^p17c_front/.test(c.tex || '')) continue; v.set(x + 0.5, (c.top + 1.5) * 0.61875, y + 0.5).project(R11.camera); if (Math.abs(v.x) < 1 && Math.abs(v.y) < 1 && v.z < 1) town++; }
+        // turned toward the counting-house from the same spot on the Mole
+        const dx = (ch.x0 + ch.x1 + 1) / 2 - B.x, dy = (ch.y0 + ch.y1 + 1) / 2 - B.y;
+        S.pin(() => { Engine.cam.dir = Math.atan2(dy, dx); if (G.player) G.player.dir = Engine.cam.dir; }); S.frame();
+        const p = proj(); let maxTop = 0; L.metres.traverse((o) => { if (o.isMesh && o.name === 'harbour:slate') { o.geometry.computeBoundingBox(); maxTop = Math.max(maxTop, o.geometry.boundingBox.max.y); } });
+        S.bench(); S.frame();
+        return { town, p: { x: p.x, y: p.y, z: p.z }, top: ch.top, maxTop };
       });
-      ok(Math.abs(r.x) < 1 && r.y > -1 && r.y < 1 && r.z < 1, 'counting-house roof projects to ' + JSON.stringify(r));
+      console.log('  ' + JSON.stringify(r));
+      ok(r.town >= 3, 'terrace houses in the bench view: ' + r.town);
+      ok(Math.abs(r.p.x) < 1 && r.p.y > -1 && r.p.y < 1 && r.p.z < 1, 'counting-house roof projects to ' + JSON.stringify(r.p));
+      ok(r.top >= r.maxTop - 0.6, 'the counting-house is the highest roof: ' + r.top + ' vs ' + r.maxTop);
     });
     await page.waitForTimeout(6000);   // the glTF lanterns and crates arrive after the first frame of a map
     await step('Phone: the bench shot, side-by-sides against picture 3, draws reported (aim <= 200)', async () => {
@@ -154,20 +166,21 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
     });
     await step('lamps: out by day; lit at night (flames, the Mole-light, lit windows); the boats ride the game\'s swing', async () => {
       const r = await page.evaluate(() => {
-        const L = R11HARBOUR.last, M = R11HARBOUR._internal.mats(R11.THREE), T = R11.THREE, m4 = new T.Matrix4(), sc = new T.Vector3(), q = new T.Quaternion(), v = new T.Vector3();
-        const onCount = () => { let n = 0; for (let i = 0; i < L.flames.count; i++) { L.flames.getMatrixAt(i, m4); m4.decompose(v, q, sc); if (sc.x > 0) n++; } return n; };
+        const L = R11HARBOUR.last, M = R11HARBOUR._internal.mats(R11.THREE), T = R11.THREE, m4 = new T.Matrix4();
+        const onCount = () => { let n = 0; for (let i = 0; i < L.flames.count; i++) { L.flames.getMatrixAt(i, m4); if (Math.abs(m4.elements[0]) > 1e-6) n++; } return n; };
         S.bench(0.62); S.frame(); const day = { flames: onCount(), win: M.winLit.emissiveIntensity, light: (L.lights[0] || {}).intensity };
         const dayL = S.stats(0, 0, 1, 1);
         S.bench(0.95); S.frame(); const night = { flames: onCount(), win: M.winLit.emissiveIntensity, light: (L.lights[0] || {}).intensity }; const nightL = S.stats(0, 0, 1, 1);
-        const b = L.boats.find((x) => x.e); if (b) b.e.animLift = 0.07; S.frame(); const lift = M.U.lift.value[b ? b.id : 0];
-        S.bench(); S.frame();
-        return { day, night, dayL, nightL, lift };
+        // the game's own swing (cantabile17 animateBoats) drives each map boat: the uniform carries e.animLift in metres
+        S.bench(); S.frame(); const k = 0.61875 / R11.M; let agree = 0; for (const b of L.boats) if (b.e && Math.abs(M.U.lift.value[b.id] - (+b.e.animLift || 0) * k) < 1e-6) agree++;
+        const own = L.boats.filter((b) => !b.e).map((b) => M.U.lift.value[b.id]);
+        return { day, night, dayL, nightL, agree, mapBoats: L.boats.filter((b) => b.e).length, own };
       });
       console.log('  ' + JSON.stringify(r));
       ok(r.day.flames === 0 && r.day.win === 0, 'by day ' + JSON.stringify(r.day));
       ok(r.night.flames > 10 && r.night.win > 1 && r.night.light > 0, 'at night ' + JSON.stringify(r.night));
       ok(r.nightL < r.dayL && r.nightL > 5, 'night ' + r.nightL + ' day ' + r.dayL);
-      ok(r.lift > 0.05, 'a boat lifted by the game\'s swing: ' + r.lift);
+      ok(r.agree === r.mapBoats && r.mapBoats > 0, 'the boats ride the game\'s swing: ' + r.agree + '/' + r.mapBoats);
     });
     await step('Ultra: the bench shot and side-by-sides are written; draws reported', async () => {
       const r = await page.evaluate(() => { R11.setTier('ultra'); S.bench(); S.frame(); return { draws: R11.stats.draws, tier: R11.tier() }; });
@@ -184,7 +197,7 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
       ok(r.pixel === false && r.back === true, JSON.stringify(r));
     });
     await step('leaving the harbour and coming back rebuilds the dress (no leftovers, no errors)', async () => {
-      const r = await page.evaluate(() => { S.pin(() => loadMap('oakhaven', { x: 18.5, y: 20.5, dir: 0 })); S.frame(); const away = !!(R11HARBOUR.last && R11HARBOUR.last.group && R11HARBOUR.last.group.parent); S.bench(); S.frame(); return { away, back: !!(R11HARBOUR.last.group.parent), map: G.map.id }; });
+      const r = await page.evaluate(() => { const inScene = (o) => { while (o) { if (o === R11.scene) return true; o = o.parent; } return false; }; const old = R11HARBOUR.last; S.pin(() => loadMap('oakhaven', { x: 18.5, y: 20.5, dir: 0 })); S.frame(); const away = inScene(old.group); S.bench(); S.frame(); return { away, back: inScene(R11HARBOUR.last.group) && R11HARBOUR.last !== old, map: G.map.id }; });
       ok(!r.away && r.back && r.map === 'cantabile_harbour', JSON.stringify(r));
     });
     await step('no page errors', async () => { ok(!errors.length, errors.slice(0, 3).join(' | ')); });

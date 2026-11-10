@@ -124,7 +124,7 @@
     M.far = farFog(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));   // the coast across the bight, in the haze
     M.plaster = scan('grey_plaster_02', 0xffffff);          // lime-wash (white_plaster_rough_02 is a mossy green scan)
     M.slate = scan('roof_slates_02', 0x8a9096, { ns: 1.2 });
-    M.timber = scan('medieval_wood', 0x7a6650);
+    M.timber = scan('medieval_wood', 0xc4a684);
     M.planks = scan('weathered_planks', 0xb4a48c);
     M.iron = new THREE.MeshStandardMaterial({ color: 0x3a3836, roughness: 0.62, metalness: 0.7, vertexColors: true });
     M.rope = new THREE.MeshStandardMaterial({ color: 0x74644a, roughness: 0.95, vertexColors: true });
@@ -146,7 +146,7 @@
       return m;
     };
     M.hull = bob(scan('weathered_planks', 0xffffff), 'hull');
-    M.bWood = bob(scan('medieval_wood', 0x8a7660), 'wood');
+    M.bWood = bob(scan('medieval_wood', 0xc8aa88), 'wood');
     M.bRope = bob(new THREE.MeshStandardMaterial({ color: 0x74644a, roughness: 0.95, vertexColors: true }), 'rope');
     M.bBronze = bob(new THREE.MeshStandardMaterial({ color: 0xa47c44, roughness: 0.35, metalness: 1, vertexColors: true }), 'bronze');
     M.bCloth = bob(new THREE.MeshStandardMaterial({ color: 0xb2a68c, roughness: 0.96, vertexColors: true, side: THREE.DoubleSide }), 'cloth');
@@ -702,9 +702,9 @@
       for (let y = 0; y < R.H; y++) for (let x = 0; x < R.W; x++) {
         if (!shore(x, y)) continue;
         hidden.add(R.idx(x, y));
-        const yt = R.Y(R.cell(x, y).top), edge = x === 0 || y === R.H - 1 || x === R.W - 1;
+        const yt = Math.min(3.6, R.Y(R.cell(x, y).top) * 0.6), edge = x === 0 || y === R.H - 1 || x === R.W - 1;
         const k = edge ? 2 : 3;
-        for (let i = 0; i < k; i++) boulder(A, THREE, (x + 0.2 + r() * 0.6) * C, (y + 0.2 + r() * 0.6) * C, yt * (0.6 + r() * 0.5) + (i === 0 ? 0.4 : 0), C * (0.45 + r() * 0.35), r, WY);
+        for (let i = 0; i < k; i++) boulder(A, THREE, (x + 0.2 + r() * 0.6) * C, (y + 0.2 + r() * 0.6) * C, yt * (0.6 + r() * 0.5) + (i === 0 ? 0.4 : 0), C * (0.7 + r() * 0.45), r, WY);
         if (edge) for (let j = 1; j <= 3; j++) {   // the rock runs on outward and down into the sea
           const ox = x === 0 ? -j : x === R.W - 1 ? j : 0, oy = y === R.H - 1 ? j : 0;
           boulder(A, THREE, (x + ox + 0.5 + (r() - 0.5) * 0.6) * C, (y + oy + 0.5 + (r() - 0.5) * 0.6) * C, yt * (0.9 - j * 0.2) + r() * 1.2, C * (0.6 + r() * 0.3), r, WY);
@@ -912,7 +912,7 @@
     }
     // one more boat of the Harbour's own [PROPOSED], alongside the Mole by the steps, its painter to a ring
     {
-      const x = 61.9 * C, z = 54.3 * C, id = boats.length + 1;
+      const x = 62.3 * C, z = 54.9 * C, id = boats.length + 1;
       if (R.water(62, 54) && id < 16) {
         const ends = boat(A, THREE, { x, y: WY - 0.34, z, ry: PI + 0.06, L: 6.4, Bm: 2.0, v: 2 }, id, r, MT);
         boats.push({ e: null, id, ph: 1.7 });
@@ -1120,7 +1120,7 @@
   // On the Long Mole a little out from the Yard, looking back toward the town: the Mole's flags and bollards running in,
   // boats moored on the left, the Harbour office and Hesper's houses at the Mole's root, the terraces stacked up the cliff
   // with the Stair cut up the middle, and the counting-house at the top against the sky (no castle: the owner's rule).
-  const benchCam = { map: MAPID, x: 65.5, y: 52.7, dir: Math.PI - 0.05, pitch: 4, tod: 0.62, day: 3, weather: 'overcast' };
+  const benchCam = { map: MAPID, x: 67.0, y: 52.75, dir: Math.PI - 0.1, pitch: 4, tod: 0.62, day: 3, weather: 'overcast' };
 
   const api = { id: ID, MAPID, maps: (m) => !!m && m.id === MAPID, dress, lit, benchCam, get last() { return S.last; }, _internal: { mats, Acc, reader } };
   window.R11HARBOUR = api;
