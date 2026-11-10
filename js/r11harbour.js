@@ -608,14 +608,14 @@
   function boat(A, THREE, b, idx, r, M) {
     A.aux = idx;
     const L = b.L, Bm = b.Bm, D = 0.82, key = b.v === 2;
-    const paint = key ? [0.5, 0.36, 0.27] : [0.55, 0.62, 0.68], strake = key ? [0.86, 0.66, 0.36] : [0.82, 0.84, 0.8], below = [0.26, 0.3, 0.22];
+    const paint = key ? [1.15, 0.88, 0.66] : [0.95, 1.06, 1.15], strake = key ? [1.55, 1.2, 0.72] : [1.45, 1.45, 1.38], below = [0.42, 0.48, 0.36];
     const g = hullGeo(THREE, L, Bm, D);
     const m = new THREE.Matrix4().compose(new THREE.Vector3(b.x, b.y, b.z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, b.ry, 0)), new THREE.Vector3(1, 1, 1));
     const wl = 0.34;
     A.geo('hull', g, m, (px, py, pz) => { const top = D + 0.28 * Math.pow(2 * (px / L), 2) * 4 / 4; return py < wl ? below : py > top - 0.17 ? strake : paint; }, null, 1);
     // the inside: the same shell a little smaller, facing in (tarred, dark)
     const gi = g.clone(); gi.scale(0.93, 0.95, 0.9); gi.translate(0, 0.05, 0); const ix = gi.index.array; for (let i = 0; i < ix.length; i += 3) { const t = ix[i + 1]; ix[i + 1] = ix[i + 2]; ix[i + 2] = t; } gi.computeVertexNormals();
-    A.geo('hull', gi, m, [0.3, 0.26, 0.22], null, 1);
+    A.geo('hull', gi, m, [0.62, 0.52, 0.42], null, 1);
     const P = (lx, ly, lz) => { const v = new THREE.Vector3(lx, ly, lz).applyMatrix4(m); return [v.x, v.y, v.z]; };
     // thwarts, the gunwale rail, the mast, the boom and the furled sail, shrouds, the carillon bar at the shroud-head
     for (const tx of [-0.22, 0.12]) A.beam('bWood', 0.07, P(tx * L, D - 0.12, -Bm * 0.42), P(tx * L, D - 0.12, Bm * 0.42), [0.8, 0.72, 0.62], 0.24);
@@ -715,18 +715,18 @@
       // the coast across the bight: low cliffs and downs west and east, open sea to the south (the Cay's way), in the haze
       const cx0 = R.W / 2 * C, cz0 = R.H / 2 * C, segs = [[0.6 * PI, 1.3 * PI, 0], [-0.24 * PI, 0.26 * PI, 1]];
       for (const [a0, a1, side] of segs) {
-        const NA = 48, NR = 6, R0 = 115 * C, R1 = 185 * C, V = [];
+        const NA = 120, NR = 10, R0 = 115 * C, R1 = 190 * C, V = [];
         for (let i = 0; i <= NA; i++) {
-          const a = a0 + (a1 - a0) * i / NA, fade = Math.min(1, Math.min(i, NA - i) / 6), H = (14 + 46 * hash2(i >> 1, side, 31) + 18 * Math.sin(i * 0.7 + side)) * (0.35 + 0.65 * fade);
+          const a = a0 + (a1 - a0) * i / NA, fade = Math.min(1, Math.min(i, NA - i) / 14), sm = (k, sc) => { const u = i / sc, i0 = Math.floor(u), f = u - i0, w = f * f * (3 - 2 * f); return hash2(i0, side, k) * (1 - w) + hash2(i0 + 1, side, k) * w; }, H = (16 + 60 * sm(31, 14) + 22 * sm(32, 5) + 7 * sm(33, 2)) * (0.3 + 0.7 * fade);
           const row = [];
           for (let j = 0; j <= NR; j++) {
-            const t = j / NR, rr = R0 + (R1 - R0) * t, h = j === 0 ? WY - 2 : H * Math.pow(Math.sin(Math.min(1, t * 1.25) * PI / 2), 0.6) * (1 - 0.3 * t) + 4 * hash2(i, j, 7 + side);
+            const t = j / NR, rr = R0 + (R1 - R0) * t, h = j === 0 ? WY - 2 : H * Math.pow(Math.sin(Math.min(1, t * 1.4) * PI / 2), 0.5) * (1 - 0.25 * t) + 3.5 * hash2(i, j, 7 + side) + (j === 1 ? 4 : 0);
             row.push([cx0 + Math.cos(a) * rr * (side ? 1.0 : 1.15), h, cz0 + Math.sin(a) * rr]);
           }
           V.push(row);
         }
         for (let i = 0; i < NA; i++) for (let j = 0; j < NR; j++) {
-          const c0 = (j === 0) ? [0.3, 0.32, 0.3] : [0.34 + 0.06 * hash2(i, j, 3), 0.36 + 0.05 * hash2(i, j, 4), 0.33], c1 = [0.4, 0.42, 0.37];
+          const n0 = hash2(i, j, 3), c0 = (j <= 1) ? [0.2, 0.22, 0.22] : [0.24 + 0.06 * n0, 0.27 + 0.05 * n0, 0.26], c1 = [0.27 + 0.05 * n0, 0.3 + 0.04 * n0, 0.28];
           A.quad('far', V[i][j], V[i + 1][j], V[i + 1][j + 1], V[i][j + 1], [c0, c0, c1, c1], [0, 0, 1, 0, 1, 1, 0, 1], [0, 1, 0]);
         }
       }
@@ -912,7 +912,7 @@
     }
     // one more boat of the Harbour's own [PROPOSED], alongside the Mole by the steps, its painter to a ring
     {
-      const x = 62.55 * C, z = 54.05 * C, id = boats.length + 1;
+      const x = 61.9 * C, z = 54.3 * C, id = boats.length + 1;
       if (R.water(62, 54) && id < 16) {
         const ends = boat(A, THREE, { x, y: WY - 0.34, z, ry: PI + 0.06, L: 6.4, Bm: 2.0, v: 2 }, id, r, MT);
         boats.push({ e: null, id, ph: 1.7 });
@@ -1087,6 +1087,8 @@
     try {
       syncLamps(L, G.tod || 0, false);
       const M = S.mats; if (!M) return;
+      const wet = window.R11 && typeof R11.wet === 'function' ? +R11.wet() || 0 : 0;   // the owner's rule: wet only in rain
+      M.flag.roughness = 1 - 0.55 * wet; M.quay.roughness = 1 - 0.4 * wet;
       const k = ZK / (+(window.R11 && R11.M) || 0.33);
       const still = typeof GFX !== 'undefined' && GFX.reduceMotion;
       for (const b of L.boats) M.U.lift.value[b.id] = b.e ? (+b.e.animLift || 0) * k : (still ? 0 : 0.02 * Math.sin((F && F.t || 0) * 1.4 + b.ph));
