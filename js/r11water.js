@@ -347,9 +347,9 @@ vec2 r11wRainLayer(vec2 p, float t, float seed, float dens) {
     try { rain = typeof R11.wet === 'function' ? clamp(+R11.wet() || 0, 0, 1) * (storm ? 1.4 : 1) : 0; } catch (e) { rain = 0; }
     const out = !!(F.env && F.env.outdoor);
     if (!out) { wind = 0.05; rain = 0; }
-    // a weather change eases in (core's cobbles snap; the rings take about a second); a new map or a paused shot starts
-    // with the weather as it is
-    const k = (R11.paused || snap) ? 1 : Math.min(1, dt * 1.5); snap = false;
+    // a weather change eases in (core's cobbles snap; the rings take about a second); a new map, a paused shot or a frame
+    // in which no time passed (a held shot: F.dt 0) shows the weather as it is
+    const k = (R11.paused || snap || !(F.dt > 0)) ? 1 : Math.min(1, dt * 1.5); snap = false;
     windS += (wind - windS) * k; rainS += (rain - rainS) * k;
     U.uWind.value = 0.3 + 0.55 * windS; U.uRain.value = rainS; U.uOut.value = out ? 1 : 0;
     // the sky as the dome draws it (core's sky uniforms, read each frame)
