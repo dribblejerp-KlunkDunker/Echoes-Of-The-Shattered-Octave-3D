@@ -44,10 +44,13 @@ const R11GATE = (function () {
   // ---- per tier: spacing of the hedge's grids (m) and density factors
   const TIERS = {
     ultra: { du: 0.3, dv: 0.27, spray: 1, tuft: 1, stem: 1, straw: 1, radial: 5, seg: 8, shadow: true, ico: 2 },
-    high: { du: 0.36, dv: 0.32, spray: 0.75, tuft: 0.8, stem: 0.8, straw: 0.8, radial: 5, seg: 7, shadow: true, ico: 1 },
+    high: { du: 0.36, dv: 0.32, spray: 0.75, tuft: 0.8, stem: 0.8, straw: 0.8, radial: 5, seg: 7, shadow: true, ico: 2 },
     phone: { du: 0.55, dv: 0.45, spray: 0.4, tuft: 0.45, stem: 0.4, straw: 0.5, radial: 4, seg: 5, shadow: false, ico: 1 },
   };
   const tierOf = (n) => (TIERS[n] ? n : 'high');
+  // where the gate stands along the gap through the Hedge (0 outer edge, 1 town edge): near the town end, so from inside
+  // the gap the thorn runs past the eye to the gatepost, as in picture 2
+  const GATE_ZF = 0.8;
 
   // ---- small maths
   const mulberry = (a) => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -326,12 +329,12 @@ const R11GATE = (function () {
     };
     MAT = {
       bark: scan('bark_brown_02', { color: 0xb4ada4, ns: 1.5, vc: true }),
-      wood: scan('medieval_wood', { color: 0xc4bcb0, vc: true }),
+      wood: scan('medieval_wood', { color: 0xe8e2d8, vc: true }),
       stone: scan('medieval_blocks_02', { color: 0xc8c0b4, vc: true }),
       wool: shared(new THREE.MeshStandardMaterial({ map: woolTex(THREE), bumpMap: woolTex(THREE), bumpScale: 2.2, roughness: 1, metalness: 0, vertexColors: true })),
       card: shared(new THREE.MeshStandardMaterial({ map: atlasTex(THREE), alphaTest: 0.42, side: THREE.DoubleSide, roughness: 0.92, metalness: 0, vertexColors: true })),
       cloth: shared(new THREE.MeshStandardMaterial({ map: clothTex(THREE), side: THREE.DoubleSide, roughness: 1, metalness: 0, vertexColors: true })),
-      iron: shared(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.58, metalness: 0.78, vertexColors: true })),
+      iron: shared(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7, metalness: 0.45, vertexColors: true })),
     };
     MAT.bark.side = THREE.DoubleSide;
     // the alpha cards cast nothing (their shadow would be a box); the thorn body and the wool do
@@ -417,7 +420,7 @@ const R11GATE = (function () {
   // ======================================================================== the hedge's shape (metres, world)
   function shaper(map, S, C, WALLM) {
     const gate = S.gate, thin = S.thin;
-    const gx = gate ? (gate.px + 0.5) * C : 0, gz = gate ? (gate.py + 0.5) * C : 0;
+    const gx = gate ? (gate.px + 0.5) * C : 0, gz = gate ? (gate.py + GATE_ZF) * C : 0;
     const gAt = (x, z) => { try { return (map.groundAt ? map.groundAt(x / C, z / C) : 0) * WALLM; } catch (e) { return 0; } };
     const thinW = (x, z) => thin ? 1 - sstep(Math.hypot(x - thin.x * C, z - thin.y * C), 2.5, 6.5) : 0;
     const gateW = (x, z) => gate ? 1 - sstep(Math.hypot(x - gx, (z - gz) * 0.8), 2.2, 4.5) : 0;
@@ -430,7 +433,7 @@ const R11GATE = (function () {
     // the packed wool: a man's height, give or take
     const woolTop = (x, z) => lerp(1.72 + (fbm(x * 0.45, 11.3, z * 0.45) - 0.5) * 1.1 + (vn(x * 1.6, 6.6, z * 1.6) - 0.5) * 0.55, 1.25, thinW(x, z) * 0.7);
     // how far the wool stands proud of the hedge's line at a point (lumps of ~0.5 m, rammed)
-    const woolOut = (x, h, z) => { const f0 = fbm(x * 2.3, h * 2.7 + 3.1, z * 2.3), f = sstep(f0, 0.3, 0.72); return { b: 0.05 + 0.3 * f + 0.08 * vn(x * 0.45, h * 0.3, z * 0.45), f }; };
+    const woolOut = (x, h, z) => { const f0 = fbm(x * 3.4, h * 3.9 + 3.1, z * 3.4), f = sstep(f0, 0.3, 0.72); return { b: 0.05 + 0.3 * f + 0.08 * vn(x * 0.45, h * 0.3, z * 0.45), f }; };
     return { gAt, thinW, gateW, top, woolTop, woolOut, gx, gz };
   }
 
@@ -483,7 +486,7 @@ const R11GATE = (function () {
           for (let j = 0; j <= nv + 1; j++) {
             let h, d; const f = fbm(bx * 1.3 + 7, j * 0.7, bz * 1.3);
             if (j <= nv) { h = lerp(wt, tp, j / nv); d = lerp(0.12, -0.2, Math.min(1, j / 2)) + 0.22 * f - (j === nv ? 0.15 : 0); } else { h = tp + 0.05; d = -0.75; }
-            const k = 0.34 + 0.24 * f;
+            const k = 0.46 + 0.3 * f;
             Pg[j].push(P(s, h, d)); Cg[j].push([k, k * 0.97, k * 0.9]); Ug[j].push([(s + h * 0.8) / 0.8, (h - s * 0.8) / 0.8]);
           }
         }
@@ -502,14 +505,14 @@ const R11GATE = (function () {
       const nS = Math.round(L * 2.1 * T.stem);
       for (let k = 0; k < nS; k++) {
         const s0 = R(0, L), [bx, bz] = at(s0), wt = sh.woolTop(bx, bz), tp = sh.top(bx, bz), gw = sh.gateW(bx, bz);
-        const h0 = R(0.05, wt), dir = rnd() < 0.5 ? -1 : 1, s1 = s0 + dir * R(0.5, 1.8), h1 = Math.min(tp + 0.15, h0 + R(0.6, 2.2));
+        const h0 = R(0.05, wt), dir = rnd() < 0.5 ? -1 : 1, s1 = clamp(s0 + dir * R(0.5, 1.8), 0.1, L - 0.1), h1 = Math.min(tp + 0.15, h0 + R(0.6, 2.2));
         const bulge = R(0.1, 0.32) + gw * 0.1, seg = T.seg, pts = [], rad = [], r0 = R(0.025, 0.06) * (1 + gw * 0.6);
         for (let q = 0; q <= seg; q++) {
           const t = q / seg, s = lerp(s0, s1, t) + Math.sin(t * PI * 2 + k) * 0.08, h = lerp(h0, h1, t) + Math.sin(t * PI * 3 + k * 1.7) * 0.07;
           const d = Math.sin(t * PI) * bulge * 0.6 + sh.woolOut(bx + Tt[0] * (s - s0), h, bz + Tt[1] * (s - s0)).b + 0.02;
           pts.push(P(s, h, d)); rad.push(r0 * (1 - t * 0.6));
         }
-        const kk = R(1.0, 1.45);
+        const kk = R(1.35, 1.9);
         accTube(bark, pts, rad, T.radial, [kk, kk * 0.98, kk * 0.95], 0.9); nStem++;
       }
       // ---- wool caught in the thorn (lumpy tufts)
@@ -518,14 +521,14 @@ const R11GATE = (function () {
         const s = R(0, L), [bx, bz] = at(s), wt = sh.woolTop(bx, bz), tp = sh.top(bx, bz), tw = sh.thinW(bx, bz);
         if (rnd() < tw * 0.7) continue;
         const h = R(wt - 0.15, tp + 0.05), near = sh.gateW(bx, bz) > 0.2, geo = ico(near ? T.ico : 1);
-        const sz = R(0.13, 0.3) * (h > tp - 0.2 ? 0.8 : 1), p = P(s, h, R(-0.12, 0.06));
-        tuft(THREE, wool, geo, p, sz, rnd, N, [0.66, 0.64, 0.6]); nTuft++;
+        const sz = R(0.1, 0.22) * (h > tp - 0.2 ? 0.8 : 1), p = P(s, h, R(-0.12, 0.06));
+        tuft(THREE, wool, geo, p, sz, rnd, N, [0.84, 0.82, 0.77]); nTuft++;
       }
       // ---- the top of the packed wool: lumps of it, so it ends in tufts, not a ledge
       for (let s = R(0, 0.3); s < L; s += R(0.28, 0.5) / Math.max(0.5, T.tuft)) {
         const [bx, bz] = at(s), wt = sh.woolTop(bx, bz), tw = sh.thinW(bx, bz);
-        const p = P(s, wt - R(0.02, 0.12), sh.woolOut(bx, wt, bz).b * 0.4 - R(0.0, 0.12)), sz = R(0.18, 0.32) * (1 - tw * 0.3);
-        tuft(THREE, wool, ico(1), p, sz, rnd, N, tw > 0.3 ? [0.42, 0.38, 0.33] : [0.62, 0.6, 0.56]); nTuft++;
+        const p = P(s, wt - R(0.02, 0.12), sh.woolOut(bx, wt, bz).b * 0.4 - R(0.0, 0.12)), sz = R(0.14, 0.24) * (1 - tw * 0.3);
+        tuft(THREE, wool, ico(sh.gateW(bx, bz) > 0.2 ? T.ico : 1), p, sz, rnd, N, tw > 0.3 ? [0.42, 0.38, 0.33] : [0.62, 0.6, 0.56]); nTuft++;
       }
       // ---- sprays of bare thorn (atlas cards): in front of the tangle, along the top, a few over the wool
       const card1 = (s, h, d, w, hh, yaw, tilt, which, col) => {
@@ -616,7 +619,7 @@ const R11GATE = (function () {
   }
   // one tuft of wool: a lumpy, squashed ball, lighter on top, darker under
   function tuft(THREE, A, geo, p, sz, rnd, N, col) {
-    const pos = geo.attributes.position, idx = geo.index, base = A.nv, sd = rnd() * 100, ax = 1.25 + rnd() * 0.4, ay = 0.75 + rnd() * 0.25, az = 0.85 + rnd() * 0.25;
+    const pos = geo.attributes.position, idx = geo.index, base = A.nv, sd = rnd() * 100, ax = 1.05 + rnd() * 0.3, ay = 0.78 + rnd() * 0.2, az = 0.85 + rnd() * 0.2;
     const yaw = Math.atan2(N[1], N[0]), cy = Math.cos(yaw), sy = Math.sin(yaw);
     const P = [], cnt = pos.count;
     for (let k = 0; k < cnt; k++) {
@@ -664,9 +667,9 @@ const R11GATE = (function () {
   // and their iron into `dy` (rebuilt when the flag changes).
   function buildGate(THREE, S, H, open, st, dy, map) {
     const gate = S.gate; if (!gate) return null;
-    const C = H.C, sh = H.sh, gx0 = gate.px * C, gx1 = (gate.px + 1) * C, gz = (gate.py + 0.5) * C, tz = (gate.py + 1) * C, g0 = sh.gAt((gate.px + 0.5) * C, tz + 0.5);
+    const C = H.C, sh = H.sh, gx0 = gate.px * C, gx1 = (gate.px + 1) * C, gz = (gate.py + GATE_ZF) * C, tz = (gate.py + 1) * C, g0 = sh.gAt((gate.px + 0.5) * C, tz + 0.5);
     const m4 = (x, y, z, ry, rz, rx) => { const m = new THREE.Matrix4(); m.makeRotationFromEuler(new THREE.Euler(rx || 0, ry || 0, rz || 0, 'YXZ')); m.setPosition(x, y, z); return m; };
-    const OAK = [1.05, 0.98, 0.88], OAKD = [0.86, 0.8, 0.72], IRON = [0.2, 0.19, 0.18], IRONR = [0.26, 0.2, 0.16], COPPER = [0.66, 0.38, 0.22];
+    const OAK = [1.6, 1.52, 1.4], OAKD = [1.36, 1.28, 1.16], IRON = [0.13, 0.125, 0.12], IRONR = [0.2, 0.15, 0.12], COPPER = [0.66, 0.38, 0.22];
     const PW = 0.34, PH = 3.05;
     if (st) {
       // gateposts (oak), half into the thorn
@@ -866,7 +869,7 @@ const R11GATE = (function () {
   function onMap(m) { if (S0.live && S0.live.map !== m) S0.live = null; }
 
   // picture 2's camera: in the gap of the North Gate, the gate standing open, looking down the track into town
-  const benchCam = { map: 'oakhaven', x: 23.36, y: 1.06, dir: Math.PI / 2 - 0.1, pitch: 10, tod: 0.6, day: 1, weather: 'overcast', flags: { gate_open: true } };
+  const benchCam = { map: 'oakhaven', x: 23.36, y: 0.8, dir: Math.PI / 2 - 0.1, pitch: 10, tod: 0.6, day: 1, weather: 'overcast', flags: { gate_open: true } };
 
   function wire() {
     if (typeof window === 'undefined') return;
