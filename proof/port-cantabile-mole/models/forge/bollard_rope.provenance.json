@@ -1,0 +1,95 @@
+{
+  "format": "forge-provenance/1",
+  "asset": "mole_bollard_rope",
+  "file": "mole_bollard_rope.glb",
+  "sha256": "8889a36e6896cceb6d1fdc215b270dd2bf0cd30ee8acfd1f4fe34e3a866ebc56",
+  "created": "2026-11-11T13:06:13Z",
+  "recipe": {
+    "name": "harbour_bollard",
+    "source": "library",
+    "sha256": "5a3ac8c8487d974819419364667f83073470a736daa0b2143868fdee0f5b1cf6",
+    "author": "unknown",
+    "licence": "unspecified"
+  },
+  "made_with": {
+    "engine": "IDTech3-NextGen-Forge",
+    "godot": "4.6.2-stable (official)",
+    "steps": [
+      "recipe build",
+      "baked prop: its own 1360 triangles unwrapped, and 512x512 textures (albedo, normal, occlusion/roughness/metal) baked from an exact field of its parts and the library materials' own detail"
+    ]
+  },
+  "third_party": [],
+  "review": {
+    "approved": false,
+    "approved_by": null,
+    "approved_at": null,
+    "notes": ""
+  },
+  "stats": {
+    "triangles": 1360,
+    "meshes": 1,
+    "bones": 0,
+    "clips": [],
+    "size_m": [
+      0.44,
+      0.72,
+      0.44
+    ],
+    "min_y": 0.0,
+    "collider": false,
+    "game_mesh": {
+      "triangles": 1360,
+      "vertices": 969,
+      "source_triangles": 1360,
+      "texture": 512,
+      "texels": 145922,
+      "detail": {
+        "score": 178.6,
+        "relief": 0.119,
+        "tone": 0.0203,
+        "range": 0.038,
+        "coverage": 0.557,
+        "texel_mm": 3.08
+      },
+      "surfaces_with_detail": 2,
+      "decimate_ms": 1,
+      "unwrap_ms": 85,
+      "bake_ms": 31904
+    },
+    "quality": {
+      "triangles": 1360,
+      "vertices": 969,
+      "draw_calls": 1,
+      "materials": 1,
+      "texture_mb": 1.0,
+      "size_m": [
+        0.44,
+        0.72,
+        0.44
+      ],
+      "on_ground": true,
+      "bones": 0,
+      "clips": {
+
+      },
+      "detail": {
+        "score": 179.7,
+        "relief": 0.1169,
+        "tone": 0.0216,
+        "range": 0.039,
+        "coverage": 0.819,
+        "texel_mm": 3.08
+      },
+      "over_budget": [],
+      "budget": {
+        "triangles": 15000,
+        "texture_mb": 2.0,
+        "stretch": 0.35,
+        "volume": 0.1,
+        "turn_speed": 720.0,
+        "loop_gap": 2.0
+      }
+    }
+  }
+}
