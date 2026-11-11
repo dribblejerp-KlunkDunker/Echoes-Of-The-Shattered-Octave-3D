@@ -1,0 +1,72 @@
+{
+  "format": "forge-provenance/1",
+  "asset": "mole_cart",
+  "file": "mole_cart.glb",
+  "sha256": "f104a3baae08a0dec4bc8dca342ef7696ba3e2386e9eb7fa4fae23b71d9922ed",
+  "created": "2026-11-11T19:13:51Z",
+  "recipe": {
+    "name": "cart",
+    "source": "library",
+    "sha256": "41c6c2915e19df0df4a8582d85b001f1e924c5688cea27ade4f43624943e3c29",
+    "author": "unknown",
+    "licence": "unspecified"
+  },
+  "made_with": {
+    "engine": "IDTech3-NextGen-Forge",
+    "godot": "4.6.2-stable (official)",
+    "steps": [
+      "recipe build",
+      "not baked: a mesh part (Baked) the bake's field can't describe; the library materials are kept"
+    ]
+  },
+  "third_party": [],
+  "review": {
+    "approved": false,
+    "approved_by": null,
+    "approved_at": null,
+    "notes": ""
+  },
+  "stats": {
+    "triangles": 3000,
+    "meshes": 3,
+    "bones": 0,
+    "clips": [],
+    "size_m": [
+      1.59,
+      1.22,
+      3.44
+    ],
+    "min_y": -0.01,
+    "collider": false,
+    "bake_skipped": "a mesh part (Baked) the bake's field can't describe",
+    "quality": {
+      "triangles": 3000,
+      "vertices": 9000,
+      "draw_calls": 7,
+      "materials": 5,
+      "texture_mb": 0.24,
+      "size_m": [
+        1.59,
+        1.22,
+        3.44
+      ],
+      "on_ground": true,
+      "bones": 0,
+      "clips": {
+
+      },
+      "detail": {
+
+      },
+      "over_budget": [],
+      "budget": {
+        "triangles": 15000,
+        "texture_mb": 2.0,
+        "stretch": 0.35,
+        "volume": 0.1,
+        "turn_speed": 720.0,
+        "loop_gap": 2.0
+      }
+    }
+  }
+}

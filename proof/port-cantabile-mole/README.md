@@ -13,13 +13,22 @@ concept view, Ultra:
 | Region | Proof | Picture 3 |
 |---|---|---|
 | Whole frame above the HUD | 82 | 81 |
-| Sky (top band) | 113 | 105 |
-| Far town | 82 | 87 |
-| The Mole's flags | 81 | 84 |
-| Water, left | 48 | 41 |
-| Houses, right | 67 | 65 |
+| Sky (top band) | 106 | 105 |
+| Far town | 88 | 87 |
+| The Mole's flags | 87 | 84 |
+| Water, left | 43 | 41 |
+| Houses, right | 68 | 65 |
 
-On Phone (`shot-phone.png`) the water reflects the sky's cubemap instead of the scene and reads lighter (60).
+On Phone (`shot-phone.png`) the water reflects the sky's cubemap instead of the scene and reads lighter (60), and there
+is no grade pass, so the colour is flatter.
+
+Three more measures of the 3D view, before and after the detail pass of 11 Nov (afternoon):
+
+| Measure | Before | After | Picture 3 |
+|---|---|---|---|
+| Contrast (luma standard deviation) | 35.8 | 36.5 | 36.5 |
+| Colour (mean saturation) | 14.0% | 25.2% | 23.2% |
+| Fine detail (mean luma gradient x 1000) | 25.6 | 32.0 | 44.2 |
 
 ## What is in it
 - **Engine:** Three.js 0.186.1 (WebGL 2), as in the Oakhaven proof: GTAO, bloom on flames, lit windows and the glass
@@ -37,6 +46,15 @@ On Phone (`shot-phone.png`) the water reflects the sky's cubemap instead of the 
 - **Built in code:** the Harbour Office (gable to the Mole, timber porch, the painted board "THE HARBOUR OFFICE"), the
   harbour houses (rubble stone, quoins, slate roofs, chimneys), the far town, the cliff, the Salt Stair, the
   counting-house, the hills, the mast-tower's pennant, the people, the glass arm and the sword.
+- **The detail pass:** weathering written into the scanned materials' shaders from one world-space noise (damp patches
+  and granite speckle on the flags, damp and rain streaks rising up the house walls, a band of weed and barnacles at the
+  tide with salt streaks above it, lichen and moss on the slates, strata, fissures and turf on the cliff); a heavy,
+  slowly moving cloud layer over the HDR sky; a grade after AgX (teal into the deep shade, warmth into the lower
+  mid-tones, the sky left neutral); shutters, gutters, downpipes, ridge rolls, door ironwork and window boxes on the
+  near houses; ivy on stone ground storeys; mooring rings, a chain and a ladder in the Mole's face; lobster pots, sacks,
+  fish baskets, nets (one hung to dry, one heaped), oars and a plank stack; a handcart, a bench and a hanging sign from
+  Forge; gulls on the bollards, the coping and the Office's ridge; a thin chimney smoke; robed figures with folds,
+  cowls, sleeves, hands and rope belts.
 - **First person and HUD:** the Oakhaven proof's, unchanged (light-glass arm with the green vein, short sword, the bronze
   bar), with the place name Port Cantabile.
 
@@ -52,7 +70,8 @@ stands where it stood: a broad stone hall with a hipped roof and chimneys, no to
   broad quay on its inner (east) side, and the cliff and the Salt Stair are across the water to the west;
 - the Harbour Office's look and its board (lettering only: no harbour seal is in the books);
 - the mast-tower's pennant (plain slate-blue wool: no harbour colours are in the books);
-- the jetties, the plain rowboats, the shops' look on the Stair's landings, and the people's clothes.
+- the jetties, the plain rowboats, the shops' look on the Stair's landings, and the people's clothes;
+- the hanging sign by the house door (Forge's `tavern_sign`, unlettered), the gulls and the ivy.
 
 ## Assets and licences
 Every file here is CC0 (no rights reserved), made in code, or made with Forge from the Forge library's own recipes.
@@ -67,6 +86,7 @@ Every file here is CC0 (no rights reserved), made in code, or made with Forge fr
   serves standard web types; they are plain glTF binaries and a Radiance HDR, and the loaders read them as bytes.
 
 ## Not in it yet
-The real game: this scene shares no code with it. The far town is simple; the people are the Oakhaven proof's robed
-figures. The frame times measured here are from software rendering (no graphics card), so they mean nothing: the
+The real game: this scene shares no code with it. The far town is simple; the people are robed figures built in
+code, not the game's characters; the first-person arm and sword are the Oakhaven proof's, not the game's. Fine detail is
+still about three quarters of picture 3's. The frame times measured here are from software rendering (no graphics card), so they mean nothing: the
 benchmark on real devices is the next step.
