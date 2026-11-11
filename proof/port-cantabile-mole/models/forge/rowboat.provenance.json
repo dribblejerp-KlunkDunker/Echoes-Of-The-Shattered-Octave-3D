@@ -1,0 +1,97 @@
+{
+  "format": "forge-provenance/1",
+  "asset": "mole_rowboat",
+  "file": "mole_rowboat.glb",
+  "sha256": "860a770f2304f97f125ee11916f78ed6b03a34dfe6de98fcc2f8fd9fc5f608f5",
+  "created": "2026-11-11T13:29:53Z",
+  "recipe": {
+    "name": "rowboat",
+    "source": "library",
+    "sha256": "e44fb96fd11a4d3c4e34ab39c86710ce587f98ca42fdc568ad684d0d3364e925",
+    "author": "unknown",
+    "licence": "unspecified"
+  },
+  "made_with": {
+    "engine": "IDTech3-NextGen-Forge",
+    "godot": "4.6.2-stable (official)",
+    "steps": [
+      "recipe build",
+      "baked prop: its own 4412 triangles unwrapped, and 1024x1024 textures (albedo, normal, occlusion/roughness/metal) baked from an exact field of its parts and the library materials' own detail"
+    ]
+  },
+  "third_party": [],
+  "review": {
+    "approved": false,
+    "approved_by": null,
+    "approved_at": null,
+    "notes": ""
+  },
+  "stats": {
+    "triangles": 4412,
+    "meshes": 1,
+    "bones": 0,
+    "clips": [],
+    "size_m": [
+      1.51,
+      0.81,
+      4.33
+    ],
+    "min_y": -0.03,
+    "collider": false,
+    "game_mesh": {
+      "triangles": 4412,
+      "vertices": 3029,
+      "source_triangles": 4412,
+      "texture": 1024,
+      "texels": 348795,
+      "detail": {
+        "score": 174.9,
+        "relief": 0.08,
+        "tone": 0.0297,
+        "range": 0.071,
+        "coverage": 0.333,
+        "texel_mm": 8.7
+      },
+      "surfaces_with_detail": 3,
+      "decimate_ms": 7,
+      "unwrap_ms": 1047,
+      "bake_ms": 172610
+    },
+    "quality": {
+      "triangles": 4412,
+      "vertices": 3029,
+      "draw_calls": 1,
+      "materials": 1,
+      "texture_mb": 3.99,
+      "size_m": [
+        1.51,
+        0.81,
+        4.33
+      ],
+      "on_ground": true,
+      "bones": 0,
+      "clips": {
+
+      },
+      "detail": {
+        "score": 138.9,
+        "relief": 0.0616,
+        "tone": 0.0206,
+        "range": 0.072,
+        "coverage": 0.658,
+        "texel_mm": 8.7
+      },
+      "over_budget": [
+        "texture memory 3.99 MB > 2.00 MB"
+      ],
+      "budget": {
+        "triangles": 15000,
+        "texture_mb": 2.0,
+        "stretch": 0.35,
+        "volume": 0.1,
+        "turn_speed": 720.0,
+        "loop_gap": 2.0
+      }
+    }
+  }
+}
