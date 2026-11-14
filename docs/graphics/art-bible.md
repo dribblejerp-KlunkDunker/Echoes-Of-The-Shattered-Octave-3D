@@ -105,6 +105,7 @@ region-restricted or non-commercial models (no Hunyuan3D).
 | Cobbles | cobblestone_floor_08 | 1.6 | 640 px/m | wet (below) |
 | Rubble stone | rustic_stone_wall | 2.4 | 427 px/m | ground storeys, garden walls |
 | Dressed stone | medieval_blocks_02 | 2.6 | 394 px/m | the Chapel, the Greenhall, flags |
+| Granite flags | large_grey_tiles | 2.7 | 379 px/m | Port Cantabile's Mole and Yard (wet in rain, as the cobbles) |
 | Limewash | white_plaster_rough_02 | 2.0 | 512 px/m | jettied storeys, tinted per house |
 | Timber | medieval_wood | 1.2 | 853 px/m | beams, posts |
 | Boards | weathered_planks | 1.4 | 731 px/m | doors, shutters, stalls |

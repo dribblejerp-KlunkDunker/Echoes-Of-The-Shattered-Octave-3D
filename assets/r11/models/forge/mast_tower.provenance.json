@@ -1,0 +1,95 @@
+{
+  "format": "forge-provenance/1",
+  "asset": "mole_mast_tower",
+  "file": "mole_mast_tower.glb",
+  "sha256": "6e8a33c9e525ca9dc1646b84b3062eb86face394fc5c50f7bf01c92982583703",
+  "created": "2026-11-11T19:46:49Z",
+  "recipe": {
+    "name": "mast_tower",
+    "source": "library",
+    "sha256": "848a3be5e793bc3744eca296bf8df6b6e78f88c9e9e544e2736cea11eded5db9",
+    "author": "unknown",
+    "licence": "unspecified"
+  },
+  "made_with": {
+    "engine": "IDTech3-NextGen-Forge",
+    "godot": "4.6.2-stable (official)",
+    "steps": [
+      "recipe build",
+      "baked prop: its own 2072 triangles unwrapped, and 512x512 textures (albedo, normal, occlusion/roughness/metal) baked from an exact field of its parts and the library materials' own detail"
+    ]
+  },
+  "third_party": [],
+  "review": {
+    "approved": false,
+    "approved_by": null,
+    "approved_at": null,
+    "notes": ""
+  },
+  "stats": {
+    "triangles": 2072,
+    "meshes": 1,
+    "bones": 0,
+    "clips": [],
+    "size_m": [
+      4.25,
+      21.13,
+      3.7
+    ],
+    "min_y": 0.0,
+    "collider": false,
+    "game_mesh": {
+      "triangles": 2072,
+      "vertices": 3145,
+      "source_triangles": 2072,
+      "texture": 512,
+      "texels": 199077,
+      "detail": {
+        "score": 182.7,
+        "relief": 0.1014,
+        "tone": 0.0227,
+        "range": 0.072,
+        "coverage": 0.759,
+        "texel_mm": 25.24
+      },
+      "surfaces_with_detail": 3,
+      "decimate_ms": 3,
+      "unwrap_ms": 157,
+      "bake_ms": 25011
+    },
+    "quality": {
+      "triangles": 2072,
+      "vertices": 3145,
+      "draw_calls": 1,
+      "materials": 1,
+      "texture_mb": 1.33,
+      "size_m": [
+        4.25,
+        21.13,
+        3.7
+      ],
+      "on_ground": true,
+      "bones": 0,
+      "clips": {
+
+      },
+      "detail": {
+        "score": 166.4,
+        "relief": 0.0945,
+        "tone": 0.0187,
+        "range": 0.069,
+        "coverage": 1.0,
+        "texel_mm": 25.24
+      },
+      "over_budget": [],
+      "budget": {
+        "triangles": 15000,
+        "texture_mb": 2.0,
+        "stretch": 0.35,
+        "volume": 0.1,
+        "turn_speed": 720.0,
+        "loop_gap": 2.0
+      }
+    }
+  }
+}

@@ -44,6 +44,7 @@ const R11 = (() => {
     cobble:  { scan: 'cobblestone_floor_08', rep: 1.6, rough: 0.82, ns: 1.4 },     // the wet is in wetHook (phase 2 LOOK)
     stone:   { scan: 'rustic_stone_wall', rep: 2.4 },
     blocks:  { scan: 'medieval_blocks_02', rep: 2.6 },                              // dressed stone, flags, marble
+    flags:   { scan: 'large_grey_tiles', rep: 2.7, rough: 0.8, ns: 1.7 },          // granite flags: Port Cantabile's Mole and Yard (phase 4)
     plaster: { scan: 'white_plaster_rough_02', rep: 2.0 },
     wood:    { scan: 'medieval_wood', rep: 1.2 },
     planks:  { scan: 'weathered_planks', rep: 1.4 },
@@ -80,7 +81,7 @@ const R11 = (() => {
     p16d_airceil: ['plaster', 0xd8d0c0], p16d_drawers: ['wood', 0x7a6a58], p16d_counter: ['wood', 0x8a7a68], p16h_rock: ['stone', 0x7a7268],
     p17p_snowroad: ['snow', 0xd8d8d4], p17p_snow: ['snow', 0xffffff], p17p_leaves: ['earth', 0xb08860], p17p_leaves2: ['earth', 0xa07850], p17p_hedge: ['hedge', 0xf0f4f0],
     p17p_woods: ['bark', 0x8a7a68], p17p_bark: ['bark', 0xa09080], p17p_gate: ['planks', 0x9a8670], p17p_post: ['wood', 0x7a6a58], p17p_rivergate: ['planks', 0x8a7a68],
-    p17c_cliff: ['stone', 0x8a8278], p17c_stlo: ['stone', 0xb0aaa0], p17c_sthi: ['stone', 0xc0bab0], p17c_mole: ['blocks', 0x9a958c], p17c_flags: ['blocks', 0xa8a39b],
+    p17c_cliff: ['stone', 0x8a8278], p17c_stlo: ['stone', 0xb0aaa0], p17c_sthi: ['stone', 0xc0bab0], p17c_mole: ['flags', 0xa29f99], p17c_flags: ['flags', 0xaeaba4],
     p17c_plank: ['planks', 0xa08a70], p17c_quay: ['blocks', 0x9a958c], p17c_retain: ['stone', 0xa8a298], p17c_retain2: ['stone', 0x9a9488], p17c_retain3: ['stone', 0xb0aaa0],
     p17c_plaster: ['plaster', 0xd8ccb4], p17c_plaster2: ['plaster', 0xcfc4ae], p17c_plaster3: ['plaster', 0xe0d4bc], p17c_parapet: ['blocks', 0xb4aea4],
     p17c_front: ['plaster', 0xd4c8b0], p17c_front2: ['plaster', 0xcabea6], p17c_front3: ['plaster', 0xdcd0b8], p17c_turf: ['grass', 0xf0f0e0], p17c_turf2: ['grass', 0xe0e4d0],
@@ -297,7 +298,7 @@ const R11 = (() => {
       if (!m) m = new THREE.MeshStandardMaterial({ color: 0x0e1418, roughness: 0.06, metalness: 0, normalMap: waterNormals(), normalScale: new THREE.Vector2(0.35, 0.35), envMapIntensity: 1.6, vertexColors: true });
     } else if (b.scan) {
       m = mat(b.scan, { rough: b.rough, ns: b.ns, vc: true });
-      if (key === 'cobble') wetHook(m);
+      if (key === 'cobble' || key === 'flags') wetHook(m);   // rain wets the granite flags as it wets the cobbles
     } else {
       m = new THREE.MeshStandardMaterial({ color: b.plain, roughness: b.rough, metalness: b.metal || 0, map: b.noise ? noiseTex(b.noise) : null, vertexColors: true });
       if (key === 'glass') { m.emissive = new THREE.Color(0x1a6a7a); m.emissiveIntensity = 0.35; }
@@ -537,7 +538,7 @@ const R11 = (() => {
       if (!material) { g.dispose(); continue; }
       const mesh = new THREE.Mesh(g, material);
       mesh.name = 'r11-' + key;
-      mesh.castShadow = !(key === 'water' || key.startsWith('decal:') || key === 'cobble' || key === 'grass' || key === 'earth');
+      mesh.castShadow = !(key === 'water' || key.startsWith('decal:') || key === 'cobble' || key === 'flags' || key === 'grass' || key === 'earth');
       mesh.receiveShadow = true;
       mesh.matrixAutoUpdate = false;
       if (key === 'water') mesh.renderOrder = 1;
