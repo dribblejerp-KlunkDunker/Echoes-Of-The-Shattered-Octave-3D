@@ -27,6 +27,10 @@
 //     their dressed coping and the east rail its iron stanchions and two strung cables (game text).
 //   [PROPOSED] (army/R11-P4/HARBOUR/TEXT.md): the kerb bollards; the number of numbered lines on the Articles board; the
 //     hull colours; the bracket lanterns' places. The timber jetty off the Mole steps' landing is APPROVED (owner).
+// Fix round (10 Nov 2026, Book Two): the Mole stands twelve feet over the water (js/cantabile17.js MOLE_L) with a ramp up
+//   from the Yard (core draws the sloped cells); the Mole steps go down the landing's face to a stone stage at the water
+//   and the jetty runs from it; the parapet runs on round the head on the sea side (headParapet cells: headWall, the arc);
+//   the bollards are the map's own entities (solid in both styles), one under the bell, whose body hangs at head height.
 // Scale (art bible): R11.M units per metre; built in metres inside a group scaled by M; three.x = map x, three.z = map y,
 // three.y = game height x ZK. Draws: one mesh per material (merged), boats bob in the vertex shader (one draw per boat
 // material for all boats), lanterns and crates instanced.
