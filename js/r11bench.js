@@ -394,3 +394,27 @@ const R11BENCH = (function () {
   };
 })();
 if (typeof window !== 'undefined') window.R11BENCH = R11BENCH;
+
+// Preview jump (R11 phase 4): `?r11scene=square|gate|harbour` puts a started game at that bench camera once, so the owner
+// can test the realistic look and its speed at Port Cantabile's Long Mole or the North Gate without playing to them.
+// Nothing happens without the parameter; the save is not written by the jump itself.
+(function r11SceneJump() {
+  let want = '';
+  try { want = (new URLSearchParams(location.search).get('r11scene') || '').toLowerCase(); } catch (e) { return; }
+  if (!/^(square|gate|harbour)$/.test(want)) return;
+  let tries = 0;
+  const tick = () => {
+    tries++;
+    try {
+      const R = window.R11;
+      const cam = want === 'square' ? (R && R.benchCam) : (R && R.benchCams && R.benchCams[want]);
+      if (cam && typeof G !== 'undefined' && G.state === 'play' && typeof loadMap === 'function') {
+        loadMap(cam.map, { x: cam.x, y: cam.y, dir: cam.dir });
+        if (typeof cam.tod === 'number') G.tod = cam.tod;
+        return;
+      }
+    } catch (e) { return; }
+    if (tries < 1200) setTimeout(tick, 500);   // waits up to ten minutes for a game to be started
+  };
+  setTimeout(tick, 500);
+})();
