@@ -292,6 +292,8 @@ act, q (0..2 dues), valve, btl (0 none, 1 carrying, 2 rung, 3 sold), bell, salv,
 
 19. A gull on a bollard, giving you the look of someone who is owed money.  
 
+19a. An iron bollard, mushroom-topped, waist-high. (R11 phase 4: the Long Mole's bollards, every twenty paces down the middle, as Book Two has them.)  
+
 20. A harbour lamp on an iron post. At dusk they light the Stair one landing at a time.  
 
 21. One of Hesper's four houses. A row of small boots by the door, and the door is shut for supper.  

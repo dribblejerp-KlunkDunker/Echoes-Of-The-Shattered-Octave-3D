@@ -30,7 +30,7 @@ const ok = (c, m) => assert.ok(c, m);
 
 // the harbour view: HARBOUR's bench camera when it is there, else on the Long Mole looking west along it, water on the left
 const HARBOUR_VIEW = { map: 'cantabile_harbour', x: 66, y: 52.7, dir: 2.75, pitch: -15, tod: 0.42, weather: 'overcast' };
-const NIGHT_VIEW = { map: 'cantabile_harbour', x: 73.5, y: 52.6, dir: 3.5, pitch: -12, tod: 0.92, weather: 'clear' };
+const NIGHT_VIEW = { map: 'cantabile_harbour', x: 79.5, y: 48.0, dir: -2.3, pitch: -15, tod: 0.92, weather: 'clear' };
 const POOLS_VIEW = { map: 'deepwoods', x: 17.5, y: 35.2, dir: -Math.PI / 2, pitch: -40, tod: 0.45, weather: 'overcast' };
 const FLUME_VIEW = { map: 'oakhaven', x: 28, y: 51.6, dir: -0.2, pitch: -10, tod: 0.45, weather: 'overcast' };
 
