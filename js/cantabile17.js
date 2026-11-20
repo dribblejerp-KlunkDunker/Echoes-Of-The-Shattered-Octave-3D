@@ -1771,10 +1771,15 @@ const CANTABILE17 = (function () {
       e.lightCol = lit ? GOLD_LIGHT : (e._lampLow ? LAMP.low : null);
     }
   }
+  // the boats' swing (game units): slack at the slack, together at the turning. R11's dress asks for it each frame, as the
+  // billboards' own animLift is reset by the sprite animator before a frame is drawn
+  function boatLift(e) {
+    const amp = reduced() ? 0 : (T.key === B.SLACK ? 0 : T.key === 5 ? 0.07 : 0.026);
+    return amp * Math.sin(T.clock * 1.5 + (T.key === 5 ? 0 : (e && e._ph) || 0));
+  }
   function animateBoats() {
     const m = G.map; if (!m || !m.p17cBoats) return;
-    const amp = reduced() ? 0 : (T.key === B.SLACK ? 0 : T.key === 5 ? 0.07 : 0.026);
-    for (const e of m.p17cBoats) e.animLift = amp * Math.sin(T.clock * 1.5 + (T.key === 5 ? 0 : e._ph));
+    for (const e of m.p17cBoats) e.animLift = boatLift(e);
   }
 
   // ---------------------------------------------------------------- state derived from flags (idempotent, run on every load)
@@ -1934,7 +1939,7 @@ const CANTABILE17 = (function () {
   return {
     FP, ID, MAPS, B, T, TX, LIST, FLAGS, STAIR, MOLE_HEAD, MOLE_L, RAMP, HEAD_PARA, BOLLARDS, TEXN, FLOORS, F, ITEM_DEFS, NPC_DEFS, CAY_GRAVES, CAY_BARE, HOUSE_X, COATS,
     fint, setf, validate, start, finishExtra, resultText, answerReef, payDues, ringBottle, strikeBell, useCrate, useHook, useMast, useBoard, useListen, onUse,
-    stairLevel, buildHarbour, buildOffice, buildChandler, buildWidow, buildCay, applyMapState, arrive, reefTick, setKey, resetRun, tick, slackNow, ambience, chime, graveChime, gull, bellSound,
+    stairLevel, boatLift, buildHarbour, buildOffice, buildChandler, buildWidow, buildCay, applyMapState, arrive, reefTick, setKey, resetRun, tick, slackNow, ambience, chime, graveChime, gull, bellSound,
     teagueQuest, oonaQuest, bessaQuest, teelQuest, sloeQuest, taceQuest, dunmoreQuest, quainQuest, hesperQuest, magsQuest, ferry, placeList, paintCards, capLine, AU,
   };
 })();

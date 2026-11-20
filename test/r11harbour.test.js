@@ -223,6 +223,25 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
       ok(Math.abs(r.p.x) < 1 && r.p.y > -1 && r.p.y < 1 && r.p.z < 1, 'counting-house roof projects to ' + JSON.stringify(r.p));
       ok(r.top >= r.maxTop - 0.6, 'the counting-house is the highest roof: ' + r.top + ' vs ' + r.maxTop);
     });
+    await step('the Forge harbour kit (blend round): the boats, the kerb bollards, the casks, the coils and the lamp posts take Forge bodies; what they replace is put out; the boats still ride the swing', async () => {
+      const r = await page.evaluate(async () => {
+        S.bench(); S.frame(); const L = R11HARBOUR.last; await L.gltfDone; S.frame();
+        const by = {}; L.metres.traverse((o) => { if (o.isMesh && /^harbour:/.test(o.name)) { const k = o.name.slice(8); (by[k] = by[k] || []).push(o); } });
+        const vis = (k) => (by[k] || []).some((o) => o.visible), cnt = (k) => (by['forge-' + k] || [])[0] ? by['forge-' + k][0].count : 0;
+        const FB = L.forgeBoats, b = FB && FB.list[0], e = b && L.boats[b.id - 1].e, T = R11.THREE, m4 = new T.Matrix4();
+        let moved = null;
+        // the game's swing (js/cantabile17.js boatLift): at the turning (key 5) every boat swings together, 0.07 game units
+        if (e) { const T5 = CANTABILE17.T, k0 = T5.key, c0 = T5.clock; T5.key = 5; T5.clock = Math.PI / 3; S.frame(); FB.meshes[0].getMatrixAt(0, m4); const y1 = m4.elements[13]; T5.clock = 0; S.frame(); FB.meshes[0].getMatrixAt(0, m4); moved = Math.round((y1 - m4.elements[13]) * 1000) / 1000; T5.key = k0; T5.clock = c0; S.frame(); }
+        const lampPosts = L.lamps.filter((q) => q.post).length, forgeLamps = L.lamps.filter((q) => q.forge).length;
+        return { forge: L.stats.forge, boats: cnt('rowboat_mast'), mapBoats: L.boats.length, lamps: cnt('lamp_post'), lampPosts, forgeLamps, casks: cnt('barrel'), coils: cnt('coil'), kerb: cnt('bollard_rope'),
+          out: { hull: vis('hull'), bWood: vis('bWood'), caskWood: vis('caskWood'), coilRope: vis('coilRope'), lampIron: vis('lampIron'), kerbBoll: vis('kerbBoll') }, mole: vis('boll'), moved, draws: L.stats.draws };
+      });
+      console.log('  ' + JSON.stringify(r));
+      ok(r.forge && ['rowboat_mast', 'bollard_rope', 'barrel', 'coil', 'lamp_post'].every((n) => r.forge.includes(n)), 'the Forge models in: ' + JSON.stringify(r.forge));
+      ok(r.boats === r.mapBoats && r.lamps === r.lampPosts && r.forgeLamps === r.lampPosts && r.casks > 10 && r.coils >= 5 && r.kerb >= 2, 'a Forge body each: ' + JSON.stringify(r));
+      ok(Object.values(r.out).every((v) => v === false) && r.mole === true, 'the replaced procedural props are out, the Mole\'s own (Book Two) bollards stay: ' + JSON.stringify(r.out) + ' ' + r.mole);
+      ok(r.moved > 0.1 && r.moved < 0.16, 'a Forge boat rides the game\'s swing (0.07 x 1.875 m): ' + r.moved + ' m');
+    });
     await page.waitForTimeout(6000);   // the glTF lanterns and crates arrive after the first frame of a map
     await step('Phone: the bench shot, side-by-sides against picture 3, draws reported (aim <= 200)', async () => {
       const r = await page.evaluate(() => { S.bench(); S.frame(); return { draws: R11.stats.draws, harbour: R11HARBOUR.last.stats.draws, tier: R11.tier(), all: S.stats(0, 0, 1, 1), sky: S.stats(0.3, 0.02, 0.7, 0.15), ground: S.stats(0.3, 0.75, 0.7, 0.98) }; });
@@ -241,15 +260,15 @@ async function sideBySide(page, oursPng, outColour, outGrey) {
         const dayL = S.stats(0, 0, 1, 1);
         S.bench(0.95); S.frame(); const night = { flames: onCount(), win: M.winLit.emissiveIntensity, light: (L.lights[0] || {}).intensity }; const nightL = S.stats(0, 0, 1, 1);
         // the game's own swing (cantabile17 animateBoats) drives each map boat: the uniform carries e.animLift in metres
-        S.bench(); S.frame(); const k = 0.61875 / R11.M; let agree = 0; for (const b of L.boats) if (b.e && Math.abs(M.U.lift.value[b.id] - (+b.e.animLift || 0) * k) < 1e-6) agree++;
+        S.bench(); CANTABILE17.T.key = 5; CANTABILE17.T.clock = 0.4; S.frame(); const k = 0.61875 / R11.M; let agree = 0, moving = 0; for (const b of L.boats) if (b.e) { const want = CANTABILE17.boatLift(b.e) * k; if (Math.abs(M.U.lift.value[b.id] - want) < 1e-6) agree++; if (Math.abs(want) > 1e-3) moving++; }
         const own = L.boats.filter((b) => !b.e).map((b) => M.U.lift.value[b.id]);
-        return { day, night, dayL, nightL, agree, mapBoats: L.boats.filter((b) => b.e).length, own };
+        return { day, night, dayL, nightL, agree, moving, mapBoats: L.boats.filter((b) => b.e).length, own };
       });
       console.log('  ' + JSON.stringify(r));
       ok(r.day.flames === 0 && r.day.win === 0, 'by day ' + JSON.stringify(r.day));
       ok(r.night.flames > 10 && r.night.win > 1 && r.night.light > 0, 'at night ' + JSON.stringify(r.night));
       ok(r.nightL < r.dayL && r.nightL > 5, 'night ' + r.nightL + ' day ' + r.dayL);
-      ok(r.agree === r.mapBoats && r.mapBoats > 0, 'the boats ride the game\'s swing: ' + r.agree + '/' + r.mapBoats);
+      ok(r.agree === r.mapBoats && r.mapBoats > 0 && r.moving > 0, 'the boats ride the game\'s swing: ' + r.agree + '/' + r.mapBoats + ', ' + r.moving + ' moving');
     });
     await step('Ultra: the bench shot and side-by-sides are written; draws reported', async () => {
       const r = await page.evaluate(() => { R11.setTier('ultra'); S.bench(); S.frame(); return { draws: R11.stats.draws, tier: R11.tier() }; });
