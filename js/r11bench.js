@@ -115,7 +115,9 @@ const R11BENCH = (function () {
     if (st.running || st.frozen) return st.scale;
     checkFirstPlay(dtMs);
     st.win.push(dtMs); if (st.win.length > 60) st.win.shift();
-    if (st.win.length >= 30 && st.clock - st.lastStep >= 1000) {
+    // the median is taken four times a second, not every frame (it copies and sorts the window)
+    if (st.win.length >= 30 && st.clock - st.lastStep >= 1000 && st.clock - (st.lastMed || 0) >= 250) {
+      st.lastMed = st.clock;
       const med = median(st.win), b = BUDGET[st.tier] || BUDGET.high;
       if (med > b && st.scale > 0.5) { st.scale = Math.max(0.5, Math.round((st.scale - 0.1) * 100) / 100); st.lastStep = st.clock; st.win.length = 0; }
       else if (med < b * 0.75 && st.scale < 1) { st.scale = Math.min(1, Math.round((st.scale + 0.05) * 100) / 100); st.lastStep = st.clock; st.win.length = 0; }
@@ -388,7 +390,32 @@ const R11BENCH = (function () {
     sample, renderScale, autoTier, run, report, choose, choice, pick, hints, buildPath, TEXTS, TIERS, BUDGET, SCENE, WAYPOINTS,
     tier: () => st.tier, budget: () => BUDGET[st.tier], running: () => !!st.running,
     // test hooks
-    state: st, _reset() { st.scale = 1; st.win.length = 0; st.clock = 0; st.lastStep = -1e9; },
+    state: st, _reset() { st.scale = 1; st.win.length = 0; st.clock = 0; st.lastStep = -1e9; st.lastMed = -1e9; },
   };
 })();
 if (typeof window !== 'undefined') window.R11BENCH = R11BENCH;
+
+// Preview jump (R11 phase 4): `?r11scene=square|gate|harbour` puts a started game at that bench camera once, so the owner
+// can test the realistic look and its speed at Port Cantabile's Long Mole or the North Gate without playing to them.
+// Nothing happens without the parameter. It is a test tool: the started game is moved and given the bench camera's flags.
+(function r11SceneJump() {
+  let want = '';
+  try { want = (new URLSearchParams(location.search).get('r11scene') || '').toLowerCase(); } catch (e) { return; }
+  if (!/^(square|gate|harbour)$/.test(want)) return;
+  let tries = 0;
+  const tick = () => {
+    tries++;
+    try {
+      const R = window.R11;
+      const cam = want === 'square' ? (R && R.benchCam) : (R && R.benchCams && R.benchCams[want]);
+      if (cam && typeof G !== 'undefined' && G.state === 'play' && typeof loadMap === 'function') {
+        if (cam.flags && G.flags) Object.assign(G.flags, cam.flags);   // the scene as the bench shows it (the gate open); a test jump, like the move itself
+        loadMap(cam.map, { x: cam.x, y: cam.y, dir: cam.dir });
+        if (typeof cam.tod === 'number') G.tod = cam.tod;
+        return;
+      }
+    } catch (e) { return; }
+    if (tries < 1200) setTimeout(tick, 500);   // waits up to ten minutes for a game to be started
+  };
+  setTimeout(tick, 500);
+})();

@@ -143,7 +143,7 @@ const R11 = (() => {
     if (TIERS[opts0.tier]) st.tier = opts0.tier;
     if (!st.tier) {
       let t = null;
-      try { if (typeof R11BENCH !== 'undefined' && R11BENCH && typeof R11BENCH.autoTier === 'function') t = R11BENCH.autoTier(); } catch (e) { t = null; }
+      try { if (allowed && typeof R11BENCH !== 'undefined' && R11BENCH && typeof R11BENCH.autoTier === 'function') t = R11BENCH.autoTier(); } catch (e) { t = null; }   // automation without the opt-in writes nothing
       if (!TIERS[t]) { let coarse = false; try { coarse = matchMedia('(pointer: coarse)').matches; } catch (e) { /* fine */ } t = automation ? 'phone' : coarse ? 'phone' : 'ultra'; }
       st.tier = t;
     }
@@ -390,7 +390,10 @@ const R11 = (() => {
     const sideOf = (cx, cy) => { const n = m.sideTex && m.sideTex[cy * W + cx]; return has(n) ? n : texOfFloor(cx, cy); };
     const wTop0 = wallTop0(m);
     const blockTop = (c, cx, cy, fx, fy) => relief ? (c.top != null ? c.top : Math.max(cellGround(m, cx, cy, fx, fy) + 1, wTop0)) : (c.top != null ? c.top : 1);
-    const surfAt = (cx, cy, fx, fy) => { const c = grid[cy * W + cx]; if (isBlock(c)) return blockTop(c, cx, cy, fx, fy); return relief ? cellGround(m, cx, cy, fx, fy) : 0; };
+    // water floors are sunk 0.05 (below): the faces beside them reach down to the water, so no gap shows the clear colour
+    const sinkOf = (cx, cy) => (info(texOfFloor(cx, cy)).key === 'water' ? -0.05 : 0);
+    const surfAt = (cx, cy, fx, fy) => { const c = grid[cy * W + cx]; if (isBlock(c)) return blockTop(c, cx, cy, fx, fy); return (relief ? cellGround(m, cx, cy, fx, fy) : 0) + sinkOf(cx, cy); };
+    const besideWater = (cx, cy) => { for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const x = cx + dx, y = cy + dy; if (x >= 0 && y >= 0 && x < W && y < H && !isBlock(grid[y * W + x]) && sinkOf(x, y)) return true; } return false; };
     const decals = m.decals || null;
     const decOf = (ci) => { const n = decals && decals[ci]; return has(n) ? n : null; };
     const hid = (ci) => !!(hidden && hidden.has(ci));
@@ -470,7 +473,7 @@ const R11 = (() => {
     for (let cy = 0; cy < H; cy++) for (let cx = 0; cx < W; cx++) {
       const ci = cy * W + cx, c = grid[ci], blk = isBlock(c);
       if (hid(ci)) continue;
-      if (!blk && !relief) continue;
+      if (!blk && !relief && (sinkOf(cx, cy) || !besideWater(cx, cy))) continue;
       for (let k = 0; k < 4; k++) {
         const nxC = cx + DIRS[k][0], nyC = cy + DIRS[k][1];
         if (nxC < 0 || nyC < 0 || nxC >= W || nyC >= H) {
@@ -482,7 +485,7 @@ const R11 = (() => {
         const ef = edgeF(k), en = edgeFN(k);
         const sa = surfAt(cx, cy, ef[0], ef[1]), sb = surfAt(cx, cy, ef[2], ef[3]);
         let na, nb;
-        if (!relief) { na = nb = isBlock(nc) ? (nc.top != null ? nc.top : 1) : 0; }
+        if (!relief) { na = nb = isBlock(nc) ? (nc.top != null ? nc.top : 1) : sinkOf(nxC, nyC); }
         else { na = surfAt(nxC, nyC, en[0], en[1]); nb = surfAt(nxC, nyC, en[2], en[3]); }
         if (blk) {
           const name = has(c.tex) ? c.tex : 't_stone', dec = decOf(ci);
@@ -1164,11 +1167,11 @@ void main() {
       const L = Ls[i], br = Math.max(L.cr || 0, L.cg || 0, L.cb || 0);
       if (br <= 1 || !(L.r > 0)) continue;
       const dx = L.x - cx, dy = L.y - cy;
-      candidates.push({ d: Math.sqrt(dx * dx + dy * dy) - L.r * 0.3, x: L.x, y: (L.z != null ? L.z : (ground(env.map, L.x, L.y) + 0.55)) * ZK, z: L.y, r: (L.cr || 0) / br, g: (L.cg || 0) / br, b: (L.cb || 0) / br, I: 0.9 * Math.min(2, br / 70), dist: L.r * 1.25, warm: true });
+      candidates.push({ d: Math.sqrt(dx * dx + dy * dy) - L.r * 0.3, x: L.x, y: (L.z != null ? L.z : (ground(env.map, L.x, L.y) + 0.55)) * ZK, z: L.y, r: (L.cr || 0) / br, g: (L.cg || 0) / br, b: (L.cb || 0) / br, I: 0.9 * Math.min(2, br / 70), dist: L.r * 1.25, warm: (L.cr || 0) >= (L.cb || 0) });
     }
     if (!_wp) _wp = new THREE.Vector3();
     for (const k of kitLights) {
-      const l = k.light; if (!l) continue;
+      const l = k.light; if (!l || !(l.intensity > 0)) continue;   // a dresser's lamp put out by day takes no pool slot
       l.getWorldPosition(_wp);
       const dx = _wp.x - cx, dy = _wp.z - cy;
       candidates.push({ d: Math.sqrt(dx * dx + dy * dy) - (k.priority || 0), x: _wp.x, y: _wp.y, z: _wp.z, r: l.color.r, g: l.color.g, b: l.color.b, I: l.intensity, dist: l.distance || 3, decay: l.decay, warm: l.color.r > l.color.b });
@@ -1259,6 +1262,7 @@ void main() {
   const allArr = (m) => arrSig(m.lvls) ^ arrSig(m.verts) * 3 ^ arrSig(m.floorCells) * 5 ^ arrSig(m.ceilCells) * 7 ^ (Array.isArray(m.decals) ? arrSig(m.decals) : objSig(m.decals)) * 11 ^ arrSig(m.sideTex) * 13;
   function disposeTree(o) {
     o.traverse((x) => {
+      if (x.isInstancedMesh && x.dispose) x.dispose();   // frees instanceMatrix / instanceColor and the mesh's binding state
       if (x.geometry && x.geometry.dispose) x.geometry.dispose();
       const ms = x.material ? [].concat(x.material) : [];
       for (const mm of ms) {
@@ -1370,7 +1374,7 @@ void main() {
     if (t.bloom) { const b = new T3.UnrealBloomPass(new THREE.Vector2(size.x, size.y), LOOK.bloomStrength, LOOK.bloomRadius, LOOK.bloomThreshold); C.addPass(b); R.passes.bloom = b; }
     // the output pass is the grade (exposure, AgX, the LOOK grade, sRGB): no extra full-screen pass
     const gp = gradePass(); C.addPass(gp); R.passes.grade = gp;
-    if (t.smaa) { C.addPass(new T3.SMAAPass()); }
+    if (t.smaa) { const sp = new T3.SMAAPass(); C.addPass(sp); R.passes.smaa = sp; }
     R.composer = C;
   }
   function applyTier() {
@@ -1401,13 +1405,20 @@ void main() {
       : typeof R11KIT !== 'undefined' && R11KIT && typeof R11KIT.viewmodel === 'function' ? R11KIT : null;
     if (!K) return;
     const kind = weaponKind();
-    if (!VM.arm) { try { VM.arm = K.viewmodel('glass-arm'); if (VM.arm && VM.arm.group) R.vmScene.add(VM.arm.group); } catch (e) { warnOnce('kit viewmodel arm', e); VM.arm = { group: null }; } }
+    if (!VM.arm) {
+      let a = null;
+      try { a = K.viewmodel('glass-arm'); } catch (e) { warnOnce('viewmodel arm', e); }
+      if (!(a && a.group) && typeof R11KIT !== 'undefined' && R11KIT && K !== R11KIT && typeof R11KIT.viewmodel === 'function') { try { a = R11KIT.viewmodel('glass-arm'); } catch (e) { warnOnce('kit viewmodel arm', e); } }
+      VM.arm = (a && a.group) ? a : { group: null };   // a stand-in when neither gives an arm, so it is not asked for again every frame
+      if (VM.arm.group) R.vmScene.add(VM.arm.group);
+    }
     if (kind !== VM.kind) {
       if (VM.weapon && VM.weapon.group) { R.vmScene.remove(VM.weapon.group); disposeTree(VM.weapon.group); }
       VM.weapon = null; VM.kind = kind;
       if (kind !== 'hands') { try { VM.weapon = K.viewmodel(kind); if (VM.weapon && VM.weapon.group) R.vmScene.add(VM.weapon.group); } catch (e) { warnOnce('kit viewmodel', e); } }
     }
-    for (const v of [VM.arm, VM.weapon]) if (v && typeof v.update === 'function') { try { v.update(t, walk); } catch (e) { warnOnce('kit vm update', e); } }
+    const vmUp = (v) => { if (v && typeof v.update === 'function') { try { v.update(t, walk, F); } catch (e) { warnOnce('kit vm update', e); } } };
+    vmUp(VM.arm); vmUp(VM.weapon);
     // the hands take the world's light (the same sky and ground colours, the same environment strength), so at night and
     // indoors they are as dim as the street they are held in, not lit like noon
     if (R.vmHemi && R.hemi) {
@@ -1640,12 +1651,14 @@ void main() {
     // Crosshair, names, messages and the panel draw as before. Pixel style never enters here.
     if (typeof drawHUD === 'function') {
       const _hud = drawHUD, NONE = { img: '__r11_none__', name: '', type: 'iron', speed: 0.4 };
-      const fpSet = () => { const s = new Set(); try { for (const k in Engine.images) if (k.slice(0, 3) === 'fp_') s.add(Engine.images[k]); } catch (e) { /* none */ } return s; };
+      const fpKeys = [];   // the fp_ keys, listed once per HUD draw; body21 swaps its tinted copies into these same keys, so the
+      const isFp = (img) => { for (let i = 0; i < fpKeys.length; i++) if (Engine.images[fpKeys[i]] === img) return true; return false; };   // compare live
       drawHUD = function () {
         if (!(st.inFrame && st.drew && VM.arm && VM.arm.group) || typeof Engine === 'undefined' || !Engine.ctx) return _hud.apply(this, arguments);
         const ctx = Engine.ctx, own = Object.prototype.hasOwnProperty.call(ctx, 'drawImage'), prev = ctx.drawImage;
         const g0 = typeof GFX !== 'undefined' ? GFX.body21 : undefined, cw = typeof currentWeapon === 'function' ? currentWeapon : null;
-        ctx.drawImage = function (img) { if (fpSet().has(img)) return; return prev.apply(this, arguments); };
+        fpKeys.length = 0; try { for (const k in Engine.images) if (k.slice(0, 3) === 'fp_') fpKeys.push(k); } catch (e) { /* none */ }
+        ctx.drawImage = function (img) { if (isFp(img)) return; return prev.apply(this, arguments); };
         if (typeof GFX !== 'undefined') GFX.body21 = false;
         if (cw) currentWeapon = () => NONE;
         try { return _hud.apply(this, arguments); } finally {
@@ -1700,6 +1713,8 @@ void main() {
     memory: () => (renderer ? Object.assign({}, renderer.info.memory) : null),
     pickFrameCam: () => vcam, replaced: () => replacedNow,
     benchCam, look: { get: lookGet, set: lookSet, gradeGLSL: (u) => gradeGLSL('r11Grade', !!u) },
+    originalPreset: originalish,   // true under the Original/plain preset, where the game keeps its original look (HUD included)
+    wet: () => WET.value,   // 0 dry .. 1 soaked: the cobbles' wetness (rain or storm only); KIT fades its puddles by it
   };
   function boot() {
     load();

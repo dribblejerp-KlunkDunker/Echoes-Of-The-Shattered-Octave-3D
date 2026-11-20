@@ -192,6 +192,10 @@ gl_Position = projectionMatrix * mvPosition;`);
     // a puddle: still water over the cobbles, its edge soaking out into wet stone (alpha falls off toward the rim)
     const pudA = canvasTex(THREE, 128, 128, (g, w, h) => { const gr = g.createRadialGradient(w / 2, h / 2, 8, w / 2, h / 2, 64); gr.addColorStop(0, '#fff'); gr.addColorStop(0.62, '#e8e8e8'); gr.addColorStop(1, '#000'); g.fillStyle = gr; g.fillRect(0, 0, w, h); }, false);
     M.puddle = new THREE.MeshStandardMaterial({ color: 0x2c3236, roughness: 0.05, metalness: 0.0, envMapIntensity: 1.6, alphaMap: pudA, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+    M.buttWater = M.puddle.clone();
+    // the owner's ruling (9 Nov 2026): the ground is wet only in rain or storm, so the standing puddles fade with CORE's wetness
+    // (R11.wet(): 0 dry .. 1 soaked); a cask's rainwater (buttWater) stays
+    M.puddle.userData.r11wetFade = true; M.puddle.opacity = 0; M.puddle.visible = false;
     const cloth = (base, stripe) => canvasTex(THREE, 256, 256, (g, w, h) => {
       g.fillStyle = base; g.fillRect(0, 0, w, h);
       if (stripe) for (let x = 0; x < w; x += 64) { g.fillStyle = stripe; g.fillRect(x, 0, 30, h); }
@@ -1094,7 +1098,7 @@ gl_Position = projectionMatrix * mvPosition;`);
     const P = (key, geo, yy) => { if (side) f.part(key, geo, 0, oy, oz + yy, 0, rx); else f.part(key, geo, 0, yy, 0); };
     P('boards', g, 0);
     for (const [yy, r] of [[0.12, 0.295], [0.45, 0.335], [0.78, 0.295]]) P('iron', new THREE.TorusGeometry(r * s, 0.014, 4, 18).rotateX(PI / 2).translate(0, yy * s, 0), 0);
-    if (open) P('puddle', new THREE.CircleGeometry(0.25 * s, 14).rotateX(-PI / 2).translate(0, 0.8 * s, 0), 0);
+    if (open) P('buttWater', new THREE.CircleGeometry(0.25 * s, 14).rotateX(-PI / 2).translate(0, 0.8 * s, 0), 0);   // rain kept in the butt, whatever the day
   }
   function cart(B, x, z, ry, y) {   // a two-wheeled handcart, shafts down
     const THREE = B.THREE, f0 = B.frame(x, z, ry, y || 0), f = f0.sub(0, -0.45, 0);
@@ -1975,6 +1979,20 @@ gl_Position = projectionMatrix * mvPosition;`);
       },
     };
   }
+
+  // the standing puddles follow the weather (owner's ruling: wet only in rain or storm); hooked once, when R11 is up
+  let wetHooked = false;
+  function hookWet() {
+    if (wetHooked || typeof window === 'undefined' || !window.R11 || typeof window.R11.on !== 'function') return;
+    wetHooked = true;
+    window.R11.on('frame', () => {
+      const m = MATS && MATS.puddle; if (!m) return;
+      let w = 0; try { w = typeof window.R11.wet === 'function' ? +window.R11.wet() || 0 : 0; } catch (e) { w = 0; }
+      const o = Math.max(0, Math.min(1, (w - 0.3) / 0.4));
+      m.opacity = o; m.visible = o > 0.01;
+    });
+  }
+  if (typeof window !== 'undefined') { hookWet(); window.addEventListener('r11three', hookWet); setTimeout(hookWet, 0); }
 
   return {
     TEXTS, dressMap, viewmodel, kindFor, setTier, countDraws, TIERS, units: UPM, kinds: () => [...VM_KINDS],
