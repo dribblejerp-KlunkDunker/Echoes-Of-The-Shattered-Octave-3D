@@ -16,7 +16,9 @@
 //  are and say nothing until the harbour has counted (js/cantabile17.js T.count).
 //  R11 phase 4 (owner's ruling 9 Nov 2026, Book Two): the Long Mole is twenty feet wide with a parapet on the sea side and
 //  its moorings on the harbour side, so the pilot watches the sea over the parapet and the caulker and the night fisher
-//  work the harbour edge, and the two Free Captains argue a little further out.
+//  work the harbour edge, and the two Free Captains argue a little further out. The fix round raised the Mole twelve feet
+//  over the water (Book Two) with a ramp up from the Yard: they keep to the Yard's level and to the Mole's flags, and go up
+//  and down by the ramp (never off its side), and the bollards down the middle stand clear of their places.
 //  The Flambeaux at the counting-house and the Book Two scenes are not staged, as in the extra.
 // ============================================================
 'use strict';
@@ -91,7 +93,7 @@ const LIFE64_CANT = (function () {
       greet: S('"Free Captain, and free to tell you to mind your business. Politely."'),
       barks: [S('A Free Captain: "...and I say it\'s my fifth, by the Articles, and he says—"'), S('A Free Captain, hand on heart: "On the Articles. On the drop."')] },
     { key: 'capB', name: S('A Free Captain'), sprite: 'p16f_dockman', home: STAIR,
-      day: [home(16, 10), st(10, 16, 'chat', [65.9, 51.0], { face: 'capA' })],
+      day: [home(16, 10), st(10, 16, 'chat', [65.8, 50.55], { face: 'capA' })],
       greet: S('She is listening to the other captain with the expression of a woman counting how far it is from the Mole to the derrick.'),
       barks: [S('A Free Captain: "Then take it to the Queen. Take it to the Queen, and take your boots off first."')] },
     { key: 'sluice', name: S('A boy with a bucket'), sprite: 'p17c_child', scale: 0.8, home: STAIR,
@@ -132,11 +134,19 @@ const LIFE64_CANT = (function () {
   ];
 
   // they keep to the quay: flags and Mole, never the sea, the shallows or the cliff
+  const MOLE = 1;                                                 // js/cantabile17.js F.mole: the Long Mole, its landing, the head, the ramp
   const walk = (m, x, y) => {
     try {
       const f = m.floorCells[y * m.w + x];
       if (f === 2 || f === 3) return false;                       // water, shallows (js/cantabile17.js F.water / F.shal)
-      return Math.abs(m.lvlAt(x + 0.5, y + 0.5) - 0.4) < 0.3;     // the Yard's level: not the Stair or the terraces
+      if (f === MOLE) return true;                                // the Mole's flags at any height (it stands twelve feet up)
+      if (Math.abs(m.lvlAt(x + 0.5, y + 0.5) - 0.4) >= 0.3) return false;   // the Yard's level: not the Stair or the terraces
+      // not the Yard's flags at the foot of the ramp's side walls: up and down by the ramp itself, never off its side
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= m.w || ny >= m.h) continue;
+        if (m.floorCells[ny * m.w + nx] === MOLE && m.lvlAt(nx + 0.5, ny + 0.5) > 0.75) return false;
+      }
+      return true;
     } catch (e) { return true; }
   };
   const pause = () => { try { return typeof CANTABILE17 !== 'undefined' && CANTABILE17.T && CANTABILE17.T.count > 0; } catch (e) { return false; } };
