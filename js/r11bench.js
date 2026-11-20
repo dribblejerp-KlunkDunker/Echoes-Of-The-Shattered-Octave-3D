@@ -397,7 +397,7 @@ if (typeof window !== 'undefined') window.R11BENCH = R11BENCH;
 
 // Preview jump (R11 phase 4): `?r11scene=square|gate|harbour` puts a started game at that bench camera once, so the owner
 // can test the realistic look and its speed at Port Cantabile's Long Mole or the North Gate without playing to them.
-// Nothing happens without the parameter; the save is not written by the jump itself.
+// Nothing happens without the parameter. It is a test tool: the started game is moved and given the bench camera's flags.
 (function r11SceneJump() {
   let want = '';
   try { want = (new URLSearchParams(location.search).get('r11scene') || '').toLowerCase(); } catch (e) { return; }
@@ -409,6 +409,7 @@ if (typeof window !== 'undefined') window.R11BENCH = R11BENCH;
       const R = window.R11;
       const cam = want === 'square' ? (R && R.benchCam) : (R && R.benchCams && R.benchCams[want]);
       if (cam && typeof G !== 'undefined' && G.state === 'play' && typeof loadMap === 'function') {
+        if (cam.flags && G.flags) Object.assign(G.flags, cam.flags);   // the scene as the bench shows it (the gate open); a test jump, like the move itself
         loadMap(cam.map, { x: cam.x, y: cam.y, dir: cam.dir });
         if (typeof cam.tod === 'number') G.tod = cam.tod;
         return;
