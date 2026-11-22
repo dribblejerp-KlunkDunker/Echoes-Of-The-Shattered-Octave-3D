@@ -32,6 +32,29 @@ The game now has a second renderer: Three.js 0.186.1 (vendored, MIT) drawing the
 </tr>
 </table>
 
+**Phase 4, the Hedge gate and Port Cantabile's harbour** (pictures 2 and 3):
+- **The Hedge** is real geometry all the way round Oakhaven: thorn, packed wool with tufts caught in the thorn, posts, felt and sacking, three men deep (Book One).
+- **The North Gate** has its gateposts, coin on the gatepost and the mounting-block. Old Harrow keeps it. The Last Sheaf hangs over it once the game says it has been hung.
+- **The Long Mole now follows Book Two**, in both looks:
+  - a twelve-foot drop to the harbour on the left as you walk out, with iron rungs in the face;
+  - the sea on the right, behind a chest-high granite parapet that runs round the Mole-head;
+  - iron bollards every twenty paces down the middle;
+  - the round Mole-head with the mast-tower, and the Mole-bell on its bracket at head height.
+- **New water** everywhere: dark green, rippled, reflecting the sky and the lamps.
+- **Forge models**: the boats, lamp posts, casks and rope come from the owner's Forge harbour kit, awaiting approval in the Review Room.
+
+To jump straight to a scene for testing, add `?r11scene=harbour`, `?r11scene=gate` or `?r11scene=square` to the address and start a new game.
+
+<p align="center"><img src="screenshots/r11/p4-harbour-sbs.jpg" alt="Side by side: the Long Mole in the game (left) and the owner's picture 3 (right)" width="880"></p>
+<p align="center"><img src="screenshots/r11/p4-gate-sbs.jpg" alt="Side by side: the North Gate from inside Oakhaven (left) and the owner's picture 2 (right)" width="880"></p>
+
+<table>
+<tr>
+<td width="50%"><img src="screenshots/r11/p4-long-mole.jpg" alt="Walking out along the Long Mole: the harbour and its boats on the left, the granite parapet on the right, iron bollards down the middle, the mast-tower and the derrick at the Mole-head"></td>
+<td width="50%"><img src="screenshots/r11/p4-harbour-town.jpg" alt="From the Mole-head: the derrick, the moored boats, and the lime-washed houses of the town on the cliff"></td>
+</tr>
+</table>
+
 Built so far: Oakhaven's 32 buildings (the Greenhall, the Boar & Dulcimer, the Chapel with its empty belfry, the mooring mast), the well-house, iron-bark oaks, hush-lamps, stalls, casks and carts, the far ring (the Grey Teeth, the downs, Greenroot's spire), 13 first-person weapon kinds and the glass arm, and the bronze HUD with a phone layout. Still to come (ROADMAP R11): the Hedge gate and Port Cantabile's mole, 3D townsfolk (they and the bunting are still pixel sprites), every other map, and frame-time checks on real devices. Other maps draw in the realistic renderer with the base materials (scanned stone, timber, turf) until their own kits exist.
 
 # Echoes of the Shattered Octave · Book One

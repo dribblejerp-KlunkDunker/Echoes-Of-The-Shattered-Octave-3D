@@ -55,7 +55,9 @@ const R11HUD = (function () {
     try { const o = JSON.parse(localStorage.getItem(KEY) || 'null'); if (o && (o.style === 'realistic' || o.style === 'pixel')) return o.style; } catch (e) { /* storage blocked */ }
     return 'realistic';
   }
-  const active = () => !automationBlocked() && style() === 'realistic';
+  // the Original preset keeps the original look, its HUD included (R11.originalPreset), whatever the style says
+  function originalPreset() { try { return !!(window.R11 && typeof window.R11.originalPreset === 'function' && window.R11.originalPreset()); } catch (e) { return false; } }
+  const active = () => !automationBlocked() && style() === 'realistic' && !originalPreset();
 
   // ---------------------------------------------------------------- French
   function loc() { try { return window.STORY_I18N ? window.STORY_I18N.locale : 'en'; } catch (e) { return 'en'; } }
